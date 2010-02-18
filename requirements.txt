@@ -1,0 +1,2 @@
+# These are the requirements to run the test suite.
+nose
