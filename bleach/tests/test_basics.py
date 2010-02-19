@@ -19,8 +19,17 @@ def test_bad_html():
         bleach.clean('a <em>fixed tag'))
 
 
+def test_function_arguments():
+    TAGS = ['span']
+    ATTRS = ['style']
+
+    eq_('a <span style="color: red;">test</span>',
+        bleach.clean('a <span style="color:red">test</span>',
+                     allowed_tags=TAGS, allowed_attributes=ATTRS))
+
+
 def test_disallowed_html():
-    eq_('a test',
+    eq_('a &lt;script&gt;safe()&lt;/script&gt; test',
         bleach.clean('a <script>safe()</script> test'))
-    eq_('a test',
+    eq_('a &lt;style&gt;body{}&lt;/style&gt; test',
         bleach.clean('a <style>body{}</style> test'))
