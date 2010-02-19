@@ -1,9 +1,9 @@
 from nose.tools import eq_
 
-from bleach import bleach
+from bleach import Bleach
 
 """More advanced security tests"""
-b = bleach()
+b = Bleach()
 
 
 def test_nested_script_tag():

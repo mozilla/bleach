@@ -1,1 +1,1 @@
-from bleach import bleach
+from bleach import Bleach

@@ -52,7 +52,7 @@ punctuation_re = re.compile('^(?P<lead>(?:%s)*)(?P<middle>.*?)(?P<trail>(?:%s)*)
 simple_email_re = re.compile(r'^\S+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+$')
 
 
-class bleach:
+class Bleach:
 
     def clean(self, string, tags=None, attributes=None):
         """Clean an HTML string and return it"""

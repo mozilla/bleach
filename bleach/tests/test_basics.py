@@ -1,8 +1,8 @@
 from nose.tools import eq_
 
-from bleach import bleach
+from bleach import Bleach
 
-b = bleach()
+b = Bleach()
 
 def test_no_html():
     eq_('no html string', b.clean('no html string'))

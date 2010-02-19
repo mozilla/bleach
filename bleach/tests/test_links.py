@@ -1,12 +1,12 @@
 from nose.tools import eq_
 import urllib
 
-from bleach import bleach
+from bleach import Bleach
 
-b = bleach()
+b = Bleach()
 
 
-class cleach(bleach):
+class cleach(Bleach):
     def filter_url(self, url):
         return u'http://bouncer/?u=%s' % urllib.quote_plus(url)
 
