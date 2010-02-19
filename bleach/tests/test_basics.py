@@ -22,7 +22,7 @@ def test_bad_html():
 
 def test_function_arguments():
     TAGS = ['span']
-    ATTRS = ['style']
+    ATTRS = {'span': ['style']}
 
     eq_('a <span style="color: red;">test</span>',
         b.clean('a <span style="color:red">test</span>',

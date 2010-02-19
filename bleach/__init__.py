@@ -8,7 +8,7 @@ from django.utils.http import urlquote
 from django.utils.html import escape
 
 import html5lib
-from html5lib import sanitizer
+from sanitizer import BleachSanitizer
 
 ALLOWED_TAGS = [
     'a',
@@ -25,10 +25,11 @@ ALLOWED_TAGS = [
     'ul',
 ]
 
-ALLOWED_ATTRIBUTES = [
-    'href',
-    'title',
-]
+ALLOWED_ATTRIBUTES = {
+    'a': ['href', 'title'],
+    'abbr': ['title'],
+    'acronym': ['title'],
+}
 
 # Configuration for linkify() function.
 LEADING_PUNCTUATION  = ['(', '<', '&lt;']
@@ -63,7 +64,7 @@ class Bleach:
         if attributes is None:
             attributes = ALLOWED_ATTRIBUTES
 
-        class s(sanitizer.HTMLSanitizer):
+        class s(BleachSanitizer):
             allowed_elements = tags
             allowed_attributes = attributes
 
