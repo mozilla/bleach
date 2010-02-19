@@ -1,25 +1,45 @@
 from nose.tools import eq_
+import urllib
 
-import bleach
+from bleach import bleach
+
+b = bleach()
+
+
+class cleach(bleach):
+    def mangle_url(self, url):
+        return u'http://bouncer/?u=%s' % urllib.quote_plus(url)
+
+c = cleach()
 
 
 def test_simple_link():
     eq_('a <a href="http://example.com" rel="nofollow">http://example.com</a> link',
-        bleach.linkify('a http://example.com link'))
+        b.linkify('a http://example.com link'))
     eq_('a <a href="https://example.com" rel="nofollow">https://example.com</a> link',
-        bleach.linkify('a https://example.com link'))
+        b.linkify('a https://example.com link'))
 
 
-def test_prefix_link():
+def test_mangle_link():
     eq_('<a href="http://bouncer/?u=http%3A%2F%2Fexample.com" rel="nofollow">http://example.com</a>',
-        bleach.linkify('http://example.com', prefix='http://bouncer/?u='))
+        c.linkify('http://example.com'))
 
 
 def test_email_link():
     eq_('a <a href="mailto:james@example.com">james@example.com</a> mailto',
-        bleach.linkify('a james@example.com mailto'))
+        b.linkify('a james@example.com mailto'))
 
 
 def test_email_with_prefix():
     eq_('a <a href="mailto:james@example.com">james@example.com</a> mailto',
-        bleach.linkify('a james@example.com mailto', prefix='http://bouncer/?u='))
+        b.linkify('a james@example.com mailto'))
+
+
+def test_tlds():
+    eq_('<a href="http://example.com" rel="nofollow">example.com</a>',
+        b.linkify('example.com'))
+    eq_('<a href="http://example.co.uk" rel="nofollow">example.co.uk</a>',
+        b.linkify('example.co.uk'))
+    eq_('<a href="http://example.edu" rel="nofollow">example.edu</a>',
+        b.linkify('example.edu'))
+    eq_('example.xxx', b.linkify('example.xxx'))
