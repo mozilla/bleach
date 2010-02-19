@@ -55,14 +55,8 @@ simple_email_re = re.compile(r'^\S+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+$')
 
 class Bleach:
 
-    def clean(self, string, tags=None, attributes=None):
+    def clean(self, string, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES):
         """Clean an HTML string and return it"""
-
-        if tags is None:
-            tags = ALLOWED_TAGS
-
-        if attributes is None:
-            attributes = ALLOWED_ATTRIBUTES
 
         class s(BleachSanitizer):
             allowed_elements = tags
