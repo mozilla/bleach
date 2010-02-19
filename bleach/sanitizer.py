@@ -22,12 +22,10 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                              tokenTypes["EmptyTag"]):
             if token["name"] in self.allowed_elements:
                 if token.has_key("data"):
-                    if isinstance(self.allowed_attributes,list):
-                        allowed_attributes = self.allowed_attributes
-                    elif isinstance(self.allowed_attributes,dict):
+                    if isinstance(self.allowed_attributes,dict):
                         allowed_attributes = self.allowed_attributes.get(token["name"],[])
                     else:
-                        allowed_attributes = []
+                        allowed_attributes = self.allowed_attributes
                     attrs = dict([(name,val) for name,val in
                                   token["data"][::-1] 
                                   if name in allowed_attributes])
