@@ -9,7 +9,7 @@ setup(
     author_email='james@mozilla.com',
     url='http://github.com/jsocol/bleach',
     license='BSD',
-    packages=['bleach'],
+    packages=['bleach', 'django'],
     include_package_Data=True,
     zip_safe=False,
     install_requires=['html5lib'],
