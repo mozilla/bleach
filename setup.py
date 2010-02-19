@@ -12,7 +12,7 @@ setup(
     packages=['bleach'],
     include_package_Data=True,
     zip_safe=False,
-    install_requires=['lxml'],
+    install_requires=['html5lib'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
