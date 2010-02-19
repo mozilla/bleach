@@ -34,3 +34,8 @@ def test_disallowed_html():
         b.clean('a <script>safe()</script> test'))
     eq_('a &lt;style&gt;body{}&lt;/style&gt; test',
         b.clean('a <style>body{}</style> test'))
+
+
+def test_bad_href():
+    eq_('<em>no link</em>',
+        b.clean('<em href="fail">no link</em>'))

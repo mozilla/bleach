@@ -7,8 +7,11 @@ b = bleach()
 
 
 class cleach(bleach):
-    def mangle_url(self, url):
+    def filter_url(self, url):
         return u'http://bouncer/?u=%s' % urllib.quote_plus(url)
+
+    def filter_email_display(self, email):
+        return 'dogs'+email
 
 c = cleach()
 
@@ -30,9 +33,9 @@ def test_email_link():
         b.linkify('a james@example.com mailto'))
 
 
-def test_email_with_prefix():
-    eq_('a <a href="mailto:james@example.com">james@example.com</a> mailto',
-        b.linkify('a james@example.com mailto'))
+def test_mangle_email():
+    eq_('a <a href="mailto:james@example.com">dogsjames@example.com</a> mailto',
+        c.linkify('a james@example.com mailto'))
 
 
 def test_tlds():

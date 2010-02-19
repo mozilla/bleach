@@ -116,7 +116,7 @@ class bleach:
                     url = urlquote('http://%s' % middle, safe='/&=:;#?+*')
                 elif '@' in middle and not ':' in middle and simple_email_re.match(middle):
                     is_email = True
-                    url = 'mailto:%s' % self.mangle_email(middle)
+                    url = 'mailto:%s' % self.filter_email(middle)
                     nofollow_attr = ''
                 # Make link.
                 if url:
@@ -126,13 +126,13 @@ class bleach:
                         url, trimmed = escape(url), escape(trimmed)
 
                     if not is_email:
-                        _url = self.mangle_url(url)
-                        _trimmed = trimmed
+                        _url = self.filter_url(url)
+                        _trimmed = self.filter_url_display(trimmed)
                     else:
                         _url = url
-                        _trimmed = self.mangle_email(trimmed)
+                        _trimmed = self.filter_email_display(trimmed)
 
-                    middle = '<a href="%s"%s>%s</a>' % (_url, nofollow_attr, trimmed)
+                    middle = '<a href="%s"%s>%s</a>' % (_url, nofollow_attr, _trimmed)
                     words[i] = mark_safe('%s%s%s' % (lead, middle, trail))
                 else:
                     if safe_input:
@@ -146,9 +146,24 @@ class bleach:
         return u''.join(words)
 
 
-    def mangle_url(self, url):
+    def filter_url(self, url):
+        """Applied to the href attribute of an autolinked URL"""
         return url
 
 
-    def mangle_email(self, email):
+    def filter_url_display(self, url):
+        """Applied to the innerText of an autolinked URL
+
+        Included for completeness."""
+        return url
+
+
+    def filter_email(self, email):
+        """Applied to an email address before its prepended with
+        'mailto:'"""
+        return email
+
+
+    def filter_email_display(self, email):
+        """Applied to the innerText of an autolinked email address"""
         return email
