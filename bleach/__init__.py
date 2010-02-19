@@ -1,1 +1,1 @@
-from bleach import clean
+from bleach import clean, linkify

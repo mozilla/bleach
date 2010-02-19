@@ -17,6 +17,7 @@ setup(
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Environment :: Web Environment :: Mozilla',
+        'Framework :: Django',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
