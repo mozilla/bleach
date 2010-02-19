@@ -9,10 +9,10 @@ setup(
     author_email='james@mozilla.com',
     url='http://github.com/jsocol/bleach',
     license='BSD',
-    packages=['bleach', 'django'],
+    packages=['bleach'],
     include_package_Data=True,
     zip_safe=False,
-    install_requires=['html5lib'],
+    install_requires=['html5lib', 'django'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
