@@ -39,3 +39,10 @@ def test_disallowed_html():
 def test_bad_href():
     eq_('<em>no link</em>',
         b.clean('<em href="fail">no link</em>'))
+
+
+def test_bare_entities():
+    eq_('an &amp; entity', b.clean('an & entity'))
+    eq_('an &lt; entity', b.clean('an < entity'))
+    eq_('tag &lt; <em>and</em> entity', b.clean('tag < <em>and</em> entity'))
+    eq_('&amp;', b.clean('&amp;'))
