@@ -25,7 +25,7 @@ def test_invalid_attr():
         bleach.clean('<a onclick="evil" href="test">test</a>'))
     eq_('<img src="test"/>',
         bleach.clean('<img onclick="evil" src="test" />',
-                     allowed_tags=IMG, allowed_attributes=IMG_ATTR))
+                     tags=IMG, attributes=IMG_ATTR))
     eq_('<img src="test"/>',
         bleach.clean('<img href="invalid" src="test" />',
-                     allowed_tags=IMG, allowed_attributes=IMG_ATTR))
+                     tags=IMG, attributes=IMG_ATTR))

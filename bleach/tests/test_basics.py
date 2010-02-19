@@ -25,7 +25,7 @@ def test_function_arguments():
 
     eq_('a <span style="color: red;">test</span>',
         bleach.clean('a <span style="color:red">test</span>',
-                     allowed_tags=TAGS, allowed_attributes=ATTRS))
+                     tags=TAGS, attributes=ATTRS))
 
 
 def test_disallowed_html():
