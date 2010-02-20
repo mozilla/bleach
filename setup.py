@@ -10,7 +10,7 @@ setup(
     url='http://github.com/jsocol/bleach',
     license='BSD',
     packages=['bleach'],
-    include_package_Data=True,
+    include_package_data=True,
     zip_safe=False,
     install_requires=['html5lib', 'django'],
     classifiers=[
