@@ -46,3 +46,7 @@ def test_tlds():
     eq_('<a href="http://example.edu" rel="nofollow">example.edu</a>',
         b.linkify('example.edu'))
     eq_('example.xxx', b.linkify('example.xxx'))
+
+
+def test_no_escaping():
+    eq_('< unrelated', b.linkify('< unrelated'))

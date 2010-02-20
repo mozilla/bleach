@@ -55,6 +55,15 @@ simple_email_re = re.compile(r'^\S+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+$')
 
 class Bleach:
 
+
+    def bleach(self, string):
+        """A shortcut to clean and linkify a string in one quick motion.
+
+        Trade-off: only default configuration options."""
+
+        return self.linkify(self.clean(string))
+
+
     def clean(self, string, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES):
         """Clean an HTML string and return it"""
 
@@ -67,7 +76,7 @@ class Bleach:
         return parser.parseFragment(string).toxml()
 
 
-    def linkify(self, text, trim_url_limit=None, nofollow=True, autoescape=True):
+    def linkify(self, text, trim_url_limit=None, nofollow=True, autoescape=False):
         """
         Converts any URLs in text into clickable links.
 
