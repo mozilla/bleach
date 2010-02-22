@@ -15,3 +15,5 @@ def test_bleach_with_href():
     eq_(u'<a href="http://xx.com" title="xx">xx</a> '
         u'<a href="http://yy.com" rel="nofollow">http://yy.com</a>',
         bl.bleach('<a title="xx" href="http://xx.com">xx</a> http://yy.com'))
+    eq_('<a href="http://xx.com rel="nofollow">http://xx.com</a>',
+        bl.bleach('<a href="http://xx.com">http://xx.com</a>'))
