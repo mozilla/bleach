@@ -67,3 +67,8 @@ def test_link_in_html():
 def test_links_https():
     eq_('<a href="https://yy.com" rel="nofollow">https://yy.com</a>',
         b.linkify('https://yy.com'))
+
+
+def test_sanity():
+    eq_('<a href="http://yy.com" rel="nofollow">http://yy.com</a>',
+        b.linkify('<a href="http://yy.com">http://yy.com</a>'))
