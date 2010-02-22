@@ -59,6 +59,11 @@ def test_nofollow_off():
 
 def test_link_in_html():
     eq_('<i><a href="http://yy.com" rel="nofollow">http://yy.com</a></i>',
-        b.linkify(u'<i>http://yy.com</i>'))
+        b.linkify('<i>http://yy.com</i>'))
     eq_('<em><strong><a href="http://xx.com" rel="nofollow">http://xx.com</a></strong></em>',
-        b.linkify(u'<em><strong>http://xx.com</strong></em>'))
+        b.linkify('<em><strong>http://xx.com</strong></em>'))
+
+
+def test_links_https():
+    eq_('<a href="https://yy.com" rel="nofollow">https://yy.com</a>',
+        b.linkify('https://yy.com'))
