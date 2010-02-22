@@ -50,3 +50,8 @@ def test_tlds():
 
 def test_no_escaping():
     eq_('< unrelated', b.linkify('< unrelated'))
+
+
+def test_link_in_html():
+    eq_('<i><a href="http://yy.com">http://yy.com</a></i>',
+        b.linkify('<i>http://yy.com</i>'))
