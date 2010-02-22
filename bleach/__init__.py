@@ -73,7 +73,7 @@ class Bleach:
 
         parser = html5lib.HTMLParser(tokenizer=s)
 
-        return parser.parseFragment(string).toxml()
+        return force_unicode(parser.parseFragment(string).toxml())
 
 
     def linkify(self, text, trim_url_limit=None, nofollow=True, autoescape=False):
