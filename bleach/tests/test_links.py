@@ -52,6 +52,13 @@ def test_no_escaping():
     eq_('< unrelated', b.linkify('< unrelated'))
 
 
+def test_nofollow_off():
+    eq_('<a href="http://example.com">example.com</a>',
+        b.linkify(u'example.com', nofollow=False))
+
+
 def test_link_in_html():
-    eq_('<i><a href="http://yy.com">http://yy.com</a></i>',
-        b.linkify('<i>http://yy.com</i>'))
+    eq_('<i><a href="http://yy.com" rel="nofollow">http://yy.com</a></i>',
+        b.linkify(u'<i>http://yy.com</i>'))
+    eq_('<em><strong><a href="http://xx.com" rel="nofollow">http://xx.com</a></strong></em>',
+        b.linkify(u'<em><strong>http://xx.com</strong></em>'))
