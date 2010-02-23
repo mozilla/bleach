@@ -2,10 +2,7 @@ import re
 import string
 import urllib
 
-from django.utils.safestring import SafeData, mark_safe
 from django.utils.encoding import force_unicode
-from django.utils.http import urlquote
-from django.utils.html import escape
 
 import html5lib
 from sanitizer import BleachSanitizer
@@ -31,10 +28,6 @@ ALLOWED_ATTRIBUTES = {
     'acronym': ['title'],
 }
 
-# Configuration for linkify() function.
-LEADING_PUNCTUATION  = ['(', '<', '&lt;']
-TRAILING_PUNCTUATION = ['.', ',', ')', '>', '\n', '&gt;']
-
 TLDS = (
     'com',
     'org',
@@ -46,11 +39,10 @@ TLDS = (
     'ie',
 )
 
-word_split_re = re.compile(r'(\s+)')
-punctuation_re = re.compile('^(?P<lead>(?:<[^>]+>|%s)*)(?P<middle>.*?)(?P<trail>(?:%s|</[^>]+>)*)$' % \
-    ('|'.join([re.escape(x) for x in LEADING_PUNCTUATION]),
-    '|'.join([re.escape(x) for x in TRAILING_PUNCTUATION])))
-simple_email_re = re.compile(r'^\S+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+$')
+url_re = re.compile(r'\b(?:[\w-]+:/{0,3})?(?<!@)[\w.-]+.(?:%s)(?:/(?:\S+)?)?' % u'|'.join(TLDS))
+
+
+NODE_TEXT = 4 # the numeric ID of a text node in simpletree
 
 
 class Bleach:
@@ -76,78 +68,70 @@ class Bleach:
         return force_unicode(parser.parseFragment(string).toxml())
 
 
-    def linkify(self, text, trim_url_limit=None, nofollow=True, autoescape=False):
+    def linkify(self, text, nofollow=True):
+        """Convert URL-like strings in an HTML fragment to links.
+
+        linkify() converts strings that look like URLs or domain names in a
+        blob of text that may be an HTML fragment to links, while preserving
+        (a) links already in the string, (b) urls found in attributes, and
+        (c) email addresses.
+
+        If the nofollow argument is True (the default) then rel="nofollow"
+        will be added to links created by linkify() as well as links already
+        found in the text.
+
+        linkify() uses up to two filters on each link. For links created by
+        linkify(), the href attribute is passed through Bleach.filter_url()
+        and the text of the link is passed through filter_text(). For links
+        already found in the document, the href attribute is passed through
+        filter_url(), but the text is untouched.
+
+        To implement custom filters, you should create a subclass of Bleach
+        and override these functions.
         """
-        Converts any URLs in text into clickable links.
 
-        Works on http://, https://, www. links and links ending in .org, .net or
-        .com. Links can have trailing punctuation (periods, commas, close-parens)
-        and leading punctuation (opening parens) and it'll still do the right
-        thing.
+        parser = html5lib.HTMLParser()
 
-        If trim_url_limit is not None, the URLs in link text longer than this limit
-        will truncated to trim_url_limit-3 characters and appended with an elipsis.
+        forest = parser.parseFragment(text)
 
-        If nofollow is True, the URLs in link text will get a rel="nofollow"
-        attribute.
+        if nofollow:
+            rel = u' rel="nofollow"'
+        else:
+            rel = u''
 
-        If autoescape is True, the link text and URLs will get autoescaped.
-        """
-
-        trim_url = lambda x, limit=trim_url_limit: limit is not None and (len(x) > limit and ('%s...' % x[:max(0, limit - 3)])) or x
-        safe_input = isinstance(text, SafeData)
-        words = word_split_re.split(force_unicode(text))
-        nofollow_attr = nofollow and ' rel="nofollow"' or ''
-        for i, word in enumerate(words):
-            match = None
-            if '.' in word or '@' in word or ':' in word:
-                match = punctuation_re.match(word)
-            if match:
-                lead, middle, trail = match.groups()
-                # Make URL we want to point to.
-                url = None
-                is_email = False
-                ends_with_tld = False
-                for  tld in TLDS:
-                    if middle.endswith('.'+tld):
-                        ends_with_tld = True
-
-                if middle.startswith('http://') or middle.startswith('https://'):
-                    url = urlquote(middle, safe='/&=:;#?+*')
-                elif middle.startswith('www.') or ('@' not in middle and \
-                        middle and middle[0] in string.ascii_letters + string.digits and \
-                        ends_with_tld):
-                    url = urlquote('http://%s' % middle, safe='/&=:;#?+*')
-                elif '@' in middle and not ':' in middle and simple_email_re.match(middle):
-                    is_email = True
-                    url = 'mailto:%s' % self.filter_email(middle)
-                    nofollow_attr = ''
-                # Make link.
-                if url:
-                    trimmed = trim_url(middle)
-                    if autoescape and not safe_input:
-                        lead, trail = escape(lead), escape(trail)
-                        url, trimmed = escape(url), escape(trimmed)
-
-                    if not is_email:
-                        _url = self.filter_url(url)
-                        _trimmed = self.filter_url_display(trimmed)
-                    else:
-                        _url = url
-                        _trimmed = self.filter_email_display(trimmed)
-
-                    middle = '<a href="%s"%s>%s</a>' % (_url, nofollow_attr, _trimmed)
-                    words[i] = mark_safe('%s%s%s' % (lead, middle, trail))
+        def linkify_nodes(tree):
+            for node in tree.childNodes:
+                if node.type == NODE_TEXT:
+                    new_frag = re.sub(url_re, link_repl, node.value)
+                    new_tree = parser.parseFragment(new_frag)
+                    for n in new_tree.childNodes:
+                        tree.insertBefore(n, node)
+                    tree.removeChild(node)
                 else:
-                    if safe_input:
-                        words[i] = mark_safe(word)
-                    elif autoescape:
-                        words[i] = escape(word)
-            elif safe_input:
-                words[i] = mark_safe(word)
-            elif autoescape:
-                words[i] = escape(word)
-        return u''.join(words)
+                    if node.name == 'a':
+                        if nofollow:
+                            node.attributes['rel'] = 'nofollow'
+                        href = self.filter_url(node.attributes['href'])
+                        node.attributes['href'] = href
+                    else:
+                        linkify_nodes(node)
+            return tree
+
+        def link_repl(match):
+            url = match.group(0)
+            if url.startswith('http://') or url.startswith('https://'):
+                href = url
+            else:
+                href = u''.join(['http://', url])
+
+            repl = u'<a href="%s"%s>%s</a>'
+
+            return repl % (self.filter_url(href), rel,
+                           self.filter_url_display(url))
+
+        forest = linkify_nodes(forest)
+
+        return force_unicode(forest.toxml())
 
 
     def filter_url(self, url):
@@ -156,18 +140,5 @@ class Bleach:
 
 
     def filter_url_display(self, url):
-        """Applied to the innerText of an autolinked URL
-
-        Included for completeness."""
+        """Applied to the innerText of an autolinked URL"""
         return url
-
-
-    def filter_email(self, email):
-        """Applied to an email address before its prepended with
-        'mailto:'"""
-        return email
-
-
-    def filter_email_display(self, email):
-        """Applied to the innerText of an autolinked email address"""
-        return email
