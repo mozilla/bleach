@@ -73,10 +73,19 @@ def test_url_with_path():
 
 
 def test_link_ftp():
-    eq_('<a href="ftp://ftp.mozilla.org/some/file">ftp://ftp.mozilla.org/some/file</a>',
+    eq_('<a href="ftp://ftp.mozilla.org/some/file" rel="nofollow">ftp://ftp.mozilla.org/some/file</a>',
         b.linkify('ftp://ftp.mozilla.org/some/file'))
 
 
-def test_link_http_complete():
-    eq_('<a href="https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;c=d&amp;e#f">https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;c=d&amp;e#f</a>',
-        b.linkify('https://user:pass@ftp.mozilla.org/x/y.exe?a=b&c=d&e#f'))
+def test_link_query():
+    eq_('<a href="http://xx.com/?test=win" rel="nofollow">http://xx.com/?test=win</a>',
+        b.linkify('http://xx.com/?test=win'))
+    eq_('<a href="http://xx.com/?test=win" rel="nofollow">xx.com/?test=win</a>',
+        b.linkify('xx.com/?test=win'))
+    eq_('<a href="http://xx.com?test=win" rel="nofollow">xx.com?test=win</a>',
+        b.linkify('xx.com?test=win'))
+
+# Not supported at this time
+#def test_link_http_complete():
+#    eq_('<a href="https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;c=d&amp;e#f">https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;c=d&amp;e#f</a>',
+#        b.linkify('https://user:pass@ftp.mozilla.org/x/y.exe?a=b&c=d&e#f'))
