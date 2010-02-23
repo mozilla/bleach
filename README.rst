@@ -2,9 +2,8 @@ Bleach
 ======
 
 Bleach is an HTML sanitizing library designed to strip disallowed tags and
-attributes based on a whitelist, and can additionally autolinkify URLs and
-email addresses in text with an extra filter layer that Django's ``urlize``
-filter doesn't have.
+attributes based on a whitelist, and can additionally autolinkify URLs in text
+with an extra filter layer that Django's ``urlize`` filter doesn't have.
 
 
 Basic Use
@@ -76,6 +75,11 @@ For example::
 Linkify - Advanced
 ^^^^^^^^^^^^^^^^^^
 
+If you pass ``nofollow=False`` to ``linkify()``, links will not be created with
+``rel="nofollow"``. By default, ``nofollow`` is ``True``. If ``nofollow`` is
+``True``, then links found in the text will have their ``rel`` attributes set
+to ``nofollow`` as well, otherwise the attribute will not be modified.
+
 Configuring ``linkify()`` is somewhat more complicated. ``linkify()`` passes data
 through different **filters** before returning the string. By default, these
 filters do nothing, but if you subclass ``Bleach``, you can override them.
@@ -104,23 +108,7 @@ Now, use ``MyBleach`` instead of ``Bleach`` and ``linkify()`` will route urls
 through your bouncer.
 
 
-filter_url_display
+filter_text
 ******************
 
-This filter is applied to the link text of linkified URLs. Passing the
-``trim_url_limit`` argument (an integer) to linkify will truncate long URLs
-in the link text, so this function is mostly included for completeness.
-
-
-filter_email
-************
-
-This filter is applied to linkified email addresses, before they are 
-prepended with ``mailto:``.
-
-
-filter_email_display
-********************
-
-Like ``filter_url_display``, this filter is applied to the link text of a 
-linkified email address. Intended for use in obfuscation.
+This filter is applied to the link text of linkified URLs.
