@@ -95,6 +95,12 @@ def test_link_entities():
     eq_('<a href="http://xx.com/?a=1&amp;b=2" rel="nofollow">http://xx.com/?a=1&amp;b=2</a>',
         b.linkify('http://xx.com/?a=1&b=2'))
 
+
+def test_escaped_html():
+    """If I pass in escaped HTML, it should probably come out escaped."""
+    s = '&lt;em&gt;strong&lt;/em&gt;'
+    eq_(s, b.linkify(s))
+
 # Not supported at this time
 # TODO:
 # - Can this pass eventually?
