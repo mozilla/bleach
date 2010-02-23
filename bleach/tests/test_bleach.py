@@ -31,3 +31,8 @@ def test_idempotent():
 
     linked = bl.linkify(dirty)
     eq_(linked, bl.linkify(linked))
+
+
+def test_escaped_html():
+    s = u'&lt;em&gt;strong&lt;/em&gt;'
+    eq_(s, bl.bleach(s))

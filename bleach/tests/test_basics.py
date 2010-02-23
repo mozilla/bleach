@@ -46,3 +46,8 @@ def test_bare_entities():
     eq_('an &lt; entity', b.clean('an < entity'))
     eq_('tag &lt; <em>and</em> entity', b.clean('tag < <em>and</em> entity'))
     eq_('&amp;', b.clean('&amp;'))
+
+
+def test_escaped_entities():
+    s = u'&lt;em&gt;strong&lt;/em&gt;'
+    eq_(s, b.clean(s))
