@@ -29,6 +29,14 @@ def test_function_arguments():
                      tags=TAGS, attributes=ATTRS))
 
 
+def test_named_arguments():
+    ATTRS = {'a': ['rel', 'href']}
+    s = u'<a href="http://xx.com" rel="alternate">xx.com</a>'
+    eq_('<a href="http://xx.com">xx.com</a>', b.clean(s))
+    eq_(s, b.clean(s, attributes=ATTRS))
+    
+
+
 def test_disallowed_html():
     eq_('a &lt;script&gt;safe()&lt;/script&gt; test',
         b.clean('a <script>safe()</script> test'))
