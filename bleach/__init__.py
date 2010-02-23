@@ -127,7 +127,7 @@ class Bleach:
             repl = u'<a href="%s"%s>%s</a>'
 
             return repl % (self.filter_url(href), rel,
-                           self.filter_url_display(url))
+                           self.filter_text(url))
 
         forest = linkify_nodes(forest)
 
@@ -139,6 +139,6 @@ class Bleach:
         return url
 
 
-    def filter_url_display(self, url):
+    def filter_text(self, url):
         """Applied to the innerText of an autolinked URL"""
         return url
