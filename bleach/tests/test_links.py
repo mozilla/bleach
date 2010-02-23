@@ -85,7 +85,19 @@ def test_link_query():
     eq_('<a href="http://xx.com?test=win" rel="nofollow">xx.com?test=win</a>',
         b.linkify('xx.com?test=win'))
 
+
+def test_link_fragment():
+    eq_('<a href="http://xx.com/path#frag" rel="nofollow">http://xx.com/path#frag</a>',
+        b.linkify('http://xx.com/path#frag'))
+
+
+def test_link_entities():
+    eq_('<a href="http://xx.com/?a=1&amp;b=2" rel="nofollow">http://xx.com/?a=1&amp;b=2</a>',
+        b.linkify('http://xx.com/?a=1&b=2'))
+
 # Not supported at this time
+# TODO:
+# - Can this pass eventually?
 #def test_link_http_complete():
 #    eq_('<a href="https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;c=d&amp;e#f">https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;c=d&amp;e#f</a>',
 #        b.linkify('https://user:pass@ftp.mozilla.org/x/y.exe?a=b&c=d&e#f'))
