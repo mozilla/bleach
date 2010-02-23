@@ -115,7 +115,6 @@ class Bleach:
                         node.attributes['href'] = href
                     else:
                         linkify_nodes(node)
-            return tree
 
         def link_repl(match):
             url = match.group(0)
@@ -129,7 +128,7 @@ class Bleach:
             return repl % (self.filter_url(href), rel,
                            self.filter_text(url))
 
-        forest = linkify_nodes(forest)
+        linkify_nodes(forest)
 
         return force_unicode(forest.toxml())
 
