@@ -39,7 +39,8 @@ TLDS = (
     'ie',
 )
 
-url_re = re.compile(r'\b(?:[\w-]+:/{0,3})?(?<!@)[\w.-]+.(?:%s)(?:/(?:\S+)?)?' % u'|'.join(TLDS))
+url_re = re.compile(r'\b(?:[\w-]+:/{0,3})?(?<!@)[\w.-]+.(?:%s)(?:\S+)?' % u'|'.join(TLDS))
+proto_re = re.compile(r'^[\w-]+:/{0,3}')
 
 
 NODE_TEXT = 4 # the numeric ID of a text node in simpletree
@@ -118,7 +119,7 @@ class Bleach:
 
         def link_repl(match):
             url = match.group(0)
-            if url.startswith('http://') or url.startswith('https://'):
+            if re.search(proto_re, url):
                 href = url
             else:
                 href = u''.join(['http://', url])
