@@ -70,3 +70,13 @@ def test_add_rel_nofollow():
 def test_url_with_path():
     eq_('<a href="http://example.com/path/to/file" rel="nofollow">http://example.com/path/to/file</a>',
         b.linkify('http://example.com/path/to/file'))
+
+
+def test_link_ftp():
+    eq_('<a href="ftp://ftp.mozilla.org/some/file">ftp://ftp.mozilla.org/some/file</a>',
+        b.linkify('ftp://ftp.mozilla.org/some/file'))
+
+
+def test_link_http_complete():
+    eq_('<a href="https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;c=d&amp;e#f">https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;c=d&amp;e#f</a>',
+        b.linkify('https://user:pass@ftp.mozilla.org/x/y.exe?a=b&c=d&e#f'))
