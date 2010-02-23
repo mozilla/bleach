@@ -103,7 +103,7 @@ class Bleach:
         def linkify_nodes(tree):
             for node in tree.childNodes:
                 if node.type == NODE_TEXT:
-                    new_frag = re.sub(url_re, link_repl, node.value)
+                    new_frag = re.sub(url_re, link_repl, node.toxml())
                     new_tree = parser.parseFragment(new_frag)
                     for n in new_tree.childNodes:
                         tree.insertBefore(n, node)
