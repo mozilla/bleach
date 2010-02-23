@@ -11,6 +11,7 @@ setup(
     license='BSD',
     packages=['bleach'],
     include_package_data=True,
+    package_data = { '': ['README.rst'] },
     zip_safe=False,
     install_requires=['html5lib', 'django'],
     classifiers=[
