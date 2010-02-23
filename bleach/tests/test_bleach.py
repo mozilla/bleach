@@ -17,3 +17,17 @@ def test_bleach_with_href():
         bl.bleach('<a title="xx" href="http://xx.com">xx</a> http://yy.com'))
     eq_('<a href="http://xx.com" rel="nofollow">http://xx.com</a>',
         bl.bleach('<a href="http://xx.com">http://xx.com</a>'))
+
+
+def test_idempotent():
+    """Make sure that applying the filter twice doesn't change anything."""
+    dirty = u'<span>invalid & </span> < extra http://link.com<em>'
+
+    clean = bl.clean(dirty)
+    eq_(clean, bl.clean(clean))
+
+    bleached = bl.bleach(dirty)
+    eq_(bleached, bl.bleach(bleached))
+
+    linked = bl.linkify(dirty)
+    eq_(linked, bl.linkify(linked))
