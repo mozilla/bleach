@@ -30,3 +30,13 @@ def test_invalid_attr():
     eq_('<img src="test"/>',
         b.clean('<img href="invalid" src="test" />',
                 tags=IMG, attributes=IMG_ATTR))
+
+
+def test_unquoted_attr():
+    eq_('<abbr title="mytitle">myabbr</abbr>',
+        b.clean('<abbr title=mytitle>myabbr</abbr>'))
+
+
+def test_unquoted_event_handler():
+    eq_('<a href="http://xx.com">xx.com</a>',
+        b.clean('<a href="http://xx.com" onclick=foo()>xx.com</a>'))
