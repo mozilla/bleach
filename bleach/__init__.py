@@ -2,10 +2,9 @@ import re
 import string
 import urllib
 
-from django.utils.encoding import force_unicode
-
 import html5lib
 from sanitizer import BleachSanitizer
+from encoding import force_unicode
 
 ALLOWED_TAGS = [
     'a',
