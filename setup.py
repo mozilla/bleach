@@ -13,12 +13,11 @@ setup(
     include_package_data=True,
     package_data = { '': ['README.rst'] },
     zip_safe=False,
-    install_requires=['html5lib', 'django'],
+    install_requires=['html5lib'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Environment :: Web Environment :: Mozilla',
-        'Framework :: Django',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
