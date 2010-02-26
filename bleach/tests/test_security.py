@@ -40,3 +40,29 @@ def test_unquoted_attr():
 def test_unquoted_event_handler():
     eq_('<a href="http://xx.com">xx.com</a>',
         b.clean('<a href="http://xx.com" onclick=foo()>xx.com</a>'))
+
+
+def test_invalid_attr_value():
+    eq_('&lt;img src="javascript:alert(\'XSS\');"&gt;',
+        b.clean('<img src="javascript:alert(\'XSS\');">'))
+
+
+def test_invalid_href_attr():
+    eq_('<a>xss</a>',
+        b.clean('<a href="javascript:alert(\'XSS\')">xss</a>'))
+
+
+def test_invalid_tag_char():
+    eq_('&lt;script xss="" src="http://xx.com/xss.js"&gt;&lt;/script&gt;',
+        b.clean('<script/xss src="http://xx.com/xss.js"></script>'))
+    eq_('&lt;script src="http://xx.com/xss.js"&gt;&lt;/script&gt;',
+        b.clean('<script/src="http://xx.com/xss.js"></script>'))
+
+
+def test_unclosed_tag():
+    eq_('&lt;script src="http://xx.com/xss.js&amp;lt;b"&gt;',
+        b.clean('<script src=http://xx.com/xss.js<b>'))
+    eq_('&lt;script src="http://xx.com/xss.js" &lt;b=""&gt;',
+        b.clean('<script src="http://xx.com/xss.js"<b>'))
+    eq_('&lt;script src="http://xx.com/xss.js" &lt;b=""&gt;',
+        b.clean('<script src="http://xx.com/xss.js" <b>'))
