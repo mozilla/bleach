@@ -38,6 +38,9 @@ def test_tlds():
     eq_('<a href="http://example.edu" rel="nofollow">example.edu</a>',
         b.linkify('example.edu'))
     eq_('example.xxx', b.linkify('example.xxx'))
+    eq_(' brie', b.linkify(' brie'))
+    eq_('<a href="http://bit.ly/fun" rel="nofollow">bit.ly/fun</a>',
+        b.linkify('bit.ly/fun'))
 
 
 def test_escaping():
