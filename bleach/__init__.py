@@ -41,8 +41,10 @@ TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
        tv tw tz ua ug uk us uy uz va vc ve vg vi vn vu wf ws xn ye yt yu za zm
        zw""".split()
 
+TLDS.reverse()
 
-url_re = re.compile(r'\b(?:[\w-]+:/{0,3})?(?<!@)[\w.-]+\.(?:(?:%s)\w*)(?:(?:\/|\?)\S*)?' % u'|'.join(TLDS))
+
+url_re = re.compile(r'\b(?:[\w-]+:/{0,3})?(?<!@)[\w.-]+\.(?:%s)(?:[/?]\S*)?\b' % u'|'.join(TLDS))
 proto_re = re.compile(r'^[\w-]+:/{0,3}')
 
 

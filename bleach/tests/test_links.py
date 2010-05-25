@@ -110,3 +110,15 @@ def test_escaped_html():
 #def test_link_http_complete():
 #    eq_('<a href="https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;c=d&amp;e#f">https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;c=d&amp;e#f</a>',
 #        b.linkify('https://user:pass@ftp.mozilla.org/x/y.exe?a=b&c=d&e#f'))
+
+
+def test_non_url():
+    """document.vulnerable should absolutely not be linkified."""
+    s = 'document.vulnerable'
+    eq_(s, b.linkify(s))
+
+
+def test_javascript_url():
+    """javascript: urls should never be linkified."""
+    s = 'javascript:document.vulnerable'
+    eq_(s, b.linkify(s))
