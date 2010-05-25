@@ -71,8 +71,7 @@ class Bleach:
 
         parser = html5lib.HTMLParser(tokenizer=s)
 
-        return force_unicode(parser.parseFragment(string).toxml())
-
+        return force_unicode(_serialize(parser.parseFragment(string)))
 
     def linkify(self, text, nofollow=True):
         """Convert URL-like strings in an HTML fragment to links.
@@ -136,14 +135,21 @@ class Bleach:
 
         linkify_nodes(forest)
 
-        return force_unicode(forest.toxml())
-
+        return force_unicode(_serialize(forest))
 
     def filter_url(self, url):
         """Applied to the href attribute of an autolinked URL"""
         return url
 
-
     def filter_text(self, url):
         """Applied to the innerText of an autolinked URL"""
         return url
+
+
+def _serialize(domtree):
+    walker = html5lib.treewalkers.getTreeWalker('simpletree')
+    stream = walker(domtree)
+    serializer = html5lib.serializer.htmlserializer.HTMLSerializer(
+                                                        quote_attr_values=True
+                                                    )
+    return serializer.render(stream)
