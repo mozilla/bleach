@@ -146,5 +146,6 @@ class Bleach:
 def _serialize(domtree):
     walker = html5lib.treewalkers.getTreeWalker('simpletree')
     stream = walker(domtree)
-    serializer = HTMLSerializer(quote_attr_values=True)
+    serializer = HTMLSerializer(quote_attr_values=True,
+                                omit_optional_tags=False)
     return serializer.render(stream)
