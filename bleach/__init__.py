@@ -1,8 +1,7 @@
 import re
-import string
-import urllib
 
 import html5lib
+from html5lib.serializer.htmlserializer import HTMLSerializer
 from sanitizer import BleachSanitizer
 from encoding import force_unicode
 
@@ -48,11 +47,10 @@ url_re = re.compile(r'\b(?:[\w-]+:/{0,3})?(?<!@)[\w.-]+\.(?:%s)(?:[/?]\S*)?\b' %
 proto_re = re.compile(r'^[\w-]+:/{0,3}')
 
 
-NODE_TEXT = 4 # the numeric ID of a text node in simpletree
+NODE_TEXT = 4  # the numeric ID of a text node in simpletree
 
 
 class Bleach:
-
 
     def bleach(self, string):
         """A shortcut to clean and linkify a string in one quick motion.
@@ -60,7 +58,6 @@ class Bleach:
         Trade-off: only default configuration options."""
 
         return self.linkify(self.clean(string))
-
 
     def clean(self, string, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES):
         """Clean an HTML string and return it"""
@@ -149,7 +146,5 @@ class Bleach:
 def _serialize(domtree):
     walker = html5lib.treewalkers.getTreeWalker('simpletree')
     stream = walker(domtree)
-    serializer = html5lib.serializer.htmlserializer.HTMLSerializer(
-                                                        quote_attr_values=True
-                                                    )
+    serializer = HTMLSerializer(quote_attr_values=True)
     return serializer.render(stream)

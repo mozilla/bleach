@@ -4,6 +4,7 @@ from bleach import Bleach
 
 b = Bleach()
 
+
 def test_no_html():
     eq_('no html string', b.clean('no html string'))
 
@@ -34,7 +35,6 @@ def test_named_arguments():
     s = u'<a href="http://xx.com" rel="alternate">xx.com</a>'
     eq_('<a href="http://xx.com">xx.com</a>', b.clean(s))
     eq_(s, b.clean(s, attributes=ATTRS))
-    
 
 
 def test_disallowed_html():
@@ -59,3 +59,9 @@ def test_bare_entities():
 def test_escaped_entities():
     s = u'&lt;em&gt;strong&lt;/em&gt;'
     eq_(s, b.clean(s))
+
+
+def test_serializer():
+    s = u'<table></table>'
+    eq_(s, b.clean(s, tags=['table']))
+    eq_(u'test<table></table>', b.linkify(u'<table>test</table>'))
