@@ -65,3 +65,4 @@ def test_serializer():
     s = u'<table></table>'
     eq_(s, b.clean(s, tags=['table']))
     eq_(u'test<table></table>', b.linkify(u'<table>test</table>'))
+    eq_(u'<p>test</p>', b.clean(u'<p>test</p>', tags=['p']))
