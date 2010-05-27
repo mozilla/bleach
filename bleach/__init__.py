@@ -61,6 +61,10 @@ class Bleach:
 
     def clean(self, string, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES):
         """Clean an HTML string and return it"""
+        if not string:
+            return u''
+        elif string.startswith('<!--'):
+            string = u' ' + string
 
         class s(BleachSanitizer):
             allowed_elements = tags
@@ -68,7 +72,7 @@ class Bleach:
 
         parser = html5lib.HTMLParser(tokenizer=s)
 
-        return force_unicode(_serialize(parser.parseFragment(string)))
+        return force_unicode(_serialize(parser.parseFragment(string))).strip()
 
     def linkify(self, text, nofollow=True):
         """Convert URL-like strings in an HTML fragment to links.
@@ -91,6 +95,8 @@ class Bleach:
         To implement custom filters, you should create a subclass of Bleach
         and override these functions.
         """
+        if not text:
+            return u''
 
         parser = html5lib.HTMLParser()
 

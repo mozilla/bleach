@@ -5,6 +5,19 @@ from bleach import Bleach
 b = Bleach()
 
 
+def test_empty():
+    eq_('', b.clean(''))
+
+
+def test_comments_only():
+    eq_('', b.clean('<!-- this is a comment -->'))
+    eq_('', b.clean('<!-- this is an open comment'))
+
+
+def test_with_comments():
+    eq_('Just text', b.clean('<!-- comment -->Just text'))
+
+
 def test_no_html():
     eq_('no html string', b.clean('no html string'))
 
