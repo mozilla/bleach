@@ -13,6 +13,10 @@ class cleach(Bleach):
 c = cleach()
 
 
+def test_empty():
+    eq_('', b.linkify(''))
+
+
 def test_simple_link():
     eq_('a <a href="http://example.com" rel="nofollow">http://example.com</a> link',
         b.linkify('a http://example.com link'))
