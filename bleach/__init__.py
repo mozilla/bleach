@@ -119,8 +119,11 @@ class Bleach:
                     if node.name == 'a':
                         if nofollow:
                             node.attributes['rel'] = 'nofollow'
-                        href = self.filter_url(node.attributes['href'])
-                        node.attributes['href'] = href
+                        try:
+                            href = self.filter_url(node.attributes['href'])
+                            node.attributes['href'] = href
+                        except KeyError:
+                            pass
                     else:
                         linkify_nodes(node)
 

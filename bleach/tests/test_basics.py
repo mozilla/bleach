@@ -79,3 +79,8 @@ def test_serializer():
     eq_(s, b.clean(s, tags=['table']))
     eq_(u'test<table></table>', b.linkify(u'<table>test</table>'))
     eq_(u'<p>test</p>', b.clean(u'<p>test</p>', tags=['p']))
+
+
+def test_no_href_links():
+    s = u'<a name="anchor">x</a>'
+    eq_(s, b.linkify(s, nofollow=False))
