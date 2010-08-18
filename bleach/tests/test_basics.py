@@ -1,6 +1,8 @@
+import html5lib
+
 from nose.tools import eq_
 
-from bleach import Bleach
+from bleach import Bleach, render
 
 b = Bleach()
 
@@ -84,3 +86,8 @@ def test_serializer():
 def test_no_href_links():
     s = u'<a name="anchor">x</a>'
     eq_(s, b.linkify(s, nofollow=False))
+
+
+def test_xml_render():
+    parser = html5lib.HTMLParser()
+    eq_(render(parser.parseFragment(''), 'src'), '')

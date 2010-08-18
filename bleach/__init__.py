@@ -1,9 +1,12 @@
+import logging
 import re
 
 import html5lib
 from html5lib.serializer.htmlserializer import HTMLSerializer
 from sanitizer import BleachSanitizer
 from encoding import force_unicode
+
+log = logging.getLogger('bleach')
 
 ALLOWED_TAGS = [
     'a',
@@ -72,7 +75,7 @@ class Bleach:
 
         parser = html5lib.HTMLParser(tokenizer=s)
 
-        return force_unicode(_serialize(parser.parseFragment(string))).strip()
+        return render(parser.parseFragment(string), string).strip()
 
     def linkify(self, text, nofollow=True):
         """Convert URL-like strings in an HTML fragment to links.
@@ -141,7 +144,7 @@ class Bleach:
 
         linkify_nodes(forest)
 
-        return force_unicode(_serialize(forest))
+        return render(forest, text)
 
     def filter_url(self, url):
         """Applied to the href attribute of an autolinked URL"""
@@ -150,6 +153,19 @@ class Bleach:
     def filter_text(self, url):
         """Applied to the innerText of an autolinked URL"""
         return url
+
+
+def render(tree, source):
+    """Try rendering as HTML, then XML, then give up."""
+    try:
+        return force_unicode(_serialize(tree))
+    except Exception, e:
+        log.error('HTML: %r ::: %r' % (e, source))
+        try:
+            return force_unicode(tree.to_xml())
+        except Exception, e:
+            log.error('XML: %r ::: %r' % (e, source))
+            return u''
 
 
 def _serialize(domtree):
