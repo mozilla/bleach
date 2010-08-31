@@ -3,7 +3,7 @@ from xml.sax.saxutils import escape, unescape
 
 from html5lib.tokenizer import HTMLTokenizer
 from html5lib.constants import tokenTypes
-from html5lib.sanitizer import HTMLSanitizerMixin, HTMLSanitizer
+from html5lib.sanitizer import HTMLSanitizerMixin
 
 class BleachSanitizerMixin(HTMLSanitizerMixin):
     # Sanitize the +html+, escaping all elements not in ALLOWED_ELEMENTS, and
