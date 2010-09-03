@@ -88,6 +88,11 @@ def test_no_href_links():
     eq_(s, b.linkify(s, nofollow=False))
 
 
+def test_weird_strings():
+    s = '</3'
+    eq_(b.clean(s), '')
+
+
 def test_xml_render():
     parser = html5lib.HTMLParser()
     eq_(render(parser.parseFragment(''), 'src'), '')

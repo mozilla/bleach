@@ -167,7 +167,7 @@ def render(tree, source):
     except Exception, e:
         log.error('HTML: %r ::: %r' % (e, source))
         try:
-            return force_unicode(tree.to_xml())
+            return force_unicode(tree.toxml())
         except Exception, e:
             log.error('XML: %r ::: %r' % (e, source))
             return u''
