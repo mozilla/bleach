@@ -46,7 +46,12 @@ TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
 TLDS.reverse()
 
 
-url_re = re.compile(r'\b(?:[\w-]+:/{0,3})?(?<!@)[\w.-]+\.(?:%s)(?:[/?]\S*)?\b' % u'|'.join(TLDS))
+url_re = re.compile(r"""\b(?:[\w-]+:/{0,3})?  # http://
+                    (?<!@)([\w-]+\.)+(?:%s)     # xx.yy.tld
+                    (?:[/?]\S*)?              # /path/zz
+                    \b                        # Break at a word boundary.
+                    """ % u'|'.join(TLDS),
+                    re.VERBOSE)
 proto_re = re.compile(r'^[\w-]+:/{0,3}')
 
 

@@ -1,7 +1,7 @@
 from nose.tools import eq_
 import urllib
 
-from bleach import Bleach
+from bleach import Bleach, url_re
 
 b = Bleach()
 
@@ -11,6 +11,14 @@ class cleach(Bleach):
         return u'http://bouncer/?u=%s' % urllib.quote_plus(url)
 
 c = cleach()
+
+
+def test_url_re():
+    def no_match(s):
+        match = url_re.search(s)
+        if match:
+            assert not match, 'matched %s' % s[slice(*match.span())]
+    yield no_match, 'just what i am looking for...it'
 
 
 def test_empty():
