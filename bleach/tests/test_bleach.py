@@ -6,8 +6,8 @@ bl = Bleach()
 
 
 def test_bleach_shortcut():
-    eq_('&lt; escaped and <a href="http://linkified.com" rel="nofollow">linkified.com</a>',
-        bl.bleach('< escaped and linkified.com'))
+    eq_('&lt; escaped and <a href="http://linkified.com" rel="nofollow">'
+        'linkified.com</a>', bl.bleach('< escaped and linkified.com'))
 
 
 def test_bleach_with_href():
@@ -36,3 +36,8 @@ def test_idempotent():
 def test_escaped_html():
     s = u'&lt;em&gt;strong&lt;/em&gt;'
     eq_(s, bl.bleach(s))
+
+
+def test_self_closing():
+    """Self closing tags are untouched."""
+    eq_('<img />', bl.clean('<img />', tags=['img']))

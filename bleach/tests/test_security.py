@@ -24,10 +24,10 @@ def test_invalid_attr():
 
     eq_('<a href="test">test</a>',
         b.clean('<a onclick="evil" href="test">test</a>'))
-    eq_('<img src="test">',
+    eq_('<img src="test" />',
         b.clean('<img onclick="evil" src="test" />',
                 tags=IMG, attributes=IMG_ATTR))
-    eq_('<img src="test">',
+    eq_('<img src="test" />',
         b.clean('<img href="invalid" src="test" />',
                 tags=IMG, attributes=IMG_ATTR))
 

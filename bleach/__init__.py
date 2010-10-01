@@ -179,5 +179,6 @@ def _serialize(domtree):
     walker = html5lib.treewalkers.getTreeWalker('simpletree')
     stream = walker(domtree)
     serializer = HTMLSerializer(quote_attr_values=True,
+                                use_trailing_solidus=True,
                                 omit_optional_tags=False)
     return serializer.render(stream)
