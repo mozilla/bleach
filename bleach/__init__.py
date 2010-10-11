@@ -48,7 +48,9 @@ TLDS.reverse()
 
 url_re = re.compile(r"""\b(?:[\w-]+:/{0,3})?  # http://
                     (?<!@)([\w-]+\.)+(?:%s)     # xx.yy.tld
-                    (?:[/?]\S*)?              # /path/zz
+                    (?:[/?][^\s\{\}\|\\\^\[\]`<>"\x80-\xFF\x00-\x1F\x7F]*)?
+                        # /path/zz (excluding "unsafe" chars from RFC 1738,
+                        # except for # and ~, which happen in practice)
                     \b                        # Break at a word boundary.
                     """ % u'|'.join(TLDS),
                     re.VERBOSE)

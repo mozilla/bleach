@@ -134,3 +134,10 @@ def test_javascript_url():
     """javascript: urls should never be linkified."""
     s = 'javascript:document.vulnerable'
     eq_(s, b.linkify(s))
+
+
+def test_unsafe_url():
+    """Any unsafe char ({}[]<>, etc.) in the path should end URL scanning."""
+    eq_('All your{"<a href="http://xx.yy.com/grover.png" '
+                     'rel="nofollow">xx.yy.com/grover.png</a>"}base are',
+        b.linkify('All your{"xx.yy.com/grover.png"}base are'))
