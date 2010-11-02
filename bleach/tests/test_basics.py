@@ -96,3 +96,21 @@ def test_weird_strings():
 def test_xml_render():
     parser = html5lib.HTMLParser()
     eq_(render(parser.parseFragment(''), 'src'), '')
+
+
+def test_stripping():
+    eq_('a test <em>with</em> <b>html</b> tags',
+        b.clean('a test <em>with</em> <b>html</b> tags', strip=True))
+    eq_('a test <em>with</em>  <b>html</b> tags',
+        b.clean('a test <em>with</em> <img src="http://example.com/"> '
+                '<b>html</b> tags', strip=True))
+
+    s = '<p><a href="http://example.com/">link text</a></p>'
+    eq_('<p>link text</p>', b.clean(s, tags=['p'], strip=True))
+    s = '<p><span>multiply <span>nested <span>text</span></span></span></p>'
+    eq_('<p>multiply nested text</p>', b.clean(s, tags=['p'], strip=True))
+
+    s = ('<p><a href="http://example.com/"><img src="http://example.com/">'
+         '</a></p>')
+    eq_('<p><a href="http://example.com/"></a></p>',
+        b.clean(s, tags=['p','a'], strip=True))
