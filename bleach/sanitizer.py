@@ -53,6 +53,8 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                         attrs['style'] = self.sanitize_css(attrs['style'])
                     token["data"] = [[name,val] for name,val in attrs.items()]
                 return token
+            elif self.strip_disallowed_elements:
+                pass
             else:
                 if token["type"] == tokenTypes["EndTag"]:
                     token["data"] = "</%s>" % token["name"]
