@@ -71,7 +71,7 @@ class Bleach(object):
         return self.linkify(self.clean(string))
 
     def clean(self, string, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
-              strip=False):
+              strip=False, strip_comments=True):
         """Clean an HTML string and return it"""
         if not string:
             return u''
@@ -82,6 +82,7 @@ class Bleach(object):
             allowed_elements = tags
             allowed_attributes = attributes
             strip_disallowed_elements = strip
+            strip_html_comments = strip_comments
 
         parser = html5lib.HTMLParser(tokenizer=s)
 
