@@ -1,4 +1,6 @@
+*.egg-info
 *.pyo
 *.pyc
+*.sw?
 pip-log.txt
 
