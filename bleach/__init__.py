@@ -60,6 +60,28 @@ proto_re = re.compile(r'^[\w-]+:/{0,3}')
 NODE_TEXT = 4  # the numeric ID of a text node in simpletree
 
 
+class BleachHTMLParser(html5lib.HTMLParser):
+    """HTML parser which adds support for changing more tokenizer options."""
+
+    def parseFragment(self, stream, container="div", encoding=None,
+                      parseMeta=False, useChardet=True, **kwargs):
+        """Parse a HTML fragment into a well-formed tree fragment
+
+        container - name of the element we're setting the innerHTML property
+        if set to None, default to 'div'
+
+        stream - a filelike object or string containing the HTML to be parsed
+
+        The optional encoding parameter must be a string that indicates
+        the encoding.  If specified, that encoding will be used,
+        regardless of any BOM or later declaration (such as in a meta
+        element)
+        """
+        self._parse(stream, True, container=container, encoding=encoding,
+                    parseMeta=parseMeta, useChardet=useChardet, **kwargs)
+        return self.tree.getFragment()
+
+
 class Bleach:
 
     def bleach(self, string):
@@ -70,7 +92,7 @@ class Bleach:
         return self.linkify(self.clean(string))
 
     def clean(self, string, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
-              strip=False, strip_comments=True):
+              strip=False, strip_comments=True, lowercase=False):
         """Clean an HTML string and return it"""
         if not string:
             return u''
@@ -83,9 +105,12 @@ class Bleach:
             strip_disallowed_elements = strip
             strip_html_comments = strip_comments
 
-        parser = html5lib.HTMLParser(tokenizer=s)
+        parser = BleachHTMLParser(tokenizer=s)
 
-        return render(parser.parseFragment(string), string).strip()
+        tree = parser.parseFragment(string, lowercaseElementName=lowercase,
+                                    lowercaseAttrName=lowercase)
+
+        return render(tree, string).strip()
 
     def linkify(self, text, nofollow=True):
         """Convert URL-like strings in an HTML fragment to links.

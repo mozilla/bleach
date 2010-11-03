@@ -102,3 +102,9 @@ def test_weird_strings():
 def test_xml_render():
     parser = html5lib.HTMLParser()
     eq_(render(parser.parseFragment(''), 'src'), '')
+
+
+def test_uppercase_html():
+    s = '<A HREF="#ANCHOR">X</A>'
+    eq_(b.clean(s), '&lt;A HREF="#ANCHOR"&gt;X&lt;/A&gt;')
+    eq_(b.clean(s, lowercase=True), '<a href="#ANCHOR">X</a>')
