@@ -12,12 +12,18 @@ def test_empty():
 
 
 def test_comments_only():
-    eq_('', b.clean('<!-- this is a comment -->'))
-    eq_('', b.clean('<!-- this is an open comment'))
+    comment = '<!-- this is a comment -->'
+    open_comment = '<!-- this is an open comment'
+    eq_('', b.clean(comment))
+    eq_('', b.clean(open_comment))
+    eq_(comment, b.clean(comment, strip_comments=False))
+    eq_('%s-->' % open_comment, b.clean(open_comment, strip_comments=False))
 
 
 def test_with_comments():
-    eq_('Just text', b.clean('<!-- comment -->Just text'))
+    html = '<!-- comment -->Just text'
+    eq_('Just text', b.clean(html))
+    eq_(html, b.clean(html, strip_comments=False))
 
 
 def test_no_html():

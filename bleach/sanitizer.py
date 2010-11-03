@@ -69,7 +69,8 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                 del token["name"]
                 return token
         elif token["type"] == tokenTypes["Comment"]:
-            pass
+            if not self.strip_html_comments:
+                return token
         else:
             return token
 
