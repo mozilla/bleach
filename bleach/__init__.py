@@ -29,6 +29,8 @@ ALLOWED_ATTRIBUTES = {
     'acronym': ['title'],
 }
 
+ALLOWED_STYLES = BleachSanitizer.acceptable_css_properties
+
 TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
        ba bb bd be bf bg bh bi biz bj bm bn bo br bs bt bv bw by bz ca cat
        cc cd cf cg ch ci ck cl cm cn co com coop cr cu cv cx cy cz de dj dk
@@ -92,7 +94,8 @@ class Bleach:
         return self.linkify(self.clean(string))
 
     def clean(self, string, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
-              strip=False, strip_comments=True, lowercase=False):
+              strip=False, strip_comments=True, lowercase=False,
+              styles=ALLOWED_STYLES):
         """Clean an HTML string and return it"""
         if not string:
             return u''
@@ -102,6 +105,7 @@ class Bleach:
         class s(BleachSanitizer):
             allowed_elements = tags
             allowed_attributes = attributes
+            allowed_css_properties = styles
             strip_disallowed_elements = strip
             strip_html_comments = strip_comments
 
