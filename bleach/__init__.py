@@ -95,14 +95,17 @@ class Bleach:
 
     def clean(self, string, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
               strip=False, strip_comments=True, lowercase=False,
-              styles=ALLOWED_STYLES):
+              styles=ALLOWED_STYLES, sanitizer_class=None):
         """Clean an HTML string and return it"""
         if not string:
             return u''
         elif string.startswith('<!--'):
             string = u' ' + string
 
-        class s(BleachSanitizer):
+        if not sanitizer_class:
+            sanitizer_class = BleachSanitizer
+
+        class s(sanitizer_class):
             allowed_elements = tags
             allowed_attributes = attributes
             allowed_css_properties = styles
