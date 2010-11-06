@@ -109,6 +109,7 @@ def test_uppercase_html():
     eq_(b.clean(s), '&lt;A HREF="#ANCHOR"&gt;X&lt;/A&gt;')
     eq_(b.clean(s, lowercase=True), '<a href="#ANCHOR">X</a>')
 
+
 def test_allowed_styles():
     ATTR = ['style']
     STYLE = ['top']
