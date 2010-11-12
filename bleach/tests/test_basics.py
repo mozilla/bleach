@@ -1,4 +1,6 @@
 import html5lib
+from html5lib.serializer.htmlserializer import HTMLSerializer
+from html5lib.serializer.xhtmlserializer import XHTMLSerializer
 
 from nose.tools import eq_
 
@@ -118,3 +120,16 @@ def test_allowed_styles():
     eq_(b.clean('<b style="top:0"></b>', attributes=ATTR), blank)
     eq_(b.clean(s, attributes=ATTR), s)
     eq_(b.clean(s, attributes=ATTR, styles=STYLE), blank)
+
+
+def test_serializer_class():
+    ATTRS = ['selected']
+    TAGS = ['br', 'option']
+    s = '<br><option selected>'
+    eq_(b.clean(s, tags=TAGS, attributes=ATTRS),
+        '<br /><option selected></option>')
+    eq_(b.clean(s, tags=TAGS, attributes=ATTRS,
+                serializer_class=HTMLSerializer), s)
+    eq_(b.clean(s, tags=TAGS, attributes=ATTRS,
+                serializer_class=XHTMLSerializer),
+        '<br /><option selected=""></option>')

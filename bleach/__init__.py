@@ -84,6 +84,12 @@ class BleachHTMLParser(html5lib.HTMLParser):
         return self.tree.getFragment()
 
 
+class BleachHTMLSerializer(HTMLSerializer):
+    omit_optional_tags = False
+    quote_attr_values = True
+    use_trailing_solidus = True
+
+
 class Bleach:
 
     def bleach(self, string):
@@ -95,7 +101,8 @@ class Bleach:
 
     def clean(self, string, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
               strip=False, strip_comments=True, lowercase=False,
-              styles=ALLOWED_STYLES, sanitizer_class=None):
+              styles=ALLOWED_STYLES, sanitizer_class=None,
+              serializer_class=None):
         """Clean an HTML string and return it"""
         if not string:
             return u''
@@ -117,9 +124,9 @@ class Bleach:
         tree = parser.parseFragment(string, lowercaseElementName=lowercase,
                                     lowercaseAttrName=lowercase)
 
-        return render(tree, string).strip()
+        return render(tree, string, serializer_class=serializer_class).strip()
 
-    def linkify(self, text, nofollow=True):
+    def linkify(self, text, nofollow=True, serializer_class=None):
         """Convert URL-like strings in an HTML fragment to links.
 
         linkify() converts strings that look like URLs or domain names in a
@@ -186,7 +193,7 @@ class Bleach:
 
         linkify_nodes(forest)
 
-        return render(forest, text)
+        return render(forest, text, serializer_class=serializer_class)
 
     def filter_url(self, url):
         """Applied to the href attribute of an autolinked URL"""
@@ -197,10 +204,11 @@ class Bleach:
         return url
 
 
-def render(tree, source):
+def render(tree, source, serializer_class=None):
     """Try rendering as HTML, then XML, then give up."""
     try:
-        return force_unicode(_serialize(tree))
+        return force_unicode(_serialize(tree,
+                                        serializer_class=serializer_class))
     except Exception, e:
         log.error('HTML: %r ::: %r' % (e, source))
         try:
@@ -210,10 +218,10 @@ def render(tree, source):
             return u''
 
 
-def _serialize(domtree):
+def _serialize(domtree, serializer_class=None):
+    if not serializer_class:
+        serializer_class = BleachHTMLSerializer
     walker = html5lib.treewalkers.getTreeWalker('simpletree')
     stream = walker(domtree)
-    serializer = HTMLSerializer(quote_attr_values=True,
-                                use_trailing_solidus=True,
-                                omit_optional_tags=False)
+    serializer = serializer_class()
     return serializer.render(stream)
