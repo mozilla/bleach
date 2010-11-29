@@ -57,6 +57,10 @@ def test_disallowed_html():
         b.clean('a <script>safe()</script> test'))
     eq_('a &lt;style&gt;body{}&lt;/style&gt; test',
         b.clean('a <style>body{}</style> test'))
+    eq_('a safe() test',
+        b.clean('a <script>safe()</script> test', strip=True))
+    eq_('a body{} test',
+        b.clean('a <style>body{}</style> test', strip=True))
 
 
 def test_bad_href():
@@ -79,8 +83,10 @@ def test_escaped_entities():
 def test_serializer():
     s = u'<table></table>'
     eq_(s, b.clean(s, tags=['table']))
+    eq_(s, b.clean(s, tags=['table'], strip=True))
     eq_(u'test<table></table>', b.linkify(u'<table>test</table>'))
     eq_(u'<p>test</p>', b.clean(u'<p>test</p>', tags=['p']))
+    eq_(u'<p>test</p>', b.clean(u'<p>test</p>', tags=['p'], strip=True))
 
 
 def test_no_href_links():
@@ -96,3 +102,21 @@ def test_weird_strings():
 def test_xml_render():
     parser = html5lib.HTMLParser()
     eq_(render(parser.parseFragment(''), 'src'), '')
+
+
+def test_stripping():
+    eq_('a test <em>with</em> <b>html</b> tags',
+        b.clean('a test <em>with</em> <b>html</b> tags', strip=True))
+    eq_('a test <em>with</em>  <b>html</b> tags',
+        b.clean('a test <em>with</em> <img src="http://example.com/"> '
+                '<b>html</b> tags', strip=True))
+
+    s = '<p><a href="http://example.com/">link text</a></p>'
+    eq_('<p>link text</p>', b.clean(s, tags=['p'], strip=True))
+    s = '<p><span>multiply <span>nested <span>text</span></span></span></p>'
+    eq_('<p>multiply nested text</p>', b.clean(s, tags=['p'], strip=True))
+
+    s = ('<p><a href="http://example.com/"><img src="http://example.com/">'
+         '</a></p>')
+    eq_('<p><a href="http://example.com/"></a></p>',
+        b.clean(s, tags=['p','a'], strip=True))
