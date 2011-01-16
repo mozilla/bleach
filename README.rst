@@ -24,16 +24,6 @@ The simplest way to use Bleach is::
     >>> bleach.linkify('an http://example.com url')
     'a <a href="http://example.com" rel="nofollow">http://example.com</a> url
 
-If you're going to be cleaning a number of strings, it may be more efficient to
-instantiate your own ``Bleach`` instance::
-
-    >>> from bleach import Bleach
-
-    >>> b = Bleach()
-
-    >>> b.clean('an <script>evil()</script> example')
-    'an &lt;script&gt;evil()&lt;/script&gt; example'
-
 
 Customizing Bleach
 ==================
