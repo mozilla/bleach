@@ -5,8 +5,8 @@ Bleach is an HTML sanitizing library designed to strip disallowed tags and
 attributes based on a whitelist, and can additionally autolinkify URLs in text
 with an extra filter layer that Django's ``urlize`` filter doesn't have.
 
-*The version on `github <http://github.com/jsocol/bleach>`_ is the most
-up-to-date and contains the latest bug fixes.*
+The version on `github <http://github.com/jsocol/bleach>`_ is the most
+up-to-date and contains the latest bug fixes.
 
 
 Basic Use
