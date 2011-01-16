@@ -141,3 +141,10 @@ def test_unsafe_url():
     eq_('All your{"<a href="http://xx.yy.com/grover.png" '
                      'rel="nofollow">xx.yy.com/grover.png</a>"}base are',
         b.linkify('All your{"xx.yy.com/grover.png"}base are'))
+
+
+def test_nofollow_relative():
+    s = 'a <a href="/relative">link</a>'
+    eq_(s, b.linkify(s))
+    eq_('a <a href="/relative" rel="nofollow">link</a>',
+        b.linkify(s, nofollow_relative=True))

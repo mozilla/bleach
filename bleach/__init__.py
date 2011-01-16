@@ -91,7 +91,7 @@ class Bleach(object):
 
         return render(parser.parseFragment(string), string).strip()
 
-    def linkify(self, text, nofollow=True):
+    def linkify(self, text, nofollow=True, nofollow_relative=False):
         """Convert URL-like strings in an HTML fragment to links.
 
         linkify() converts strings that look like URLs or domain names in a
@@ -134,11 +134,13 @@ class Bleach(object):
                     tree.removeChild(node)
                 else:
                     if node.name == 'a':
-                        if nofollow:
-                            node.attributes['rel'] = 'nofollow'
                         try:
-                            href = self.filter_url(node.attributes['href'])
-                            node.attributes['href'] = href
+                            href = node.attributes['href']
+                            relative = href.startswith('/')
+                            if ((relative and nofollow_relative) or
+                                (not relative and nofollow)):
+                                node.attributes['rel'] = 'nofollow'
+                            node.attributes['href'] = self.filter_url(href)
                         except KeyError:
                             pass
                     else:
