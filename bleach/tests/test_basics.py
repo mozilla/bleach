@@ -2,7 +2,7 @@ import html5lib
 
 from nose.tools import eq_
 
-from bleach import Bleach, render
+from bleach.bleach import Bleach, render
 
 b = Bleach()
 

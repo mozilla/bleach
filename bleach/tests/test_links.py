@@ -1,16 +1,13 @@
 from nose.tools import eq_
 import urllib
 
-from bleach import Bleach, url_re
+from bleach.bleach import Bleach, url_re
 
 b = Bleach()
 
 
-class cleach(Bleach):
-    def filter_url(self, url):
-        return u'http://bouncer/?u=%s' % urllib.quote_plus(url)
-
-c = cleach()
+def filter_url(url):
+    return u'http://bouncer/?u=%s' % urllib.quote_plus(url)
 
 
 def test_url_re():
@@ -34,7 +31,7 @@ def test_simple_link():
 
 def test_mangle_link():
     eq_('<a href="http://bouncer/?u=http%3A%2F%2Fexample.com" rel="nofollow">http://example.com</a>',
-        c.linkify('http://example.com'))
+        b.linkify('http://example.com', filter_url=filter_url))
 
 
 def test_email_link():

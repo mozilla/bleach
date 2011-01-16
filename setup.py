@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='bleach',
-    version='0.4.0',
+    version='0.5.0',
     description='An easy whitelist-based HTML-sanitizing tool.',
     long_description=open('README.rst').read(),
     author='James Socol',

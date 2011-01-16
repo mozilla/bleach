@@ -1,117 +1,89 @@
+======
 Bleach
 ======
 
-Bleach is an HTML sanitizing library designed to strip disallowed tags and
-attributes based on a whitelist, and can additionally autolinkify URLs in text
-with an extra filter layer that Django's ``urlize`` filter doesn't have.
+Bleach is an HTML sanitizing library that escapes or strips markup and
+attributes based on a white list. Bleach can also linkify text safely, applying
+filters that Django's ``urlize`` filter cannot, and optionally setting ``rel``
+attributes, even on links already in the text.
 
 The version on `github <http://github.com/jsocol/bleach>`_ is the most
 up-to-date and contains the latest bug fixes.
 
 
 Basic Use
----------
+=========
 
-The simplest way to use Bleach::
+The simplest way to use Bleach is::
 
-    >>> from bleach import Bleach
+    >>> import bleach
 
-    >>> bl = Bleach()
-
-    >>> bl.clean('an <script>evil()</script> example')
+    >>> bleach.clean('an <script>evil()</script> example')
     'an &lt;script&gt;evil()&lt;/script&gt; example'
 
-    # to linkify URLs and email addresses, use
-    >>> bl.linkify('a http://example.com url')
-    'a <a href="http://example.com" rel="nofollow">http://example.com</a> url'
+    >>> bleach.linkify('an http://example.com url')
+    'a <a href="http://example.com" rel="nofollow">http://example.com</a> url
 
-``clean()`` also fixes up some common errors::
-
-    >>> from bleach import Bleach
-
-    >>> bl = Bleach()
-
-    >>> bl.clean('unbalanced <em>tag')
-    'unbalanced <em>tag</em>'
-
-
-Advanced Use
-------------
-
-Bleach is relatively configurable.
-
-
-Clean - Advanced
-^^^^^^^^^^^^^^^^
-
-``clean()`` takes up to two optional arguments, ``tags`` and ``attributes``,
-which are instructions on what tags and attributes to allow, respectively.
-
-``tags`` is a list of whitelisted tags::
+If you're going to be cleaning a number of strings, it may be more efficient to
+instantiate your own ``Bleach`` instance::
 
     >>> from bleach import Bleach
 
-    >>> bl = Bleach()
+    >>> b = Bleach()
 
-    >>> TAGS = ['b', 'em', 'i', 'strong']
-
-    >>> bl.clean('<abbr>not allowed</abbr>', tags=TAGS)
-    '&lt;abbr&gt;not allowed&lt;/abbr&gt;'
-
-``attributes`` is either a list or, more powerfully, a dict of allowed
-attributes. If a list is used, it is applied to all allowed tags, but if a
-dict is use, the keys are tag names, and the values are lists of attributes
-allowed for that tag.
-
-For example::
-
-    >>> from bleach import Bleach
-
-    >>> bl = Bleach()
-
-    >>> ATTRS = {'a': ['href']}
-
-    >>> bl.clean('<a href="/" title="fail">link</a>', attributes=ATTRS)
-    '<a href="/">link</a>'
+    >>> b.clean('an <script>evil()</script> example')
+    'an &lt;script&gt;evil()&lt;/script&gt; example'
 
 
-Linkify - Advanced
-^^^^^^^^^^^^^^^^^^
+Customizing Bleach
+==================
 
-If you pass ``nofollow=False`` to ``linkify()``, links will not be created with
-``rel="nofollow"``. By default, ``nofollow`` is ``True``. If ``nofollow`` is
-``True``, then links found in the text will have their ``rel`` attributes set
-to ``nofollow`` as well, otherwise the attribute will not be modified.
-
-Configuring ``linkify()`` is somewhat more complicated. ``linkify()`` passes data
-through different **filters** before returning the string. By default, these
-filters do nothing, but if you subclass ``Bleach``, you can override them.
-
-All the filters take and return a single string.
+Both ``clean()`` and ``linkify()`` can take several optional keyword arguments
+to customize their behavior.
 
 
-filter_url
-**********
+``clean()``
+-----------
 
-``filter_url(self, url)`` is applied to URLs before they are put into the ``href``
-attribute of the link. If you need these links to go through a redirect or
-outbound script, ``filter_url()`` is the function to override.
++--------------------+-------------------------------------------------------+
+| ``tags``           | A whitelist of HTML tags. Must be a list. Defaults to |
+|                    | ``bleach.ALLOWED_TAGS``.                              |
++--------------------+-------------------------------------------------------+
+| ``attributes``     | A whitelist of HTML attributes. Either a list, in     |
+|                    | which case all attributes are allowed on all elements,|
+|                    | or a dict, with tag names as keys and lists of allowed|
+|                    | attributes as values. Defaults to                     |
+|                    | ``bleach.ALLOWED_ATTRIBUTES``.                        |
++--------------------+-------------------------------------------------------+
+| ``styles``         | A whitelist of allowed CSS properties within a        |
+|                    | ``style`` attribute. (Note that ``style`` attributes  |
+|                    | are not allowed by default.) Must be a list. Defaults |
+|                    | to ``[]``.                                            |
++--------------------+-------------------------------------------------------+
+| ``strip``          | Strip disallowed HTML instead of escaping it. A       |
+|                    | boolean. Defaults to ``False``.                       |
++--------------------+-------------------------------------------------------+
+| ``strip_comments`` | Strip HTML comments. A boolean. Defaults to ``True``. |
++--------------------+-------------------------------------------------------+
 
-For example::
 
-    import urllib
+``linkify()``
+-------------
 
-    from bleach import Bleach
-
-    class MyBleach(Bleach):
-        def filter_url(self, url):
-            return 'http://example.com/bounce?u=%s' % urllib.quote(url)
-
-Now, use ``MyBleach`` instead of ``Bleach`` and ``linkify()`` will route urls
-through your bouncer.
-
-
-filter_text
-******************
-
-This filter is applied to the link text of linkified URLs.
++-----------------------+----------------------------------------------------+
+| ``nofollow``          | Add ``rel="nofollow"`` to non-relative links (both |
+|                       | created by ``linkify()`` and those already present |
+|                       | in the text). Defaults to ``True``.                |
++-----------------------+----------------------------------------------------+
+| ``nofollow_relative`` | Add ``rel="nofollow"`` to relative links (starting |
+|                       | with ``/``) in the text. Defaults to ``False``.    |
++-----------------------+----------------------------------------------------+
+| ``filter_url``        | A callable through which the ``href`` attribute of |
+|                       | links (both created by ``linkify()`` and already   |
+|                       | present in the text) will be passed. Must accept a |
+|                       | single argument and return a string.               |
++-----------------------+----------------------------------------------------+
+| ``filter_text``       | A callable through which the text of links (only   |
+|                       | those created by ``linkify``) will be passed. Must |
+|                       | accept a single argument and return a string.      |
++-----------------------+----------------------------------------------------+
