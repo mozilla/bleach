@@ -1,4 +1,4 @@
 *.pyo
 *.pyc
 pip-log.txt
-
+.coverage

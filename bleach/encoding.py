@@ -3,6 +3,7 @@ import datetime
 
 from decimal import Decimal
 
+
 def is_protected_type(obj):
     """Determine if the object instance is of a protected type.
 

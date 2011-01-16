@@ -5,6 +5,7 @@ from html5lib.tokenizer import HTMLTokenizer
 from html5lib.constants import tokenTypes
 from html5lib.sanitizer import HTMLSanitizerMixin
 
+
 class BleachSanitizerMixin(HTMLSanitizerMixin):
     # Sanitize the +html+, escaping all elements not in ALLOWED_ELEMENTS, and
     # stripping out all # attributes not in ALLOWED_ATTRIBUTES. Style
@@ -18,7 +19,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
     #   sanitize_html('<a href="javascript: sucker();">Click here for $100</a>')
     #    => <a>Click here for $100</a>
     def sanitize_token(self, token):
-        if token["type"] in (tokenTypes["StartTag"], tokenTypes["EndTag"], 
+        if token["type"] in (tokenTypes["StartTag"], tokenTypes["EndTag"],
                              tokenTypes["EmptyTag"]):
             if token["name"] in self.allowed_elements:
                 if token.has_key("data"):
@@ -27,7 +28,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                     else:
                         allowed_attributes = self.allowed_attributes
                     attrs = dict([(name,val) for name,val in
-                                  token["data"][::-1] 
+                                  token["data"][::-1]
                                   if name in allowed_attributes])
                     for attr in self.attr_val_is_uri:
                         if not attrs.has_key(attr):
@@ -37,7 +38,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                         #remove replacement characters from unescaped characters
                         val_unescaped = val_unescaped.replace(u"\ufffd", "")
                         if (re.match("^[a-z0-9][-+.a-z0-9]*:",val_unescaped) and
-                            (val_unescaped.split(':')[0] not in 
+                            (val_unescaped.split(':')[0] not in
                              self.allowed_protocols)):
                             del attrs[attr]
                     for attr in self.svg_attr_val_allows_ref:

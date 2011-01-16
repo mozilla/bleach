@@ -6,6 +6,7 @@ from html5lib.serializer.htmlserializer import HTMLSerializer
 from sanitizer import BleachSanitizer
 from encoding import force_unicode
 
+
 log = logging.getLogger('bleach')
 
 ALLOWED_TAGS = [
@@ -60,7 +61,7 @@ proto_re = re.compile(r'^[\w-]+:/{0,3}')
 NODE_TEXT = 4  # the numeric ID of a text node in simpletree
 
 
-class Bleach:
+class Bleach(object):
 
     def bleach(self, string):
         """A shortcut to clean and linkify a string in one quick motion.
