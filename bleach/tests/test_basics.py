@@ -46,7 +46,7 @@ def test_function_arguments():
     TAGS = ['span']
     ATTRS = {'span': ['style']}
 
-    eq_('a <span style="color: red;">test</span>',
+    eq_('a <span style="">test</span>',
         b.clean('a <span style="color:red">test</span>',
                      tags=TAGS, attributes=ATTRS))
 
@@ -120,3 +120,14 @@ def test_stripping():
          '</a></p>')
     eq_('<p><a href="http://example.com/"></a></p>',
         b.clean(s, tags=['p','a'], strip=True))
+
+
+def test_allowed_styles():
+    ATTR = ['style']
+    STYLE = ['color']
+    blank = '<b style=""></b>'
+    s = '<b style="color: blue;"></b>'
+    eq_(blank, b.clean('<b style="top:0"></b>', attributes=ATTR))
+    eq_(s, b.clean(s, attributes=ATTR, styles=STYLE))
+    eq_(s, b.clean('<b style="top: 0; color: blue;"></b>', attributes=ATTR,
+                   styles=STYLE))
