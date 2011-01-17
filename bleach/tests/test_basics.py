@@ -15,7 +15,8 @@ def test_comments_only():
     eq_('', bleach.clean(comment))
     eq_('', bleach.clean(open_comment))
     eq_(comment, bleach.clean(comment, strip_comments=False))
-    eq_('%s-->' % open_comment, bleach.clean(open_comment, strip_comments=False))
+    eq_('%s-->' % open_comment, bleach.clean(open_comment,
+                                             strip_comments=False))
 
 
 def test_with_comments():
@@ -71,7 +72,8 @@ def test_bad_href():
 def test_bare_entities():
     eq_('an &amp; entity', bleach.clean('an & entity'))
     eq_('an &lt; entity', bleach.clean('an < entity'))
-    eq_('tag &lt; <em>and</em> entity', bleach.clean('tag < <em>and</em> entity'))
+    eq_('tag &lt; <em>and</em> entity',
+        bleach.clean('tag < <em>and</em> entity'))
     eq_('&amp;', bleach.clean('&amp;'))
 
 
@@ -117,7 +119,7 @@ def test_stripping():
     s = ('<p><a href="http://example.com/"><img src="http://example.com/">'
          '</a></p>')
     eq_('<p><a href="http://example.com/"></a></p>',
-        bleach.clean(s, tags=['p','a'], strip=True))
+        bleach.clean(s, tags=['p', 'a'], strip=True))
 
 
 def test_allowed_styles():
@@ -127,8 +129,8 @@ def test_allowed_styles():
     s = '<b style="color: blue;"></b>'
     eq_(blank, bleach.clean('<b style="top:0"></b>', attributes=ATTR))
     eq_(s, bleach.clean(s, attributes=ATTR, styles=STYLE))
-    eq_(s, bleach.clean('<b style="top: 0; color: blue;"></b>', attributes=ATTR,
-                   styles=STYLE))
+    eq_(s, bleach.clean('<b style="top: 0; color: blue;"></b>',
+                        attributes=ATTR, styles=STYLE))
 
 
 def test_idempotent():
@@ -140,3 +142,10 @@ def test_idempotent():
 
     linked = bleach.linkify(dirty)
     eq_(linked, bleach.linkify(linked))
+
+
+def test_lowercase_html():
+    """We should output lowercase HTML."""
+    dirty = u'<EM CLASS="FOO">BAR</EM>'
+    clean = u'<em class="FOO">BAR</em>'
+    eq_(clean, bleach.clean(dirty, attributes=['class']))

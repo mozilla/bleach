@@ -21,14 +21,17 @@ def test_empty():
 
 
 def test_simple_link():
-    eq_('a <a href="http://example.com" rel="nofollow">http://example.com</a> link',
+    eq_('a <a href="http://example.com" rel="nofollow">http://example.com'
+        '</a> link',
         linkify('a http://example.com link'))
-    eq_('a <a href="https://example.com" rel="nofollow">https://example.com</a> link',
+    eq_('a <a href="https://example.com" rel="nofollow">https://example.com'
+        '</a> link',
         linkify('a https://example.com link'))
 
 
 def test_mangle_link():
-    eq_('<a href="http://bouncer/?u=http%3A%2F%2Fexample.com" rel="nofollow">http://example.com</a>',
+    eq_('<a href="http://bouncer/?u=http%3A%2F%2Fexample.com" rel="nofollow">'
+        'http://example.com</a>',
         linkify('http://example.com', filter_url=filter_url))
 
 
@@ -62,7 +65,8 @@ def test_nofollow_off():
 def test_link_in_html():
     eq_('<i><a href="http://yy.com" rel="nofollow">http://yy.com</a></i>',
         linkify('<i>http://yy.com</i>'))
-    eq_('<em><strong><a href="http://xx.com" rel="nofollow">http://xx.com</a></strong></em>',
+    eq_('<em><strong><a href="http://xx.com" rel="nofollow">http://xx.com</a>'
+        '</strong></em>',
         linkify('<em><strong>http://xx.com</strong></em>'))
 
 
@@ -78,31 +82,38 @@ def test_add_rel_nofollow():
 
 
 def test_url_with_path():
-    eq_('<a href="http://example.com/path/to/file" rel="nofollow">http://example.com/path/to/file</a>',
+    eq_('<a href="http://example.com/path/to/file" rel="nofollow">'
+        'http://example.com/path/to/file</a>',
         linkify('http://example.com/path/to/file'))
 
 
 def test_link_ftp():
-    eq_('<a href="ftp://ftp.mozilla.org/some/file" rel="nofollow">ftp://ftp.mozilla.org/some/file</a>',
+    eq_('<a href="ftp://ftp.mozilla.org/some/file" rel="nofollow">'
+        'ftp://ftp.mozilla.org/some/file</a>',
         linkify('ftp://ftp.mozilla.org/some/file'))
 
 
 def test_link_query():
-    eq_('<a href="http://xx.com/?test=win" rel="nofollow">http://xx.com/?test=win</a>',
+    eq_('<a href="http://xx.com/?test=win" rel="nofollow">'
+        'http://xx.com/?test=win</a>',
         linkify('http://xx.com/?test=win'))
-    eq_('<a href="http://xx.com/?test=win" rel="nofollow">xx.com/?test=win</a>',
+    eq_('<a href="http://xx.com/?test=win" rel="nofollow">'
+        'xx.com/?test=win</a>',
         linkify('xx.com/?test=win'))
-    eq_('<a href="http://xx.com?test=win" rel="nofollow">xx.com?test=win</a>',
+    eq_('<a href="http://xx.com?test=win" rel="nofollow">'
+        'xx.com?test=win</a>',
         linkify('xx.com?test=win'))
 
 
 def test_link_fragment():
-    eq_('<a href="http://xx.com/path#frag" rel="nofollow">http://xx.com/path#frag</a>',
+    eq_('<a href="http://xx.com/path#frag" rel="nofollow">'
+        'http://xx.com/path#frag</a>',
         linkify('http://xx.com/path#frag'))
 
 
 def test_link_entities():
-    eq_('<a href="http://xx.com/?a=1&amp;b=2" rel="nofollow">http://xx.com/?a=1&amp;b=2</a>',
+    eq_('<a href="http://xx.com/?a=1&amp;b=2" rel="nofollow">'
+        'http://xx.com/?a=1&amp;b=2</a>',
         linkify('http://xx.com/?a=1&b=2'))
 
 
@@ -115,7 +126,9 @@ def test_escaped_html():
 # TODO:
 # - Can this pass eventually?
 #def test_link_http_complete():
-#    eq_('<a href="https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;c=d&amp;e#f">https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;c=d&amp;e#f</a>',
+#    eq_('<a href="https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;c=d'
+#        '&amp;e#f">https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;'
+#        'c=d&amp;e#f</a>',
 #        linkify('https://user:pass@ftp.mozilla.org/x/y.exe?a=b&c=d&e#f'))
 
 
