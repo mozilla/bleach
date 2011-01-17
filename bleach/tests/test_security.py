@@ -65,3 +65,11 @@ def test_unclosed_tag():
         clean('<script src="http://xx.com/xss.js"<b>'))
     eq_('&lt;script src="http://xx.com/xss.js" &lt;b=""&gt;',
         clean('<script src="http://xx.com/xss.js" <b>'))
+
+
+def test_strip():
+    """Using strip=True shouldn't result in malicious content."""
+    s = '<scri<script>pt>alert(1)</scr</script>ipt>'
+    eq_('pt&gt;alert(1)ipt&gt;', clean(s, strip=True))
+    s = '<scri<scri<script>pt>pt>alert(1)</script>'
+    eq_('pt&gt;pt&gt;alert(1)', clean(s, strip=True))
