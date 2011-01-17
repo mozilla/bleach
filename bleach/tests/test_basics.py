@@ -1,5 +1,4 @@
 import html5lib
-
 from nose.tools import eq_
 
 import bleach

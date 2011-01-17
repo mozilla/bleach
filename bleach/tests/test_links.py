@@ -1,5 +1,6 @@
-from nose.tools import eq_
 import urllib
+
+from nose.tools import eq_
 
 from bleach import linkify, url_re
 

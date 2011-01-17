@@ -1,9 +1,9 @@
 import re
 from xml.sax.saxutils import escape, unescape
 
-from html5lib.tokenizer import HTMLTokenizer
 from html5lib.constants import tokenTypes
 from html5lib.sanitizer import HTMLSanitizerMixin
+from html5lib.tokenizer import HTMLTokenizer
 
 
 class BleachSanitizerMixin(HTMLSanitizerMixin):

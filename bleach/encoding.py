@@ -1,7 +1,6 @@
-import types
 import datetime
-
 from decimal import Decimal
+import types
 
 
 def is_protected_type(obj):
