@@ -77,3 +77,7 @@ to customize their behavior.
 |                       | those created by ``linkify``) will be passed. Must |
 |                       | accept a single argument and return a string.      |
 +-----------------------+----------------------------------------------------+
+| ``skip_pre``          | Do not create new links inside ``<pre>`` sections. |
+|                       | Still follows ``nofollow`` and                     |
+|                       | ``nofollow_relative``.                             |
++-----------------------+----------------------------------------------------+
