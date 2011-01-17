@@ -90,7 +90,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
 
 def linkify(text, nofollow=True, nofollow_relative=False,
-            filter_url=identity, filter_text=identity):
+            filter_url=identity, filter_text=identity, skip_pre=False):
     """Convert URL-like strings in an HTML fragment to links.
 
     linkify() converts strings that look like URLs or domain names in a
@@ -121,27 +121,28 @@ def linkify(text, nofollow=True, nofollow_relative=False,
     else:
         rel = u''
 
-    def linkify_nodes(tree):
+    def linkify_nodes(tree, parse_text=True):
         for node in tree.childNodes:
-            if node.type == NODE_TEXT:
+            if node.type == NODE_TEXT and parse_text:
                 new_frag = re.sub(url_re, link_repl, node.toxml())
                 new_tree = parser.parseFragment(new_frag)
                 for n in new_tree.childNodes:
                     tree.insertBefore(n, node)
                 tree.removeChild(node)
+            elif node.name == 'a':
+                try:
+                    href = node.attributes['href']
+                    relative = href.startswith('/')
+                    if ((relative and nofollow_relative) or
+                        (not relative and nofollow)):
+                        node.attributes['rel'] = 'nofollow'
+                    node.attributes['href'] = filter_url(href)
+                except KeyError:
+                    pass
+            elif skip_pre and node.name == 'pre':
+                linkify_nodes(node, False)
             else:
-                if node.name == 'a':
-                    try:
-                        href = node.attributes['href']
-                        relative = href.startswith('/')
-                        if ((relative and nofollow_relative) or
-                            (not relative and nofollow)):
-                            node.attributes['rel'] = 'nofollow'
-                        node.attributes['href'] = filter_url(href)
-                    except KeyError:
-                        pass
-                else:
-                    linkify_nodes(node)
+                linkify_nodes(node)
 
     def link_repl(match):
         url = match.group(0)

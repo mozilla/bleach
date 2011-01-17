@@ -153,7 +153,25 @@ def test_unsafe_url():
 
 
 def test_nofollow_relative():
+    """Don't add rel="nofollow" to relative links by default."""
     s = 'a <a href="/relative">link</a>'
     eq_(s, linkify(s))
     eq_('a <a href="/relative" rel="nofollow">link</a>',
         linkify(s, nofollow_relative=True))
+
+
+def test_skip_pre():
+    """Skip linkification in <pre> tags."""
+    simple = 'http://xx.com <pre>http://xx.com</pre>'
+    linked = ('<a href="http://xx.com" rel="nofollow">http://xx.com</a> '
+              '<pre>http://xx.com</pre>')
+    all_linked = ('<a href="http://xx.com" rel="nofollow">http://xx.com</a> '
+                  '<pre><a href="http://xx.com" rel="nofollow">http://xx.com'
+                  '</a></pre>')
+    eq_(linked, linkify(simple, skip_pre=True))
+    eq_(all_linked, linkify(simple))
+
+    already_linked = '<pre><a href="http://xx.com">xx</a></pre>'
+    nofollowed = '<pre><a href="http://xx.com" rel="nofollow">xx</a></pre>'
+    eq_(nofollowed, linkify(already_linked))
+    eq_(nofollowed, linkify(already_linked, skip_pre=True))
