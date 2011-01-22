@@ -43,12 +43,12 @@ def test_bad_html():
 
 
 def test_function_arguments():
-    TAGS = ['span']
+    TAGS = ['span', 'br']
     ATTRS = {'span': ['style']}
 
-    eq_('a <span style="">test</span>',
-        b.clean('a <span style="color:red">test</span>',
-                     tags=TAGS, attributes=ATTRS))
+    eq_('a <br><span style="">test</span>',
+        b.clean('a <br/><span style="color:red">test</span>',
+                tags=TAGS, attributes=ATTRS))
 
 
 def test_named_arguments():

@@ -7,24 +7,27 @@ from html5lib.sanitizer import HTMLSanitizerMixin
 
 
 class BleachSanitizerMixin(HTMLSanitizerMixin):
-    # Sanitize the +html+, escaping all elements not in ALLOWED_ELEMENTS, and
-    # stripping out all # attributes not in ALLOWED_ATTRIBUTES. Style
-    # attributes are parsed, and a restricted set, # specified by
-    # ALLOWED_CSS_PROPERTIES and ALLOWED_CSS_KEYWORDS, are allowed through.
-    # attributes in ATTR_VAL_IS_URI are scanned, and only URI schemes specified
-    # in ALLOWED_PROTOCOLS are allowed.
-    #
-    #   sanitize_html('<script> do_nasty_stuff() </script>')
-    #    => &lt;script> do_nasty_stuff() &lt;/script>
-    #   sanitize_html('<a href="javascript: sucker();">Click here for $100</a>')
-    #    => <a>Click here for $100</a>
+    """Mixin to replace sanitize_token() and sanitize_css()."""
+
+    allowed_svg_properties = []
+
     def sanitize_token(self, token):
-        if token["type"] in (tokenTypes["StartTag"], tokenTypes["EndTag"],
-                             tokenTypes["EmptyTag"]):
-            if token["name"] in self.allowed_elements:
-                if token.has_key("data"):
-                    if isinstance(self.allowed_attributes,dict):
-                        allowed_attributes = self.allowed_attributes.get(token["name"],[])
+        """Sanitize a token either by HTML-encoding or dropping.
+
+        Unlike HTMLSanitizerMixin.sanitize_token, allowed_attributes can be
+        a dict of 'tag' => ['attribute', 'pairs'].
+
+        Also gives the option to strip tags instead of encoding.
+
+        """
+
+        if token['type'] in (tokenTypes['StartTag'], tokenTypes['EndTag'],
+                             tokenTypes['EmptyTag']):
+            if token['name'] in self.allowed_elements:
+                if 'data' in token:
+                    if isinstance(self.allowed_attributes, dict):
+                        allowed_attributes = self.allowed_attributes.get(
+                            token['name'], [])
                     else:
                         allowed_attributes = self.allowed_attributes
                     attrs = dict([(name,val) for name,val in
@@ -74,6 +77,36 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                 return token
         else:
             return token
+
+    def sanitize_css(self, style):
+        """HTMLSanitizerMixin.sanitize_css replacement.
+
+        HTMLSanitizerMixin.sanitize_css always whitelists background-*,
+        border-*, margin-*, and padding-*. We only whitelist what's in
+        the whitelist.
+
+        """
+        # disallow urls
+        style = re.compile('url\s*\(\s*[^\s)]+?\s*\)\s*').sub(' ', style)
+
+        # gauntlet
+        if not re.match("""^([:,;#%.\sa-zA-Z0-9!]|\w-\w|'[\s\w]+"""
+                        """'|"[\s\w]+"|\([\d,\s]+\))*$""",
+                        style):
+            return ''
+        if not re.match("^\s*([-\w]+\s*:[^:;]*(;\s*|$))*$", style):
+            return ''
+
+        clean = []
+        for prop, value in re.findall('([-\w]+)\s*:\s*([^:;]*)', style):
+          if not value:
+              continue
+          if prop.lower() in self.allowed_css_properties:
+              clean.append(prop + ': ' + value + ';')
+          elif prop.lower() in self.allowed_svg_properties:
+              clean.append(prop + ': ' + value + ';')
+
+        return ' '.join(clean)
 
 
 class BleachSanitizer(HTMLTokenizer, BleachSanitizerMixin):
