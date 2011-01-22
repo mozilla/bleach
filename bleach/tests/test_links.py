@@ -152,14 +152,6 @@ def test_unsafe_url():
         linkify('All your{"xx.yy.com/grover.png"}base are'))
 
 
-def test_nofollow_relative():
-    """Don't add rel="nofollow" to relative links by default."""
-    s = 'a <a href="/relative">link</a>'
-    eq_(s, linkify(s))
-    eq_('a <a href="/relative" rel="nofollow">link</a>',
-        linkify(s, nofollow_relative=True))
-
-
 def test_skip_pre():
     """Skip linkification in <pre> tags."""
     simple = 'http://xx.com <pre>http://xx.com</pre>'

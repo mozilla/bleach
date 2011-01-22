@@ -90,6 +90,7 @@ def test_serializer():
 
 def test_no_href_links():
     s = u'<a name="anchor">x</a>'
+    eq_(s, bleach.linkify(s))
     eq_(s, bleach.linkify(s, nofollow=False))
 
 

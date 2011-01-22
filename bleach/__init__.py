@@ -89,8 +89,8 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
     return _render(parser.parseFragment(text), text).strip()
 
 
-def linkify(text, nofollow=True, nofollow_relative=False,
-            filter_url=identity, filter_text=identity, skip_pre=False):
+def linkify(text, nofollow=True, filter_url=identity,
+            filter_text=identity, skip_pre=False):
     """Convert URL-like strings in an HTML fragment to links.
 
     linkify() converts strings that look like URLs or domain names in a
@@ -130,15 +130,11 @@ def linkify(text, nofollow=True, nofollow_relative=False,
                     tree.insertBefore(n, node)
                 tree.removeChild(node)
             elif node.name == 'a':
-                try:
-                    href = node.attributes['href']
-                    relative = href.startswith('/')
-                    if ((relative and nofollow_relative) or
-                        (not relative and nofollow)):
+                if 'href' in node.attributes:
+                    if nofollow:
                         node.attributes['rel'] = 'nofollow'
+                    href = node.attributes['href']
                     node.attributes['href'] = filter_url(href)
-                except KeyError:
-                    pass
             elif skip_pre and node.name == 'pre':
                 linkify_nodes(node, False)
             else:
