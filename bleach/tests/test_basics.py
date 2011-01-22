@@ -41,11 +41,11 @@ def test_bad_html():
 
 
 def test_function_arguments():
-    TAGS = ['span']
+    TAGS = ['span', 'br']
     ATTRS = {'span': ['style']}
 
-    eq_('a <span style="">test</span>',
-        bleach.clean('a <span style="color:red">test</span>',
+    eq_('a <br><span style="">test</span>',
+        bleach.clean('a <br/><span style="color:red">test</span>',
                      tags=TAGS, attributes=ATTRS))
 
 

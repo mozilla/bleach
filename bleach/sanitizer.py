@@ -7,9 +7,20 @@ from html5lib.tokenizer import HTMLTokenizer
 
 
 class BleachSanitizerMixin(HTMLSanitizerMixin):
-    """Mixin to replace sanitize_token() with a more flexible version."""
+    """Mixin to replace sanitize_token() and sanitize_css()."""
+
+    allowed_svg_properties = []
 
     def sanitize_token(self, token):
+        """Sanitize a token either by HTML-encoding or dropping.
+
+        Unlike HTMLSanitizerMixin.sanitize_token, allowed_attributes can be
+        a dict of 'tag' => ['attribute', 'pairs'].
+
+        Also gives the option to strip tags instead of encoding.
+
+        """
+
         if token['type'] in (tokenTypes['StartTag'], tokenTypes['EndTag'],
                              tokenTypes['EmptyTag']):
             if token['name'] in self.allowed_elements:
@@ -69,6 +80,36 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                 return token
         else:
             return token
+
+    def sanitize_css(self, style):
+        """HTMLSanitizerMixin.sanitize_css replacement.
+
+        HTMLSanitizerMixin.sanitize_css always whitelists background-*,
+        border-*, margin-*, and padding-*. We only whitelist what's in
+        the whitelist.
+
+        """
+        # disallow urls
+        style = re.compile('url\s*\(\s*[^\s)]+?\s*\)\s*').sub(' ', style)
+
+        # gauntlet
+        if not re.match("""^([:,;#%.\sa-zA-Z0-9!]|\w-\w|'[\s\w]+"""
+                        """'|"[\s\w]+"|\([\d,\s]+\))*$""",
+                        style):
+            return ''
+        if not re.match("^\s*([-\w]+\s*:[^:;]*(;\s*|$))*$", style):
+            return ''
+
+        clean = []
+        for prop, value in re.findall('([-\w]+)\s*:\s*([^:;]*)', style):
+          if not value:
+              continue
+          if prop.lower() in self.allowed_css_properties:
+              clean.append(prop + ': ' + value + ';')
+          elif prop.lower() in self.allowed_svg_properties:
+              clean.append(prop + ': ' + value + ';')
+
+        return ' '.join(clean)
 
 
 class BleachSanitizer(HTMLTokenizer, BleachSanitizerMixin):
