@@ -2,3 +2,5 @@
 *.pyc
 pip-log.txt
 .coverage
+dist
+*.egg-info
