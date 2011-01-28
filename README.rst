@@ -65,9 +65,6 @@ to customize their behavior.
 |                       | created by ``linkify()`` and those already present |
 |                       | in the text). Defaults to ``True``.                |
 +-----------------------+----------------------------------------------------+
-| ``nofollow_relative`` | Add ``rel="nofollow"`` to relative links (starting |
-|                       | with ``/``) in the text. Defaults to ``False``.    |
-+-----------------------+----------------------------------------------------+
 | ``filter_url``        | A callable through which the ``href`` attribute of |
 |                       | links (both created by ``linkify()`` and already   |
 |                       | present in the text) will be passed. Must accept a |
@@ -78,6 +75,5 @@ to customize their behavior.
 |                       | accept a single argument and return a string.      |
 +-----------------------+----------------------------------------------------+
 | ``skip_pre``          | Do not create new links inside ``<pre>`` sections. |
-|                       | Still follows ``nofollow`` and                     |
-|                       | ``nofollow_relative``.                             |
+|                       | Still follows ``nofollow``.                        |
 +-----------------------+----------------------------------------------------+
