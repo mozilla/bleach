@@ -30,6 +30,17 @@ def test_simple_link():
         linkify('a https://example.com link'))
 
 
+def test_trailing_slash():
+    eq_('<a href="http://example.com/" rel="nofollow">http://example.com/</a>',
+       linkify('http://example.com/'))
+    eq_('<a href="http://example.com/foo/" rel="nofollow">'
+        'http://example.com/foo/</a>',
+       linkify('http://example.com/foo/'))
+    eq_('<a href="http://example.com/foo/bar/" rel="nofollow">'
+        'http://example.com/foo/bar/</a>',
+       linkify('http://example.com/foo/bar/'))
+
+
 def test_mangle_link():
     eq_('<a href="http://bouncer/?u=http%3A%2F%2Fexample.com" rel="nofollow">'
         'http://example.com</a>',
