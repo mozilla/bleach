@@ -102,12 +102,12 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
 
         clean = []
         for prop, value in re.findall('([-\w]+)\s*:\s*([^:;]*)', style):
-          if not value:
-              continue
-          if prop.lower() in self.allowed_css_properties:
-              clean.append(prop + ': ' + value + ';')
-          elif prop.lower() in self.allowed_svg_properties:
-              clean.append(prop + ': ' + value + ';')
+            if not value:
+                continue
+            if prop.lower() in self.allowed_css_properties:
+                clean.append(prop + ': ' + value + ';')
+            elif prop.lower() in self.allowed_svg_properties:
+                clean.append(prop + ': ' + value + ';')
 
         return ' '.join(clean)
 

@@ -4,3 +4,4 @@ pip-log.txt
 .coverage
 dist
 *.egg-info
+.noseids

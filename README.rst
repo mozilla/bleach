@@ -22,7 +22,7 @@ The simplest way to use Bleach is::
     'an &lt;script&gt;evil()&lt;/script&gt; example'
 
     >>> bleach.linkify('an http://example.com url')
-    'a <a href="http://example.com" rel="nofollow">http://example.com</a> url
+    'an <a href="http://example.com" rel="nofollow">http://example.com</a> url
 
 
 Customizing Bleach
