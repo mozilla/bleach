@@ -178,3 +178,14 @@ def test_skip_pre():
     nofollowed = '<pre><a href="http://xx.com" rel="nofollow">xx</a></pre>'
     eq_(nofollowed, linkify(already_linked))
     eq_(nofollowed, linkify(already_linked, skip_pre=True))
+
+
+def test_libgl():
+    """libgl.so.1 should not be linkified."""
+    eq_('libgl.so.1', linkify('libgl.so.1'))
+
+
+def test_end_of_sentence():
+    """example.com. should match."""
+    eq_('<a href="http://example.com" rel="nofollow">example.com</a>.',
+        linkify('example.com.'))

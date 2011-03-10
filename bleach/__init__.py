@@ -54,7 +54,7 @@ TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
 TLDS.reverse()
 
 url_re = re.compile(r"""\b(?:[\w-]+:/{0,3})?  # http://
-                    (?<!@)([\w-]+\.)+(?:%s)\b   # xx.yy.tld
+                    (?<!@)([\w-]+\.)+(?:%s)(?!\.\w)\b   # xx.yy.tld
                     (?:[/?][^\s\{\}\|\\\^\[\]`<>"\x80-\xFF\x00-\x1F\x7F]*)?
                         # /path/zz (excluding "unsafe" chars from RFC 1738,
                         # except for # and ~, which happen in practice)
