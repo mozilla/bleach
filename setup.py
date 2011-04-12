@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='bleach',
-    version='1.0.0',
+    version='1.0.1',
     description='An easy whitelist-based HTML-sanitizing tool.',
     long_description=open('README.rst').read(),
     author='James Socol',
@@ -11,7 +11,7 @@ setup(
     license='BSD',
     packages=['bleach'],
     include_package_data=True,
-    package_data = { '': ['README.rst'] },
+    package_data={'': ['README.rst']},
     zip_safe=False,
     install_requires=['html5lib'],
     classifiers=[
