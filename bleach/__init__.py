@@ -94,7 +94,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
 
 def linkify(text, nofollow=True, filter_url=identity,
-            filter_text=identity, skip_pre=False):
+            filter_text=identity, skip_pre=False, parse_email=False):
     """Convert URL-like strings in an HTML fragment to links.
 
     linkify() converts strings that look like URLs or domain names in a
@@ -134,12 +134,13 @@ def linkify(text, nofollow=True, filter_url=identity,
     def linkify_nodes(tree, parse_text=True):
         for node in tree.childNodes:
             if node.type == NODE_TEXT and parse_text:
-                new_frag = re.sub(email_re, email_repl, node.toxml())
-                if new_frag != node.toxml():
-                    replace_nodes(tree, new_frag, node)
-                    linkify_nodes(tree, False)
-                    continue
-
+                new_frag = node.toxml()
+                if parse_email:
+                    new_frag = re.sub(email_re, email_repl, new_frag)
+                    if new_frag != node.toxml():
+                        replace_nodes(tree, new_frag, node)
+                        linkify_nodes(tree, False)
+                        continue
                 new_frag = re.sub(url_re, link_repl, new_frag)
                 replace_nodes(tree, new_frag, node)
             elif node.name == 'a':
