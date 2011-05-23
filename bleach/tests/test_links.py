@@ -50,6 +50,11 @@ def test_mangle_link():
 def test_email_link():
     eq_('a james@example.com mailto',
         linkify('a james@example.com mailto'))
+    eq_('a <a href="mailto:james@example.com" rel="nofollow">james@example.com</a> mailto',
+        linkify('a james@example.com mailto', parse_email=True))
+    eq_('email to <a href="james@example.com" rel="nofollow">james@example.com</a>',
+        linkify('email to <a href="james@example.com">james@example.com</a>', parse_email=True))
+
 
 
 def test_tlds():
