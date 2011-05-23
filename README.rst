@@ -77,3 +77,6 @@ to customize their behavior.
 | ``skip_pre``          | Do not create new links inside ``<pre>`` sections. |
 |                       | Still follows ``nofollow``.                        |
 +-----------------------+----------------------------------------------------+
+| ``parse_email``       | Linkify email addresses with ``mailto:``. Defaults |
+|                       | ``False``.                                         |
++-----------------------+----------------------------------------------------+
