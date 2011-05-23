@@ -63,6 +63,11 @@ url_re = re.compile(r"""\b(?:[\w-]+:/{0,3})?  # http://
 
 proto_re = re.compile(r'^[\w-]+:/{0,3}')
 
+email_re = re.compile(
+    r"(([-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"  # dot-atom
+    r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-011\013\014\016-\177])*"' # quoted-string
+    r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6})\.?', flags=re.I|re.M)  # domain
+
 NODE_TEXT = 4  # The numeric ID of a text node in simpletree.
 
 identity = lambda x: x  # The identity function.
@@ -120,14 +125,23 @@ def linkify(text, nofollow=True, filter_url=identity,
     else:
         rel = u''
 
+    def replace_nodes(tree, new_frag, node):
+        new_tree = parser.parseFragment(new_frag)
+        for n in new_tree.childNodes:
+            tree.insertBefore(n, node)
+        tree.removeChild(node)
+
     def linkify_nodes(tree, parse_text=True):
         for node in tree.childNodes:
             if node.type == NODE_TEXT and parse_text:
-                new_frag = re.sub(url_re, link_repl, node.toxml())
-                new_tree = parser.parseFragment(new_frag)
-                for n in new_tree.childNodes:
-                    tree.insertBefore(n, node)
-                tree.removeChild(node)
+                new_frag = re.sub(email_re, email_repl, node.toxml())
+                if new_frag != node.toxml():
+                    replace_nodes(tree, new_frag, node)
+                    linkify_nodes(tree, False)
+                    continue
+
+                new_frag = re.sub(url_re, link_repl, new_frag)
+                replace_nodes(tree, new_frag, node)
             elif node.name == 'a':
                 if 'href' in node.attributes:
                     if nofollow:
@@ -138,6 +152,11 @@ def linkify(text, nofollow=True, filter_url=identity,
                 linkify_nodes(node, False)
             else:
                 linkify_nodes(node)
+
+
+    def email_repl(match):
+        repl = u'<a href="mailto:%(mail)s">%(mail)s</a>'
+        return repl % {'mail': match.group(0)}
 
     def link_repl(match):
         url = match.group(0)
