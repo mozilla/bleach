@@ -42,7 +42,9 @@ to customize their behavior.
 | ``attributes``     | A whitelist of HTML attributes. Either a list, in     |
 |                    | which case all attributes are allowed on all elements,|
 |                    | or a dict, with tag names as keys and lists of allowed|
-|                    | attributes as values. Defaults to                     |
+|                    | attributes as values. Or it is possible to pass a     |
+|                    | callable instead of a list that accepts name and value|
+|                    | of attribute and returns True of False. Defaults to   |
 |                    | ``bleach.ALLOWED_ATTRIBUTES``.                        |
 +--------------------+-------------------------------------------------------+
 | ``styles``         | A whitelist of allowed CSS properties within a        |
