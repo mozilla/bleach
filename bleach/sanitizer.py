@@ -15,7 +15,10 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
         """Sanitize a token either by HTML-encoding or dropping.
 
         Unlike HTMLSanitizerMixin.sanitize_token, allowed_attributes can be
-        a dict of 'tag' => ['attribute', 'pairs'].
+        a dict of {'tag': ['attribute', 'pairs'], 'tag': callable}.
+
+        Here callable is a function with two arguments of attribute name
+        and value. It should return true of false.
 
         Also gives the option to strip tags instead of encoding.
 
@@ -32,7 +35,9 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                         allowed_attributes = self.allowed_attributes
                     attrs = dict([(name, val) for name, val in
                                   token['data'][::-1]
-                                  if name in allowed_attributes])
+                                  if (allowed_attributes(name, val) 
+                                      if callable(allowed_attributes)
+                                      else name in allowed_attributes)])
                     for attr in self.attr_val_is_uri:
                         if not attr in attrs:
                             continue

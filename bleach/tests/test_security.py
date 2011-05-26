@@ -51,6 +51,18 @@ def test_invalid_href_attr():
         clean('<a href="javascript:alert(\'XSS\')">xss</a>'))
 
 
+def test_invalid_filter_attr():
+    IMG = ['img', ]
+    IMG_ATTR = {'img': lambda name, val: name == 'src' and val == "http://example.com/"}
+
+    eq_('<img src="http://example.com/">',
+        clean('<img onclick="evil" src="http://example.com/" />',
+                tags=IMG, attributes=IMG_ATTR))
+
+    eq_('<img>', clean('<img onclick="evil" src="http://badhost.com/" />',
+                       tags=IMG, attributes=IMG_ATTR))
+
+
 def test_invalid_tag_char():
     eq_('&lt;script xss="" src="http://xx.com/xss.js"&gt;&lt;/script&gt;',
         clean('<script/xss src="http://xx.com/xss.js"></script>'))
