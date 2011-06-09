@@ -52,11 +52,16 @@ def test_mangle_link():
 def test_email_link():
     eq_('a james@example.com mailto',
         linkify('a james@example.com mailto'))
-    eq_('a <a href="mailto:james@example.com" rel="nofollow">james@example.com</a> mailto',
+    eq_('a <a href="mailto:james@example.com" rel="nofollow">'
+        'james@example.com</a> mailto',
         linkify('a james@example.com mailto', parse_email=True))
-    eq_('email to <a href="james@example.com" rel="nofollow">james@example.com</a>',
-        linkify('email to <a href="james@example.com">james@example.com</a>', parse_email=True))
-
+    eq_('aussie <a href="mailto:james@example.com.au" rel="nofollow">'
+        'james@example.com.au</a> mailto',
+        linkify('aussie james@example.com.au mailto', parse_email=True))
+    eq_('email to <a href="james@example.com" rel="nofollow">'
+        'james@example.com</a>',
+        linkify('email to <a href="james@example.com">'
+        'james@example.com</a>', parse_email=True))
 
 
 def test_tlds():
@@ -141,14 +146,12 @@ def test_escaped_html():
     s = '&lt;em&gt;strong&lt;/em&gt;'
     eq_(s, linkify(s))
 
-# Not supported at this time
-# TODO:
-# - Can this pass eventually?
-#def test_link_http_complete():
-#    eq_('<a href="https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;c=d'
-#        '&amp;e#f">https://user:pass@ftp.mozilla.com/x/y.exe?a=b&amp;'
-#        'c=d&amp;e#f</a>',
-#        linkify('https://user:pass@ftp.mozilla.org/x/y.exe?a=b&c=d&e#f'))
+
+def test_link_http_complete():
+    eq_('<a href="https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d'
+        '&amp;e#f" rel="nofollow">'
+        'https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f</a>',
+        linkify('https://user:pass@ftp.mozilla.org/x/y.exe?a=b&c=d&e#f'))
 
 
 def test_non_url():
