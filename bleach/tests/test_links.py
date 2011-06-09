@@ -64,6 +64,18 @@ def test_email_link():
         'james@example.com</a>', parse_email=True))
 
 
+def test_email_link_escaping():
+    eq_('''<a href='mailto:"james"@example.com' rel="nofollow">'''
+        '''"james"@example.com</a>''',
+        linkify('"james"@example.com', parse_email=True))
+    eq_('''<a href="mailto:&quot;j'ames&quot;@example.com" rel="nofollow">'''
+        '''"j'ames"@example.com</a>''',
+        linkify('"j\'ames"@example.com', parse_email=True))
+    eq_('''<a href='mailto:"ja>mes"@example.com' rel="nofollow">'''
+        '''"ja&gt;mes"@example.com</a>''',
+        linkify('"ja>mes"@example.com', parse_email=True))
+
+
 def test_tlds():
     eq_('<a href="http://example.com" rel="nofollow">example.com</a>',
         linkify('example.com'))

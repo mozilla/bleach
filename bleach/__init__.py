@@ -156,10 +156,9 @@ def linkify(text, nofollow=True, filter_url=identity,
             else:
                 linkify_nodes(node)
 
-
     def email_repl(match):
         repl = u'<a href="mailto:%(mail)s">%(mail)s</a>'
-        return repl % {'mail': match.group(0)}
+        return repl % {'mail': match.group(0).replace('"', '&quot;')}
 
     def link_repl(match):
         url = match.group(0)
