@@ -28,6 +28,8 @@ def test_simple_link():
     eq_('a <a href="https://example.com" rel="nofollow">https://example.com'
         '</a> link',
         linkify('a https://example.com link'))
+    eq_('an <a href="http://example.com" rel="nofollow">example.com</a> link',
+        linkify('an example.com link'))
 
 
 def test_trailing_slash():
