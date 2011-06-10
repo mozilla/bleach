@@ -52,6 +52,8 @@ def test_mangle_link():
 def test_email_link():
     eq_('a james@example.com mailto',
         linkify('a james@example.com mailto'))
+    eq_('a james@example.com.au mailto',
+        linkify('a james@example.com.au mailto'))
     eq_('a <a href="mailto:james@example.com" rel="nofollow">'
         'james@example.com</a> mailto',
         linkify('a james@example.com mailto', parse_email=True))
