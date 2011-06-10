@@ -53,8 +53,9 @@ TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
 
 TLDS.reverse()
 
-url_re = re.compile(r"""\b(?:[\w-]+:/{0,3})?  # http://
-                    (?<!@)([\w-]+\.)+(?:%s)(?!\.\w)\b   # xx.yy.tld
+url_re = re.compile(r"""\b(?<![@.])(?:\w[\w-]*:/{0,3}(?:(?:\w+:)?\w+@)?)?
+                                                                      # http://
+                    ([\w-]+\.)+(?:%s)(?!\.\w)\b   # xx.yy.tld
                     (?:[/?][^\s\{\}\|\\\^\[\]`<>"\x80-\xFF\x00-\x1F\x7F]*)?
                         # /path/zz (excluding "unsafe" chars from RFC 1738,
                         # except for # and ~, which happen in practice)
@@ -64,6 +65,7 @@ url_re = re.compile(r"""\b(?:[\w-]+:/{0,3})?  # http://
 proto_re = re.compile(r'^[\w-]+:/{0,3}')
 
 email_re = re.compile(
+    r"(?<!//)"
     r"(([-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"  # dot-atom
     r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-011\013\014\016-\177])*"' # quoted-string
     r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6})\.?', flags=re.I|re.M)  # domain
@@ -154,10 +156,9 @@ def linkify(text, nofollow=True, filter_url=identity,
             else:
                 linkify_nodes(node)
 
-
     def email_repl(match):
         repl = u'<a href="mailto:%(mail)s">%(mail)s</a>'
-        return repl % {'mail': match.group(0)}
+        return repl % {'mail': match.group(0).replace('"', '&quot;')}
 
     def link_repl(match):
         url = match.group(0)
