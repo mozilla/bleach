@@ -19,10 +19,12 @@ The simplest way to use Bleach is::
     >>> import bleach
 
     >>> bleach.clean('an <script>evil()</script> example')
-    'an &lt;script&gt;evil()&lt;/script&gt; example'
+    u'an &lt;script&gt;evil()&lt;/script&gt; example'
 
     >>> bleach.linkify('an http://example.com url')
-    'an <a href="http://example.com" rel="nofollow">http://example.com</a> url
+    u'an <a href="http://example.com" rel="nofollow">http://example.com</a> url
+
+*NB:* Bleach accepts bytestrings or unicode, but it **always** returns unicode.
 
 
 Customizing Bleach
