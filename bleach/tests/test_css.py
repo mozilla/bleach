@@ -19,6 +19,8 @@ def test_allowed_css():
         ('color: red; float: left; padding: 1em;', 'color: red; float: left;',
          ['color', 'float']),
         ('color: red; float: left; padding: 1em;', 'color: red;', ['color']),
+        ('border: medium 1pt 1pt none solid solid -moz-use-text-color windowtext windowtext;', 'border: medium 1pt 1pt none solid solid -moz-use-text-color windowtext windowtext;',
+         ['border']),
     )
 
     p = '<p style="%s">bar</p>'

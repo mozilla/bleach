@@ -98,7 +98,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
         style = re.compile('url\s*\(\s*[^\s)]+?\s*\)\s*').sub(' ', style)
 
         # gauntlet
-        if not re.match("""^([:,;#%.\sa-zA-Z0-9!]|\w-\w|'[\s\w]+"""
+        if not re.match("""^([-:,;#%.\sa-zA-Z0-9!]|\w-\w|'[\s\w]+"""
                         """'|"[\s\w]+"|\([\d,\s]+\))*$""",
                         style):
             return ''
