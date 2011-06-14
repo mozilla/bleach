@@ -84,3 +84,9 @@ to customize their behavior.
 | ``parse_email``       | Linkify email addresses with ``mailto:``. Defaults |
 |                       | ``False``.                                         |
 +-----------------------+----------------------------------------------------+
+
+
+Contributors
+============
+
+https://github.com/jsocol/bleach/contributors
