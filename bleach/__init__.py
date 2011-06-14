@@ -65,6 +65,8 @@ url_re = re.compile(r"""\b(?<![@.])(?:\w[\w-]*:/{0,3}(?:(?:\w+:)?\w+@)?)?
 
 proto_re = re.compile(r'^[\w-]+:/{0,3}')
 
+punct_re = re.compile(r'([\.,]+)$')
+
 email_re = re.compile(
     r"(?<!//)"
     r"(([-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"  # dot-atom
@@ -163,14 +165,19 @@ def linkify(text, nofollow=True, filter_url=identity,
 
     def link_repl(match):
         url = match.group(0)
+        end = u''
+        m = re.search(punct_re, url)
+        if m:
+            end = m.group(0)
+            url = url[0:m.start()]
         if re.search(proto_re, url):
             href = url
         else:
-            href = u''.join(['http://', url])
+            href = u''.join([u'http://', url])
 
-        repl = u'<a href="%s"%s>%s</a>'
+        repl = u'<a href="%s"%s>%s</a>%s'
 
-        return repl % (filter_url(href), rel, filter_text(url))
+        return repl % (filter_url(href), rel, filter_text(url), end)
 
     linkify_nodes(forest)
 

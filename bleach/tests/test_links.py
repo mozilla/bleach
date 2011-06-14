@@ -211,5 +211,24 @@ def test_libgl():
 
 def test_end_of_sentence():
     """example.com. should match."""
-    eq_('<a href="http://example.com" rel="nofollow">example.com</a>.',
-        linkify('example.com.'))
+    out = u'<a href="http://%s" rel="nofollow">%s</a>%s'
+    in_ = u'%s%s'
+
+    def check(u, p):
+        eq_(out % (u, u, p), linkify(in_ % (u, p)))
+
+    tests = (
+        ('example.com', '.'),
+        ('example.com', '...'),
+        ('ex.com/foo', '.'),
+        ('ex.com/foo', '....'),
+    )
+
+    for u, p in tests:
+        yield check, u, p
+
+
+def test_end_of_clause():
+    """example.com/foo, shouldn't include the ,"""
+    eq_('<a href="http://ex.com/foo" rel="nofollow">ex.com/foo</a>, bar',
+        linkify('ex.com/foo, bar'))
