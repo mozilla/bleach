@@ -68,10 +68,14 @@ proto_re = re.compile(r'^[\w-]+:/{0,3}')
 punct_re = re.compile(r'([\.,]+)$')
 
 email_re = re.compile(
-    r"(?<!//)"
-    r"(([-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"  # dot-atom
-    r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-011\013\014\016-\177])*"' # quoted-string
-    r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6})\.?', flags=re.I|re.M)  # domain
+    r"""(?<!//)
+    (([-!#$%&'*+/=?^_`{}|~0-9A-Z]+
+        (\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*  # dot-atom
+    |^"([\001-\010\013\014\016-\037!#-\[\]-\177]
+        |\\[\001-011\013\014\016-\177])*"  # quoted-string
+    )@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6})\.?  # domain
+    """,
+    re.IGNORECASE | re.MULTILINE | re.VERBOSE)
 
 NODE_TEXT = 4  # The numeric ID of a text node in simpletree.
 

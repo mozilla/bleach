@@ -53,7 +53,7 @@ def test_invalid_href_attr():
 
 def test_invalid_filter_attr():
     IMG = ['img', ]
-    IMG_ATTR = {'img': lambda name, val: name == 'src' and val == "http://example.com/"}
+    IMG_ATTR = {'img': lambda n, v: n == 'src' and v == "http://example.com/"}
 
     eq_('<img src="http://example.com/">',
         clean('<img onclick="evil" src="http://example.com/" />',

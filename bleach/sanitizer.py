@@ -35,7 +35,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                         allowed_attributes = self.allowed_attributes
                     attrs = dict([(name, val) for name, val in
                                   token['data'][::-1]
-                                  if (allowed_attributes(name, val) 
+                                  if (allowed_attributes(name, val)
                                       if callable(allowed_attributes)
                                       else name in allowed_attributes)])
                     for attr in self.attr_val_is_uri:
