@@ -8,7 +8,8 @@ from encoding import force_unicode
 from sanitizer import BleachSanitizer
 
 
-__version__ = '1.0.2'
+VERSION = (1, 0, 3)
+__version__ = '.'.join(map(str, VERSION))
 
 __all__ = ['clean', 'linkify']
 
