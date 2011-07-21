@@ -3,6 +3,7 @@ import re
 import sys
 
 import html5lib
+from html5lib.sanitizer import HTMLSanitizer
 from html5lib.serializer.htmlserializer import HTMLSerializer
 
 from encoding import force_unicode
@@ -126,7 +127,7 @@ def linkify(text, nofollow=True, filter_url=identity,
     if not text:
         return u''
 
-    parser = html5lib.HTMLParser()
+    parser = html5lib.HTMLParser(tokenizer=HTMLSanitizer)
 
     forest = parser.parseFragment(text)
 

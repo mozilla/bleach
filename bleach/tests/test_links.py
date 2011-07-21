@@ -232,3 +232,10 @@ def test_end_of_clause():
     """example.com/foo, shouldn't include the ,"""
     eq_('<a href="http://ex.com/foo" rel="nofollow">ex.com/foo</a>, bar',
         linkify('ex.com/foo, bar'))
+
+
+def test_sarcasm():
+    """Jokes should crash.<sarcasm/>"""
+    dirty = u'Yeah right <sarcasm/>'
+    clean = u'Yeah right &lt;sarcasm/&gt;'
+    eq_(clean, linkify(dirty))
