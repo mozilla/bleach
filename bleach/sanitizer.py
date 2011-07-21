@@ -23,6 +23,9 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
         Also gives the option to strip tags instead of encoding.
 
         """
+        if (getattr(self, 'wildcard_attributes', None) is None and
+            isinstance(self.allowed_attributes, dict)):
+            self.wildcard_attributes = self.allowed_attributes.get('*', [])
 
         if token['type'] in (tokenTypes['StartTag'], tokenTypes['EndTag'],
                              tokenTypes['EmptyTag']):
@@ -31,6 +34,8 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                     if isinstance(self.allowed_attributes, dict):
                         allowed_attributes = self.allowed_attributes.get(
                             token['name'], [])
+                        if not callable(allowed_attributes):
+                            allowed_attributes += self.wildcard_attributes
                     else:
                         allowed_attributes = self.allowed_attributes
                     attrs = dict([(name, val) for name, val in

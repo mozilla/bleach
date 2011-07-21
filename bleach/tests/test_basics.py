@@ -149,3 +149,15 @@ def test_lowercase_html():
     dirty = u'<EM CLASS="FOO">BAR</EM>'
     clean = u'<em class="FOO">BAR</em>'
     eq_(clean, bleach.clean(dirty, attributes=['class']))
+
+
+def test_wildcard_attributes():
+    ATTR = {
+        '*': ['id'],
+        'img': ['src'],
+    }
+    TAG = ['img', 'em']
+    dirty = (u'both <em id="foo" style="color: black">can</em> have '
+             u'<img id="bar" src="foo"/>')
+    clean = u'both <em id="foo">can</em> have <img id="bar" src="foo">'
+    eq_(clean, bleach.clean(dirty, tags=TAG, attributes=ATTR))
