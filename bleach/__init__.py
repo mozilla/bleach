@@ -101,7 +101,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
     parser = html5lib.HTMLParser(tokenizer=s)
 
-    return _render(parser.parseFragment(text), text).strip()
+    return _render(parser.parseFragment(text)).strip()
 
 
 def linkify(text, nofollow=True, filter_url=identity,
@@ -187,10 +187,10 @@ def linkify(text, nofollow=True, filter_url=identity,
 
     linkify_nodes(forest)
 
-    return _render(forest, text)
+    return _render(forest)
 
 
-def _render(tree, source):
+def _render(tree):
     """Try rendering as HTML, then XML, then give up."""
     try:
         return force_unicode(_serialize(tree))

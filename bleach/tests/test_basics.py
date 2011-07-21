@@ -101,7 +101,7 @@ def test_weird_strings():
 
 def test_xml_render():
     parser = html5lib.HTMLParser()
-    eq_(bleach._render(parser.parseFragment(''), 'src'), '')
+    eq_(bleach._render(parser.parseFragment('')), '')
 
 
 def test_stripping():
