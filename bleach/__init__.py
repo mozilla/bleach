@@ -1,5 +1,6 @@
 import logging
 import re
+import sys
 
 import html5lib
 from html5lib.serializer.htmlserializer import HTMLSerializer
@@ -193,11 +194,11 @@ def _render(tree, source):
     try:
         return force_unicode(_serialize(tree))
     except Exception, e:
-        log.error('HTML: %r ::: %r' % (e, source))
+        log.error('HTML: %r' % e, exc_info=sys.exc_info())
         try:
             return force_unicode(tree.toxml())
         except Exception, e:
-            log.error('XML: %r ::: %r' % (e, source))
+            log.error('XML: %r' % e, exc_info=sys.exc_info())
             return u''
 
 
