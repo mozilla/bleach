@@ -239,3 +239,40 @@ def test_sarcasm():
     dirty = u'Yeah right <sarcasm/>'
     clean = u'Yeah right &lt;sarcasm/&gt;'
     eq_(clean, linkify(dirty))
+
+def test_wrapping_parentheses():
+    """urls wrapped in balanced paranthesis shall not include them in the href
+    """
+    out = u'%s<a href="http://%s" rel="nofollow">%s</a>%s'
+
+    tests = (
+        ('(example.com)', out % ('(', 'example.com', 'example.com', ')')),
+        ('(example.com/)', out % ('(', 'example.com/', 'example.com/', ')')),
+        ('(example.com/foo)', out % ('(', 'example.com/foo',
+                                     'example.com/foo', ')')),
+        ('(((example.com/))))', out % ('(((', 'example.com/)',
+                                       'example.com/)', ')))')),
+        ('example.com/))', out % ('', 'example.com/))',
+                                  'example.com/))', '')),
+        ('http://en.wikipedia.org/wiki/Test_(assessment)',
+            out % ('', 'en.wikipedia.org/wiki/Test_(assessment)',
+                   'http://en.wikipedia.org/wiki/Test_(assessment)', '')),
+        ('(http://en.wikipedia.org/wiki/Test_(assessment))',
+            out % ('(', 'en.wikipedia.org/wiki/Test_(assessment)',
+                   'http://en.wikipedia.org/wiki/Test_(assessment)', ')')),
+        ('((http://en.wikipedia.org/wiki/Test_(assessment))',
+            out % ('((', 'en.wikipedia.org/wiki/Test_(assessment',
+                   'http://en.wikipedia.org/wiki/Test_(assessment', '))')),
+        ('(http://en.wikipedia.org/wiki/Test_(assessment)))',
+            out % ('(', 'en.wikipedia.org/wiki/Test_(assessment))',
+                   'http://en.wikipedia.org/wiki/Test_(assessment))', ')')),
+        ('(http://en.wikipedia.org/wiki/)Test_(assessment',
+            out % ('(', 'en.wikipedia.org/wiki/)Test_(assessment',
+                   'http://en.wikipedia.org/wiki/)Test_(assessment', '')),
+    )
+
+    def check(test, expected_output):
+        eq_(expected_output, linkify(test))
+
+    for test, expected_output in tests:
+        yield check, test, expected_output
