@@ -56,14 +56,14 @@ TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
 
 TLDS.reverse()
 
-url_re = re.compile(r"""\b(?<![@.])(?:\w[\w-]*:/{0,3}(?:(?:\w+:)?\w+@)?)?
-                                                                      # http://
-                    ([\w-]+\.)+(?:%s)(?!\.\w)\b   # xx.yy.tld
-                    (?:[/?][^\s\{\}\|\\\^\[\]`<>"\x80-\xFF\x00-\x1F\x7F]*)?
-                        # /path/zz (excluding "unsafe" chars from RFC 1738,
-                        # except for # and ~, which happen in practice)
-                    """ % u'|'.join(TLDS),
-                    re.VERBOSE)
+url_re = re.compile(
+    r"""\(*  # url might be wrapped inside parantheses, detect opening ones
+    \b(?<![@.])(?:\w[\w-]*:/{0,3}(?:(?:\w+:)?\w+@)?)?  # http://
+    ([\w-]+\.)+(?:%s)(?!\.\w)\b   # xx.yy.tld
+    (?:[/?][^\s\{\}\|\\\^\[\]`<>"\x80-\xFF\x00-\x1F\x7F]*)?
+        # /path/zz (excluding "unsafe" chars from RFC 1738,
+        # except for # and ~, which happen in practice)
+    """ % u'|'.join(TLDS), re.VERBOSE)
 
 proto_re = re.compile(r'^[\w-]+:/{0,3}')
 
@@ -142,6 +142,49 @@ def linkify(text, nofollow=True, filter_url=identity,
             tree.insertBefore(n, node)
         tree.removeChild(node)
 
+    def strip_wrapping_brackets(fragment):
+        """Strips wrapping brackets.
+
+        Returns a tuple containing the string stripped from
+        wrapping parantheses and two counts representing
+        number of stripped opening and closing parantheses.
+        """
+        opening_brackets = closing_brackets = 0
+        # Count all consecutive opening-parantheses
+        # on the beginning of the string
+        for char in fragment:
+            if char == '(':
+                opening_brackets += 1
+            else:
+                break
+
+        if opening_brackets:
+            newer_frag = ''
+            # cut the opening brackets
+            fragment = fragment[opening_brackets:]
+            # reversing for easier in-url bracket detection
+            reverse_fragment = fragment[::-1]
+            closing_brackets = 0
+            skip = False
+            for char in reverse_fragment:
+                # remove the closing bracket if there is a
+                # matching opening bracket
+                if (char == ')' and
+                        closing_brackets < opening_brackets and
+                        not skip):
+                    closing_brackets += 1
+                    continue
+                # prevent removing ')' from the inside of an URL
+                elif char != ')':
+                    skip = True
+                newer_frag += char
+            # TODO: This might be a really good reason to use python's
+            #       new NamedTuple. Didn't do it since it's py2.6+ and
+            #       2.5 is pretty widespread still.
+            return newer_frag[::-1], opening_brackets, closing_brackets
+        return fragment, 0, 0
+
+
     def linkify_nodes(tree, parse_text=True):
         for node in tree.childNodes:
             if node.type == NODE_TEXT and parse_text:
@@ -171,6 +214,9 @@ def linkify(text, nofollow=True, filter_url=identity,
 
     def link_repl(match):
         url = match.group(0)
+        open_brackets = close_brackets = 0
+        if url.startswith('('):
+            url, open_brackets, close_brackets = strip_wrapping_brackets(url)
         end = u''
         m = re.search(punct_re, url)
         if m:
@@ -181,9 +227,10 @@ def linkify(text, nofollow=True, filter_url=identity,
         else:
             href = u''.join([u'http://', url])
 
-        repl = u'<a href="%s"%s>%s</a>%s'
+        repl = u'%s<a href="%s"%s>%s</a>%s%s'
 
-        return repl % (filter_url(href), rel, filter_text(url), end)
+        return repl % ('('*open_brackets, filter_url(href), rel,
+                       filter_text(url), end, ')'*close_brackets)
 
     linkify_nodes(forest)
 
