@@ -240,6 +240,7 @@ def test_sarcasm():
     clean = u'Yeah right &lt;sarcasm/&gt;'
     eq_(clean, linkify(dirty))
 
+
 def test_wrapping_parentheses():
     """urls wrapped in balanced paranthesis shall not include them in the href
     """

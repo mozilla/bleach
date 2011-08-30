@@ -162,6 +162,7 @@ def test_wildcard_attributes():
     clean = u'both <em id="foo">can</em> have <img id="bar" src="foo">'
     eq_(clean, bleach.clean(dirty, tags=TAG, attributes=ATTR))
 
+
 def test_sarcasm():
     """Jokes should crash.<sarcasm/>"""
     dirty = u'Yeah right <sarcasm/>'
