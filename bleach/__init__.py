@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 import re
 import sys
@@ -60,10 +61,10 @@ url_re = re.compile(
     r"""\(*  # Match any opening parentheses.
     \b(?<![@.])(?:\w[\w-]*:/{0,3}(?:(?:\w+:)?\w+@)?)?  # http://
     ([\w-]+\.)+(?:%s)(?!\.\w)\b   # xx.yy.tld
-    (?:[/?][^\s\{\}\|\\\^\[\]`<>"\x80-\xFF\x00-\x1F\x7F]*)?
+    (?:[/?][^\s\{\}\|\\\^\[\]`<>"\s]*)?
         # /path/zz (excluding "unsafe" chars from RFC 1738,
         # except for # and ~, which happen in practice)
-    """ % u'|'.join(TLDS), re.VERBOSE)
+    """ % u'|'.join(TLDS), re.VERBOSE | re.UNICODE)
 
 proto_re = re.compile(r'^[\w-]+:/{0,3}')
 
@@ -123,6 +124,11 @@ def linkify(text, nofollow=True, filter_url=identity,
     already found in the document, the href attribute is passed through
     filter_url(), but the text is untouched.
     """
+    # If you want to match modern unicode URLs
+    # you need to make the string UTF8.
+    # This will become obsolete with py3.
+    if not isinstance(text, unicode):
+        text = text.decode('utf8')
 
     if not text:
         return u''
