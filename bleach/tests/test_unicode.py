@@ -31,3 +31,24 @@ def test_mixed_linkify():
     eq_(u'Домашняя <a href="http://example.com" rel="nofollow">'
         u'http://example.com</a> ヘルプとチュートリアル',
         linkify(u'Домашняя http://example.com ヘルプとチュートリアル'))
+
+
+def test_url_utf8():
+    """Allow UTF8 characters in URLs themselves."""
+    out = u'<a href="%(url)s" rel="nofollow">%(url)s</a>'
+
+    tests = (
+        ('http://éxámplé.com/', out % {'url': u'http://éxámplé.com/'}),
+        ('http://éxámplé.com/íàñá/',
+                out % {'url': u'http://éxámplé.com/íàñá/'}),
+        ('http://éxámplé.com/íàñá/?foo=bar',
+            out % {'url': u'http://éxámplé.com/íàñá/?foo=bar'}),
+        ('http://éxámplé.com/íàñá/?fóo=bár',
+            out % {'url': u'http://éxámplé.com/íàñá/?fóo=bár'}),
+    )
+
+    def check(test, expected_output):
+        eq_(expected_output, linkify(test))
+
+    for test, expected_output in tests:
+        yield check, test, expected_output
