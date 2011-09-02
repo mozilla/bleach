@@ -59,7 +59,7 @@ TLDS.reverse()
 url_re = re.compile(
     r"""\(*  # Match any opening parentheses.
     \b(?<![@.])(?:\w[\w-]*:/{0,3}(?:(?:\w+:)?\w+@)?)?  # http://
-    ([\w-]+\.)+(?:%s)(?!\.\w)\b   # xx.yy.tld
+    ([\w-]+\.)+(?:%s)(?:\:\d+)?(?!\.\w)\b   # xx.yy.tld(:##)?
     (?:[/?][^\s\{\}\|\\\^\[\]`<>"]*)?
         # /path/zz (excluding "unsafe" chars from RFC 1738,
         # except for # and ~, which happen in practice)

@@ -242,8 +242,7 @@ def test_sarcasm():
 
 
 def test_wrapping_parentheses():
-    """urls wrapped in balanced paranthesis shall not include them in the href
-    """
+    """URLs wrapped in parantheses should not include them."""
     out = u'%s<a href="http://%s" rel="nofollow">%s</a>%s'
 
     tests = (
@@ -277,3 +276,21 @@ def test_wrapping_parentheses():
 
     for test, expected_output in tests:
         yield check, test, expected_output
+
+
+def test_ports():
+    """URLs can contain port numbers."""
+    tests = (
+        ('http://foo.com:8000', ('http://foo.com:8000', '')),
+        ('http://foo.com:8000/', ('http://foo.com:8000/', '')),
+        ('http://bar.com:xkcd', ('http://bar.com', ':xkcd')),
+        ('http://foo.com:81/bar', ('http://foo.com:81/bar', '')),
+        ('http://foo.com:', ('http://foo.com', ':')),
+    )
+
+    def check(test, output):
+        eq_(u'<a href="{0}" rel="nofollow">{0}</a>{1}'.format(*output),
+            linkify(test))
+
+    for test, output in tests:
+        yield check, test, output
