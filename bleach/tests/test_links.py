@@ -303,4 +303,8 @@ def test_target():
     eq_('<a href="http://example.com">example.com</a>',
         linkify(u'example.com', nofollow=False, target=None))
 
+def test_skip_existing_links():
+    '''Tests the `skip_existing_links` kwarg.'''
+    html = u'<a href="http://foo.com" title="huh"></a>'
+    eq_(html, linkify(html, skip_existing_links=True))
 

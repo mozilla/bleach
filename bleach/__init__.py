@@ -107,7 +107,8 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
 
 def linkify(text, nofollow=True, target=None, filter_url=identity,
-            filter_text=identity, skip_pre=False, parse_email=False):
+            filter_text=identity, skip_pre=False, skip_existing_links=False,
+            parse_email=False):
     """Convert URL-like strings in an HTML fragment to links.
 
     linkify() converts strings that look like URLs or domain names in a
@@ -122,6 +123,10 @@ def linkify(text, nofollow=True, target=None, filter_url=identity,
     The target argument will optionally add a target attribute with the
     given value to links created by linkify() as well as links already
     found in the text.
+
+    The skip_existing_links argument will make linkify ignore any HTML links
+    already in the text, so that no additional processing will be done on 
+    them.
 
     linkify() uses up to two filters on each link. For links created by
     linkify(), the href attribute is passed through filter_url()
@@ -203,7 +208,7 @@ def linkify(text, nofollow=True, target=None, filter_url=identity,
                         continue
                 new_frag = re.sub(url_re, link_repl, new_frag)
                 replace_nodes(tree, new_frag, node)
-            elif node.name == 'a':
+            elif node.name == 'a' and not skip_existing_links:
                 if 'href' in node.attributes:
                     if nofollow:
                         node.attributes['rel'] = 'nofollow'
