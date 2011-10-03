@@ -294,3 +294,13 @@ def test_ports():
 
     for test, output in tests:
         yield check, test, output
+
+
+def test_target():
+    '''Tests the `target` kwarg.'''
+    eq_('<a href="http://example.com" target="_blank">example.com</a>',
+        linkify(u'example.com', nofollow=False, target='_blank'))
+    eq_('<a href="http://example.com">example.com</a>',
+        linkify(u'example.com', nofollow=False, target=None))
+
+
