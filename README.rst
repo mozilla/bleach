@@ -94,9 +94,3 @@ to customize their behavior.
 |                       | set the attribute on links already in the text,    |
 |                       | as well.                                           |
 +-----------------------+----------------------------------------------------+
-
-
-Contributors
-============
-
-https://github.com/jsocol/bleach/contributors
