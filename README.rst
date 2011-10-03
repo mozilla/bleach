@@ -24,7 +24,11 @@ The simplest way to use Bleach is::
     >>> bleach.linkify('an http://example.com url')
     u'an <a href="http://example.com" rel="nofollow">http://example.com</a> url
 
-*NB:* Bleach accepts bytestrings or unicode, but it **always** returns unicode.
+*NB*: Bleach always returns a ``unicode`` object, whether you give it a
+bytestring or a ``unicode`` object, but Bleach does not attempt to detect
+incoming character encodings, and will assume UTF-8. If you are using a
+different character encoding, you should convert from a bytestring to
+``unicode`` before passing the text to Bleach.
 
 
 Customizing Bleach

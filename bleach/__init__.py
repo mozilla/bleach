@@ -89,7 +89,9 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
     """Clean an HTML fragment and return it"""
     if not text:
         return u''
-    elif text.startswith('<!--'):
+
+    text = force_unicode(text)
+    if text.startswith(u'<!--'):
         text = u' ' + text
 
     class s(BleachSanitizer):
