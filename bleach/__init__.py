@@ -106,7 +106,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
     return _render(parser.parseFragment(text)).strip()
 
 
-def linkify(text, nofollow=True, filter_url=identity,
+def linkify(text, nofollow=True, target=None, filter_url=identity,
             filter_text=identity, skip_pre=False, parse_email=False):
     """Convert URL-like strings in an HTML fragment to links.
 
@@ -117,6 +117,10 @@ def linkify(text, nofollow=True, filter_url=identity,
 
     If the nofollow argument is True (the default) then rel="nofollow"
     will be added to links created by linkify() as well as links already
+    found in the text.
+
+    The target argument will optionally add a target attribute with the
+    given value to links created by linkify() as well as links already
     found in the text.
 
     linkify() uses up to two filters on each link. For links created by
@@ -135,7 +139,7 @@ def linkify(text, nofollow=True, filter_url=identity,
     forest = parser.parseFragment(text)
 
     if nofollow:
-        rel = u' rel="nofollow"'
+        rel = u'rel="nofollow"'
     else:
         rel = u''
 
@@ -203,6 +207,8 @@ def linkify(text, nofollow=True, filter_url=identity,
                 if 'href' in node.attributes:
                     if nofollow:
                         node.attributes['rel'] = 'nofollow'
+                    if target is not None:
+                        node.attributes['target'] = target
                     href = node.attributes['href']
                     node.attributes['href'] = filter_url(href)
             elif skip_pre and node.name == 'pre':
@@ -231,11 +237,15 @@ def linkify(text, nofollow=True, filter_url=identity,
         else:
             href = u''.join([u'http://', url])
 
-        repl = u'%s<a href="%s"%s>%s</a>%s%s'
+        repl = u'%s<a href="%s" %s>%s</a>%s%s'
+
+        attribs = [rel]
+        if target is not None:
+            attribs.append('target="%s"' % target)
 
         return repl % ('(' * open_brackets,
-                       filter_url(href), rel, filter_text(url), end,
-                       ')' * close_brackets)
+                       filter_url(href), ' '.join(attribs), filter_text(url),
+                       end, ')' * close_brackets)
 
     linkify_nodes(forest)
 

@@ -89,6 +89,11 @@ to customize their behavior.
 | ``parse_email``       | Linkify email addresses with ``mailto:``. Defaults |
 |                       | ``False``.                                         |
 +-----------------------+----------------------------------------------------+
+| ``target``            | Set a ``target`` attribute on links. Like          |
+|                       | ``nofollow``, if ``target`` is not ``None``, will  |
+|                       | set the attribute on links already in the text,    |
+|                       | as well.                                           |
++-----------------------+----------------------------------------------------+
 
 
 Contributors
