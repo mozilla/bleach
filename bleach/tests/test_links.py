@@ -6,6 +6,8 @@ from bleach import linkify, url_re
 
 
 def filter_url(url):
+    if url == 'http://dontlinkify.me':
+        return False
     return u'http://bouncer/?u=%s' % urllib.quote_plus(url)
 
 
@@ -47,6 +49,11 @@ def test_mangle_link():
     eq_('<a href="http://bouncer/?u=http%3A%2F%2Fexample.com" rel="nofollow">'
         'http://example.com</a>',
         linkify('http://example.com', filter_url=filter_url))
+
+
+def test_dont_linkify_me():
+    eq_('http://dontlinkify.me',
+        linkify('http://dontlinkify.me', filter_url=filter_url))
 
 
 def test_email_link():
