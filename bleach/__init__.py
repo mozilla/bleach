@@ -237,6 +237,11 @@ def linkify(text, nofollow=True, target=None, filter_url=identity,
         else:
             href = u''.join([u'http://', url])
 
+        new_url = filter_url(href)
+        # Leave old text unlinkified when returning False in filter_url.
+        if new_url is False:
+            return url
+
         repl = u'%s<a href="%s" %s>%s</a>%s%s'
 
         attribs = [rel]
@@ -244,7 +249,7 @@ def linkify(text, nofollow=True, target=None, filter_url=identity,
             attribs.append('target="%s"' % target)
 
         return repl % ('(' * open_brackets,
-                       filter_url(href), ' '.join(attribs), filter_text(url),
+                       new_url, ' '.join(attribs), filter_text(url),
                        end, ')' * close_brackets)
 
     linkify_nodes(forest)
