@@ -1,6 +1,7 @@
 import logging
 import re
 import sys
+import urlparse
 
 import html5lib
 from html5lib.sanitizer import HTMLSanitizer
@@ -249,6 +250,37 @@ def linkify(text, nofollow=True, target=None, filter_url=identity,
 
     linkify_nodes(forest)
 
+    return _render(forest)
+
+
+def delinkify(text, allow_domains=None, allow_relative=False):
+    """Remove links from text, except those allowed to stay."""
+    text = force_unicode(text)
+
+    if not text:
+        return u''
+
+    parser = html5lib.HTMLParser(tokenizer=HTMLSanitizer)
+
+    forest = parser.parseFragment(text)
+
+    def delinkify_nodes(tree):
+        """Remove <a> tags and replace them with their contents."""
+        for node in tree.childNodes:
+            if node.name == 'a':
+                if 'href' not in node.attributes:
+                    continue
+                parts = urlparse.urlparse(node.attributes['href'])
+                if parts.hostname in allow_domains:
+                    continue
+                if parts.hostname is None:
+                    continue
+                # TODO: Remove the node, replace with contents.
+                # NB: Be careful with nested <a> tags.
+            elif node.type != NODE_TEXT:
+                delinkify_nodes(node)
+
+    delinkify_nodes(forest)
     return _render(forest)
 
 
