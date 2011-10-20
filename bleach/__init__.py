@@ -256,12 +256,10 @@ def linkify(text, nofollow=True, target=None, filter_url=identity,
 def delinkify(text, allow_domains=None, allow_relative=False):
     """Remove links from text, except those allowed to stay."""
     text = force_unicode(text)
-
     if not text:
         return u''
 
     parser = html5lib.HTMLParser(tokenizer=HTMLSanitizer)
-
     forest = parser.parseFragment(text)
 
     def delinkify_nodes(tree):
@@ -272,12 +270,14 @@ def delinkify(text, allow_domains=None, allow_relative=False):
                     continue
                 parts = urlparse.urlparse(node.attributes['href'])
                 if parts.hostname in allow_domains:
+                    # TODO: Probably want to do something smarter than strict
+                    # text matching here.
                     continue
-                if parts.hostname is None:
+                if parts.hostname is None and allow_relative:
                     continue
                 # TODO: Remove the node, replace with contents.
-                # NB: Be careful with nested <a> tags.
-            elif node.type != NODE_TEXT:
+                # NB: Be careful with nested <a> tags, and children in general.
+            elif node.type != NODE_TEXT: # Don't try to delinkify text.
                 delinkify_nodes(node)
 
     delinkify_nodes(forest)
