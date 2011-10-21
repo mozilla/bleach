@@ -274,11 +274,10 @@ def delinkify(text, allow_domains=None, allow_relative=False):
                 if 'href' not in node.attributes:
                     continue
                 parts = urlparse.urlparse(node.attributes['href'])
-                if parts.hostname in allow_domains:
-                    # TODO: Probably want to do something smarter than strict
-                    # text matching here.
+                host = parts.hostname
+                if any(_domain_match(host, d) for d in allow_domains):
                     continue
-                if parts.hostname is None and allow_relative:
+                if host is None and allow_relative:
                     continue
                 # Replace the node with its children.
                 # You can't nest <a> tags, and html5lib takes care of that
@@ -291,6 +290,25 @@ def delinkify(text, allow_domains=None, allow_relative=False):
 
     delinkify_nodes(forest)
     return _render(forest)
+
+
+def _domain_match(test, compare):
+    test = test.lower()
+    compare = compare.lower()
+    if '*' not in compare:
+        return test == compare
+    c_parts = compare.split('.')
+    c_parts.reverse()
+    t_parts = test.split('.')
+    t_parts.reverse()
+    z = zip(c_parts, t_parts)
+    for c, t in z:
+        if t == c:
+            continue
+        elif c == '*':
+            return True
+        return False
+    return True
 
 
 def _render(tree):

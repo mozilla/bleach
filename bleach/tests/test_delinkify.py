@@ -49,3 +49,48 @@ def test_protocol_relative():
     eq_(expect, bleach.delinkify(html))
     eq_(expect, bleach.delinkify(html, allow_relative=True))
     eq_(html, bleach.delinkify(html, allow_domains='ex.mp'))
+
+
+def test_domain_match():
+    tests = (
+        ('ex.mp', 'ex.mp', True),
+        ('ex.mp', '*.ex.mp', True),
+        ('test.ex.mp', '*.ex.mp', True),
+        ('test.ex.mp', 'ex.mp', False),
+        ('test.test.ex.mp', '*.ex.mp', True),
+        ('wrong.mp', 'ex.mp', False),
+        ('wrong.mp', '*.ex.mp', False),
+        ('really.wrong.mp', 'ex.mp', False),
+        ('really.wrong.mp', '*.ex.mp', False),
+        ('really.very.wrong.mp', '*.ex.mp', False),
+        ('EX.mp', 'ex.mp', True),  # Domains are case-insensitive.
+    )
+
+    def _check(t, c, v):
+        eq_(v, bleach._domain_match(t, c))
+
+    for t, c, v in tests:
+        yield _check, t, c, v
+
+
+def test_allow_subdomains():
+    domains = ('ex.mp', '*.exa.mp', 'an.exam.pl', '*.my.examp.le')
+    html = (
+        ('<a href="http://an.ex.mp">bad</a>', 'bad'),
+        ('<a href="http://exa.mp">good</a>', None),
+        ('<a href="http://an.exa.mp">good</a>', None),
+        ('<a href="http://an.exam.pl">good</a>', None),
+        ('<a href="http://another.exam.pl">bad</a>', 'bad'),
+        ('<a href="http://a.bad.examp.le">bad</a>', 'bad'),
+        ('<a href="http://a.very.bad.examp.le">bad</a>', 'bad'),
+    )
+
+    def _check(html, text):
+        output = bleach.delinkify(html, allow_domains=domains)
+        if text is None:
+            eq_(html, output)
+        else:
+            eq_(text, output)
+
+    for t, o in html:
+        yield _check, t, o
