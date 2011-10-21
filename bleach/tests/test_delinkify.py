@@ -70,8 +70,6 @@ def test_domain_match():
         ('an.ex.am.pl', 'an.*.am.pl', True),
         ('a.ex.am.pl', 'an.*.am.pl', False),
         ('ex.am.pl', 'an.*.am.pl', False),
-        ('an.ex.am.p.le', 'an.**.p.le', True),
-        ('a.ex.am.p.le', 'an.**.p.le', False),
     )
 
     def _check(t, c, v):
@@ -79,6 +77,16 @@ def test_domain_match():
 
     for t, c, v in tests:
         yield _check, t, c, v
+
+
+def test_double_star():
+    assert bleach._domain_match('ex.mp', '**.ex.mp')
+    try:
+        bleach._domain_match('ex.mp', 'an.**.ex.mp')
+    except bleach.ValidationError:
+        pass
+    else:
+        assert False, '_domain_match should not accept an.**.ex.mp'
 
 
 def test_allow_subdomains():

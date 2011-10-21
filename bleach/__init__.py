@@ -299,17 +299,25 @@ def _domain_match(test, compare):
     if '*' not in compare:
         return test == compare
     c = compare.split('.')[::-1]
+    if '**' in c and (c.count('**') > 1 or not compare.startswith('**')):
+        raise ValidationError(
+            'Only 1 ** is allowed, and must start the domain.')
     t = test.split('.')[::-1]
     z = itertools.izip_longest(c, t)
     for c, t in z:
-        if t == c:
+        if c == t:
             continue
         elif c == '*':
             continue
-        else:
-            return False
+        elif c == '**':
+            return True
+        return False
     # Got all the way through and everything matched.
     return True
+
+
+class ValidationError(ValueError):
+    pass
 
 
 def _render(tree):
