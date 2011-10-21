@@ -1,3 +1,4 @@
+import itertools
 import logging
 import re
 import sys
@@ -274,11 +275,10 @@ def delinkify(text, allow_domains=None, allow_relative=False):
                 if 'href' not in node.attributes:
                     continue
                 parts = urlparse.urlparse(node.attributes['href'])
-                if parts.hostname in allow_domains:
-                    # TODO: Probably want to do something smarter than strict
-                    # text matching here.
+                host = parts.hostname
+                if any(_domain_match(host, d) for d in allow_domains):
                     continue
-                if parts.hostname is None and allow_relative:
+                if host is None and allow_relative:
                     continue
                 # Replace the node with its children.
                 # You can't nest <a> tags, and html5lib takes care of that
@@ -291,6 +291,33 @@ def delinkify(text, allow_domains=None, allow_relative=False):
 
     delinkify_nodes(forest)
     return _render(forest)
+
+
+def _domain_match(test, compare):
+    test = test.lower()
+    compare = compare.lower()
+    if '*' not in compare:
+        return test == compare
+    c = compare.split('.')[::-1]
+    if '**' in c and (c.count('**') > 1 or not compare.startswith('**')):
+        raise ValidationError(
+            'Only 1 ** is allowed, and must start the domain.')
+    t = test.split('.')[::-1]
+    z = itertools.izip_longest(c, t)
+    for c, t in z:
+        if c == t:
+            continue
+        elif c == '*':
+            continue
+        elif c == '**':
+            return True
+        return False
+    # Got all the way through and everything matched.
+    return True
+
+
+class ValidationError(ValueError):
+    pass
 
 
 def _render(tree):
