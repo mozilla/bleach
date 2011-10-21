@@ -262,6 +262,11 @@ def delinkify(text, allow_domains=None, allow_relative=False):
     parser = html5lib.HTMLParser(tokenizer=HTMLSanitizer)
     forest = parser.parseFragment(text)
 
+    if allow_domains is None:
+        allow_domains = []
+    elif isinstance(allow_domains, basestring):
+        allow_domains = [allow_domains]
+
     def delinkify_nodes(tree):
         """Remove <a> tags and replace them with their contents."""
         for node in tree.childNodes:
@@ -275,8 +280,12 @@ def delinkify(text, allow_domains=None, allow_relative=False):
                     continue
                 if parts.hostname is None and allow_relative:
                     continue
-                # TODO: Remove the node, replace with contents.
-                # NB: Be careful with nested <a> tags, and children in general.
+                # Replace the node with its children.
+                # You can't nest <a> tags, and html5lib takes care of that
+                # for us in the tree-building step.
+                for n in node.childNodes:
+                    tree.insertBefore(n, node)
+                tree.removeChild(node)
             elif node.type != NODE_TEXT: # Don't try to delinkify text.
                 delinkify_nodes(node)
 
