@@ -1,3 +1,4 @@
+import itertools
 import logging
 import re
 import sys
@@ -299,7 +300,7 @@ def _domain_match(test, compare):
         return test == compare
     c = compare.split('.')[::-1]
     t = test.split('.')[::-1]
-    z = zip(c, t)
+    z = itertools.izip_longest(c, t)
     for c, t in z:
         if t == c:
             continue

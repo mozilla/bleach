@@ -57,7 +57,8 @@ def test_domain_match():
         ('ex.mp', '*.ex.mp', True),
         ('test.ex.mp', '*.ex.mp', True),
         ('test.ex.mp', 'ex.mp', False),
-        ('test.test.ex.mp', '*.ex.mp', True),
+        ('test.test.ex.mp', '*.ex.mp', False),
+        ('test.test.ex.mp', '**.ex.mp', True),
         ('wrong.mp', 'ex.mp', False),
         ('wrong.mp', '*.ex.mp', False),
         ('really.wrong.mp', 'ex.mp', False),
@@ -67,6 +68,8 @@ def test_domain_match():
         ('an.ex.am.pl', 'an.*.am.pl', True),
         ('a.ex.am.pl', 'an.*.am.pl', False),
         ('ex.am.pl', 'an.*.am.pl', False),
+        ('an.ex.am.p.le', 'an.**.p.le', True),
+        ('a.ex.am.p.le', 'an.**.p.le', False),
     )
 
     def _check(t, c, v):
