@@ -65,6 +65,8 @@ def test_domain_match():
         ('really.wrong.mp', '*.ex.mp', False),
         ('really.very.wrong.mp', '*.ex.mp', False),
         ('EX.mp', 'ex.mp', True),  # Domains are case-insensitive.
+        ('ex.mp', 'an.ex.mp', False),
+        ('ex.mp', '*.an.ex.mp', False),
         ('an.ex.am.pl', 'an.*.am.pl', True),
         ('a.ex.am.pl', 'an.*.am.pl', False),
         ('ex.am.pl', 'an.*.am.pl', False),
