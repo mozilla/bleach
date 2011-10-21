@@ -64,6 +64,9 @@ def test_domain_match():
         ('really.wrong.mp', '*.ex.mp', False),
         ('really.very.wrong.mp', '*.ex.mp', False),
         ('EX.mp', 'ex.mp', True),  # Domains are case-insensitive.
+        ('an.ex.am.pl', 'an.*.am.pl', True),
+        ('a.ex.am.pl', 'an.*.am.pl', False),
+        ('ex.am.pl', 'an.*.am.pl', False),
     )
 
     def _check(t, c, v):
@@ -87,10 +90,7 @@ def test_allow_subdomains():
 
     def _check(html, text):
         output = bleach.delinkify(html, allow_domains=domains)
-        if text is None:
-            eq_(html, output)
-        else:
-            eq_(text, output)
+        eq_(html if text is None else text, output)
 
     for t, o in html:
         yield _check, t, o

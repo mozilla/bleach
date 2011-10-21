@@ -297,17 +297,17 @@ def _domain_match(test, compare):
     compare = compare.lower()
     if '*' not in compare:
         return test == compare
-    c_parts = compare.split('.')
-    c_parts.reverse()
-    t_parts = test.split('.')
-    t_parts.reverse()
-    z = zip(c_parts, t_parts)
+    c = compare.split('.')[::-1]
+    t = test.split('.')[::-1]
+    z = zip(c, t)
     for c, t in z:
         if t == c:
             continue
         elif c == '*':
-            return True
-        return False
+            continue
+        else:
+            return False
+    # Got all the way through and everything matched.
     return True
 
 
