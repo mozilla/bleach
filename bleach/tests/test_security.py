@@ -85,3 +85,13 @@ def test_strip():
     eq_('pt&gt;alert(1)ipt&gt;', clean(s, strip=True))
     s = '<scri<scri<script>pt>pt>alert(1)</script>'
     eq_('pt&gt;pt&gt;alert(1)', clean(s, strip=True))
+
+
+def test_nasty():
+    """Nested, broken up, multiple tags, are still foiled!"""
+    test = ('<scr<script></script>ipt type="text/javascript">alert("foo");</'
+            '<script></script>script<del></del>>')
+    expect = (u'&lt;scr&lt;script&gt;&lt;/script&gt;ipt type="text/javascript"'
+              u'&gt;alert("foo");&lt;/script&gt;script&lt;del&gt;&lt;/del&gt;'
+              u'&gt;')
+    eq_(expect, clean(test))
