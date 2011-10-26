@@ -275,6 +275,9 @@ def delinkify(text, allow_domains=None, allow_relative=False):
                 if 'href' not in node.attributes:
                     continue
                 parts = urlparse.urlparse(node.attributes['href'])
+                # Skip mailto: urls. Those are fine.
+                if parts.scheme == 'mailto':
+                    continue
                 host = parts.hostname
                 if any(_domain_match(host, d) for d in allow_domains):
                     continue

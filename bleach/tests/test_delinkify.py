@@ -107,3 +107,8 @@ def test_allow_subdomains():
 
     for t, o in html:
         yield _check, t, o
+
+
+def test_mailto():
+    html = '<a href="mailto:test@example.com">Unchanged</a>'
+    eq_(html, bleach.delinkify(html, allow_domains=['example.com']))
