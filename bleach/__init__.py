@@ -254,7 +254,8 @@ def linkify(text, nofollow=True, target=None, filter_url=identity,
     return _render(forest)
 
 
-def delinkify(text, allow_domains=None, allow_relative=False):
+def delinkify(text, allow_domains=None, allow_mailto=None,
+              allow_relative=False):
     """Remove links from text, except those allowed to stay."""
     text = force_unicode(text)
     if not text:
@@ -275,21 +276,34 @@ def delinkify(text, allow_domains=None, allow_relative=False):
                 if 'href' not in node.attributes:
                     continue
                 parts = urlparse.urlparse(node.attributes['href'])
-                # Skip mailto: urls. Those are fine.
                 if parts.scheme == 'mailto':
-                    continue
-                host = parts.hostname
-                if any(_domain_match(host, d) for d in allow_domains):
-                    continue
-                if host is None and allow_relative:
-                    continue
+                    # Allow all mailto: urls.
+                    if allow_mailto:
+                        continue
+                    # Allow no mailto:s
+                    # elif allow_mailto is False:
+                    #     pass
+                    # Allow only mailto:s in allow_domains
+                    elif allow_mailto is None:
+                        email_parts = parts.path.rsplit('@', 1)
+                        if len(email_parts) > 1:
+                            host = email_parts[-1]
+                            if any(_domain_match(host, d) for
+                                    d in allow_domains):
+                                continue
+                else:
+                    host = parts.hostname
+                    if any(_domain_match(host, d) for d in allow_domains):
+                        continue
+                    if host is None and allow_relative:
+                        continue
                 # Replace the node with its children.
                 # You can't nest <a> tags, and html5lib takes care of that
                 # for us in the tree-building step.
                 for n in node.childNodes:
                     tree.insertBefore(n, node)
                 tree.removeChild(node)
-            elif node.type != NODE_TEXT: # Don't try to delinkify text.
+            elif node.type != NODE_TEXT:  # Don't try to delinkify text.
                 delinkify_nodes(node)
 
     delinkify_nodes(forest)

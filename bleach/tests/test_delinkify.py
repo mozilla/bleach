@@ -109,6 +109,22 @@ def test_allow_subdomains():
         yield _check, t, o
 
 
-def test_mailto():
-    html = '<a href="mailto:test@example.com">Unchanged</a>'
-    eq_(html, bleach.delinkify(html, allow_domains=['example.com']))
+def test_mailto_allow_example():
+    # Example.com is allowed, while ex.mp is not.
+    html = ('<a href="mailto:test@example.com">Unchanged</a> '
+            '<a href="mailto:test@ex.mp">mail</a>')
+    expect = '<a href="mailto:test@example.com">Unchanged</a> mail'
+    eq_(expect, bleach.delinkify(html, allow_domains=['example.com']))
+
+
+def test_mailto_allow_all():
+    html = ('<a href="mailto:test@example.com">Unchanged</a> '
+            '<a href="mailto:test@ex.mp">mail</a>')
+    eq_(html, bleach.delinkify(html, allow_mailto=True))
+
+
+def test_mailto_disallow_all():
+    html = ('<a href="mailto:test@example.com">Unchanged</a> '
+            '<a href="mailto:test@ex.mp">mail</a>')
+    expect = 'Unchanged mail'
+    eq_(expect, bleach.delinkify(html, allow_mailto=False))
