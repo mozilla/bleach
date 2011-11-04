@@ -1,7 +1,9 @@
+from email.utils import parseaddr
 import itertools
 import logging
 import re
 import sys
+import urllib
 import urlparse
 
 import html5lib
@@ -77,7 +79,7 @@ email_re = re.compile(
         (\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*  # dot-atom
     |^"([\001-\010\013\014\016-\037!#-\[\]-\177]
         |\\[\001-011\013\014\016-\177])*"  # quoted-string
-    )@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6})\.?  # domain
+    )@((?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6})\.?)  # domain
     """,
     re.IGNORECASE | re.MULTILINE | re.VERBOSE)
 
@@ -281,16 +283,32 @@ def delinkify(text, allow_domains=None, allow_mailto=None,
                     if allow_mailto:
                         continue
                     # Allow no mailto:s
-                    # elif allow_mailto is False:
-                    #     pass
+                    elif allow_mailto is False:
+                        pass
                     # Allow only mailto:s in allow_domains
                     elif allow_mailto is None:
-                        email_parts = parts.path.rsplit('@', 1)
-                        if len(email_parts) > 1:
-                            host = email_parts[-1]
+                        mailto_parts = _parse_mailto(parts.path)
+                        # No email addresses? Allow it.
+                        if not mailto_parts['emails']:
+                            continue
+
+                        allowed_emails = []
+                        for email in mailto_parts['emails']:
+                            parsed = _parse_email_address(email)
+                            if not parsed:
+                                continue
+                            host = parsed['domain']
                             if any(_domain_match(host, d) for
                                     d in allow_domains):
-                                continue
+                                allowed_emails.append(email)
+
+                        # Some emails are allowed? Rebuild the mailto and
+                        # don't delinkify.
+                        if allowed_emails:
+                            node.attributes['href'] = _rebuild_mailto(
+                                allowed_emails, mailto_parts['headers'])
+                            continue
+
                 else:
                     host = parts.hostname
                     if any(_domain_match(host, d) for d in allow_domains):
@@ -356,3 +374,49 @@ def _serialize(domtree):
     serializer = HTMLSerializer(quote_attr_values=True,
                                 omit_optional_tags=False)
     return serializer.render(stream)
+
+
+def _parse_email_address(email):
+    """Validate and parse an individual email address."""
+    matchobj = email_re.match(email)
+    if not matchobj:
+        return False
+    groups = matchobj.groups()
+    return {'local': groups[1], 'domain': groups[4]}
+
+
+def _parse_mailto(path):
+    """Parse the mailto path into email addresses and headers."""
+    # Are there any parameters at all in this path?
+    # If not, return the default email and bail.
+    if '?' not in path:
+        # This must be a valid header, per RFC822.
+        # However, in the mailto: URL scheme, the header is encoded.
+        decoded_header = _decode_mailto_header(path)
+        # parseaddr returns a tuple: realname, email address. See:
+        # http://docs.python.org/library/email.util.html#email.utils.parseaddr
+        return {'emails': [decoded_header], 'headers': {}}
+    # Otherwise, parse the URL query string.
+    # To include the default mailbox, prepend a ?to= and replace the first
+    # ? with a &.
+    path = 'to=' + path.replace('?', '&', 1)
+    qs = urlparse.parse_qs(path)
+    emails = [_decode_mailto_header(header) for header in qs.get('to', [])]
+    if 'to' in qs:
+        del qs['to']
+    return {'emails': emails, 'headers': qs}
+
+
+def _decode_mailto_header(header):
+    """Decode a header from RFC2368 and return the email in it.
+
+    Does NOT actually validate the email address is well-formatted.
+    """
+    return parseaddr(urllib.unquote(header))[1]
+
+
+def _rebuild_mailto(emails, headers):
+    query_string = urllib.urlencode([(k, v) for k, l in headers.iteritems() for
+                                      v in l])
+    url_headers = ('?' + query_string) if headers else ''
+    return 'mailto:' + '%2C%20'.join(emails) + url_headers
