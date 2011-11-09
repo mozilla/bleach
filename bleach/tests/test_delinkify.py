@@ -42,6 +42,14 @@ def test_relative():
     eq_(html, bleach.delinkify(html, allow_relative=True))
 
 
+def test_relative_allow_domains():
+    """Relative links are OK even with allow_domains."""
+    html = 'some <a href="/foo/bar">link</a>'
+    eq_('some link', bleach.delinkify(html))
+    eq_(html, bleach.delinkify(html, allow_relative=True,
+                               allow_domains=['ex.mp']))
+
+
 def test_protocol_relative():
     """Protocol-relative links aren't relative."""
     html = 'bad <a href="//ex.mp">link</a>'

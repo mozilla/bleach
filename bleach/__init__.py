@@ -311,9 +311,9 @@ def delinkify(text, allow_domains=None, allow_mailto=None,
 
                 else:
                     host = parts.hostname
-                    if any(_domain_match(host, d) for d in allow_domains):
-                        continue
                     if host is None and allow_relative:
+                        continue
+                    if any(_domain_match(host, d) for d in allow_domains):
                         continue
                 # Replace the node with its children.
                 # You can't nest <a> tags, and html5lib takes care of that
