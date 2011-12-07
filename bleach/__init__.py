@@ -54,16 +54,18 @@ TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
        tv tw tz ua ug uk us uy uz va vc ve vg vi vn vu wf ws xn ye yt yu za zm
        zw""".split()
 
+PROTOCOLS = HTMLSanitizer.acceptable_protocols
+
 TLDS.reverse()
 
 url_re = re.compile(
     r"""\(*  # Match any opening parentheses.
-    \b(?<![@.])(?:\w[\w-]*:/{0,3}(?:(?:\w+:)?\w+@)?)?  # http://
+    \b(?<![@.])(?:(?:%s):/{0,3}(?:(?:\w+:)?\w+@)?)?  # http://
     ([\w-]+\.)+(?:%s)(?:\:\d+)?(?!\.\w)\b   # xx.yy.tld(:##)?
     (?:[/?][^\s\{\}\|\\\^\[\]`<>"]*)?
         # /path/zz (excluding "unsafe" chars from RFC 1738,
         # except for # and ~, which happen in practice)
-    """ % u'|'.join(TLDS), re.VERBOSE | re.UNICODE)
+    """ % (u'|'.join(PROTOCOLS), u'|'.join(TLDS)), re.VERBOSE | re.UNICODE)
 
 proto_re = re.compile(r'^[\w-]+:/{0,3}')
 

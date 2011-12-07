@@ -310,3 +310,10 @@ def test_tokenizer():
     raw = '<em>test<x></x></em>'
     eq_('<em>test&lt;x&gt;&lt;/x&gt;</em>', linkify(raw))
     eq_(raw, linkify(raw, tokenizer=HTMLTokenizer))
+
+
+def test_ignore_bad_protocols():
+    eq_('foohttp://bar',
+        linkify('foohttp://bar'))
+    eq_('foohttp://<a href="http://exampl.com" rel="nofollow">exampl.com</a>',
+        linkify('foohttp://exampl.com'))
