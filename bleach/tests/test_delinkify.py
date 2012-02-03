@@ -48,6 +48,8 @@ def test_relative_allow_domains():
     eq_('some link', bleach.delinkify(html))
     eq_(html, bleach.delinkify(html, allow_relative=True,
                                allow_domains=['ex.mp']))
+    eq_('some link', bleach.delinkify(html, allow_relative=False,
+                               allow_domains=['ex.mp']))
 
 
 def test_protocol_relative():
