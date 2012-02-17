@@ -124,9 +124,9 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
 
 class BleachSanitizer(HTMLTokenizer, BleachSanitizerMixin):
     def __init__(self, stream, encoding=None, parseMeta=True, useChardet=True,
-                 lowercaseElementName=True, lowercaseAttrName=True):
+                 lowercaseElementName=True, lowercaseAttrName=True, **kwargs):
         HTMLTokenizer.__init__(self, stream, encoding, parseMeta, useChardet,
-                               lowercaseElementName, lowercaseAttrName)
+                               lowercaseElementName, lowercaseAttrName, **kwargs)
 
     def __iter__(self):
         for token in HTMLTokenizer.__iter__(self):
