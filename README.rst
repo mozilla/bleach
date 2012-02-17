@@ -33,9 +33,6 @@ The simplest way to use Bleach is::
     >>> bleach.linkify('an http://example.com url')
     u'an <a href="http://example.com" rel="nofollow">http://example.com</a> url
 
-    >>> bleach.delinkify('a <a href="http://ex.mp">link</a>')
-    u'a link'
-
 *NB*: Bleach always returns a ``unicode`` object, whether you give it a
 bytestring or a ``unicode`` object, but Bleach does not attempt to detect
 incoming character encodings, and will assume UTF-8. If you are using a
@@ -46,8 +43,8 @@ different character encoding, you should convert from a bytestring to
 Customizing Bleach
 ==================
 
-``clean()``, ``linkify()`` and ``delinkify()`` can take several optional
-keyword arguments to customize their behavior.
+``clean()`` and ``linkify()`` can take several optional keyword arguments to
+customize their behavior.
 
 
 ``clean()``
@@ -112,48 +109,5 @@ through a redirection URL, and do this to links already in the text, as well.
   ``None``, will set the attribute on links already in the text, as well.
   Defaults to ``None``.
 
-
-``delinkify()``
----------------
-
-``bleach.delinkify()`` is basically the opposite of ``linkify()``. It strips
-links out of text except, optionally, relative links, or links to domains
-you've whitelisted.
-
-``allow_domains``
-  Allow links to the domains in this list. Set to ``None`` or an empty list to
-  disallow all non-relative domains. See below for wildcards. Defaults to
-  ``None``.
-``allow_relative``
-  Allow relative links (i.e. those with no hostname). Defaults to ``False``.
-
-
-Wildcards
-^^^^^^^^^
-
-To allow links to a domain and its subdomains, ``allow_domains`` accepts two
-types of wildcard arguments in domains:
-
-``*``
-  Allow a single level of subdomain. This can be anywhere in the hostname, even
-  the TLD. This allows you to, for example, allow links to ``example.*``.
-  ``*.example.com`` will match both ``foo.example.com`` and ``example.com``.
-  ::
-    >>> delinkify('<a href="http://foo.ex.mp">bar</a>', \
-    ... allow_domains=['*.ex.*'])
-    u'<a href="http://foo.ex.mp">bar</a>'
-    >>> delinkify('<a href="http://ex.mp">bar</a>', allow_domains=['*.ex.mp'])
-    u'<a href="http://ex.mp">bar</a>
-``**``
-  To allow any number of *preceding* subdomains, you can start a hostname with
-  ``**``. Note that unlike ``*``, ``**`` may only appear once, and only at the
-  beginning of a hostname.
-  ::
-    >>> delinkify('<a href="http://a.b.ex.mp">t</a>', \
-    ... allow_domains=['**.ex.mp'])
-    u'<a href="http://a.b.ex.mp">t</a>'
-  If ``**`` appears anywhere but the beginning of a hostname, ``delinkify``
-  will throw ``bleach.ValidationError`` (which is a ``ValueError`` subclass,
-  for easy catching).
 
 .. _html5lib: http://code.google.com/p/html5lib/
