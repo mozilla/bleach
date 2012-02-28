@@ -87,6 +87,30 @@ def test_strip():
     eq_('pt&gt;pt&gt;alert(1)', clean(s, strip=True))
 
 
+def test_strip_script_contents():
+    """Using strip_script_content=True will remove a script completely."""
+    tests = (
+        ('<p>Hello '
+            '<script>function know_how(to) { alert("Write JavaScript"); }'
+            '</script>'
+        '</p>', '&lt;p&gt;Hello &lt;/p&gt;'),
+        ('<p>Hello '
+            '<scr<script>function know_how(to) { alert("Write JavaScript"); }'
+            '<script></script></scr>'
+        '</p>', '&lt;p&gt;Hello &lt;/scr&gt;&lt;/p&gt;'),
+        ('<p>Hello '
+            '<scr<script>function know_how(to) { alert("<script>"); }'
+            '<script></script></scr>'
+        '</p>', '&lt;p&gt;Hello &lt;/scr&gt;&lt;/p&gt;')
+    )
+
+    def check(teststr, expected_output):
+        eq_(expected_output, clean(teststr, strip_script_content=True))
+
+    for test, output in tests:
+        yield check, test, output
+
+
 def test_nasty():
     """Nested, broken up, multiple tags, are still foiled!"""
     test = ('<scr<script></script>ipt type="text/javascript">alert("foo");</'

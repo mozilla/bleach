@@ -11,6 +11,8 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
 
     allowed_svg_properties = []
 
+    skip_token = False
+
     def sanitize_token(self, token):
         """Sanitize a token either by HTML-encoding or dropping.
 
@@ -20,7 +22,8 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
         Here callable is a function with two arguments of attribute name
         and value. It should return true of false.
 
-        Also gives the option to strip tags instead of encoding.
+        Furthmore it offers options to strip tags instead of encoding them
+        and to strip <script> tags including their content (JavaScript).
 
         """
         if (getattr(self, 'wildcard_attributes', None) is None and
@@ -69,9 +72,13 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                     token['data'] = [(name, val) for name, val in
                                      attrs.items()]
                 return token
+            elif self.strip_scripts and 'script' in token['name']:
+                self.skip_token = True
+                pass
             elif self.strip_disallowed_elements:
                 pass
             else:
+                self.skip_token = False
                 if token['type'] == tokenTypes['EndTag']:
                     token['data'] = '</%s>' % token['name']
                 elif token['data']:
@@ -85,10 +92,14 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                 token['type'] = tokenTypes['Characters']
                 del token["name"]
                 return token
+        elif self.skip_token:
+            pass
         elif token['type'] == tokenTypes['Comment']:
+            self.skip_token = False
             if not self.strip_html_comments:
                 return token
         else:
+            self.skip_token = False
             return token
 
     def sanitize_css(self, style):

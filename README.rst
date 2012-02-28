@@ -72,6 +72,8 @@ expression-based sanitization.
 ``strip``
   Strip disallowed HTML instead of escaping it. A boolean. Defaults to
   ``False``.
+``strip_script_content``
+  Strip content between ``<script>`` tags. Defaults to ``False``.
 ``strip_comments``
   Strip HTML comments. A boolean. Defaults to ``True``.
 
