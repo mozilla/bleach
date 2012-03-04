@@ -31,7 +31,6 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
             isinstance(self.allowed_attributes, dict)):
             self.wildcard_attributes = self.allowed_attributes.get('*', [])
 
-
         if token['type'] in (tokenTypes['StartTag'], tokenTypes['EndTag'],
                              tokenTypes['EmptyTag']):
             if token['name'] in self.allowed_elements:
@@ -75,25 +74,38 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                                      attrs.items()]
                 self.previous_token = token
                 return token
+            # Strip <script> and it's contents.
             elif self.strip_scripts and 'script' in token['name']:
-                if self.skip_token and not (
-                        'data' in self.previous_token and
-                        isinstance(self.previous_token['data'],
-                                   basestring) and
-                        ('"' in self.previous_token['data'] or
-                         "'" in self.previous_token['data'])
-                    ):
-                    self.skip_token = False
+                if self.skip_token:
+                    # Try to detect if we have a <script> tag inside the script
+                    # tag itself.
+                    if (not 'data' in self.previous_token or
+                            not isinstance(self.previous_token['data'],
+                                           basestring)):
+                        self.skip_token = False
+                    # This might be too dumb.
+                    elif any([keyw in self.previous_token['data']
+                              for keyw in ('"', "'", 'var', ';', '=', '{',
+                                           '}', '[', ']', '++', '--', '+=',
+                                           '-=', '*=', '/=', '%=', 'return',
+                                           'function')]):
+                        self.skip_token = True
                 else:
                     self.skip_token = True
                 self.previous_token = token
                 pass
+            # Detect if we have finished stripping a <script> tag and it's
+            # contents.
+            elif (self.strip_scripts and self.skip_token and
+                    'script' in self.previous_token['name'] and
+                    self.previous_token['type'] == 4 and
+                    token['type'] == 3):
+                self.skip_token = False
             elif self.strip_disallowed_elements:
                 self.previous_token = token
                 pass
             else:
                 self.skip_token = False
-                self.previous_token = token
                 if token['type'] == tokenTypes['EndTag']:
                     token['data'] = '</%s>' % token['name']
                 elif token['data']:
@@ -106,6 +118,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                     token['data'] = token['data'][:-1] + '/>'
                 token['type'] = tokenTypes['Characters']
                 del token["name"]
+                self.previous_token = token
                 return token
         elif self.skip_token:
             self.previous_token = token
@@ -128,10 +141,10 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
         the whitelist.
 
         """
-        # disallow urls
+        # Disallow URLs.
         style = re.compile('url\s*\(\s*[^\s)]+?\s*\)\s*').sub(' ', style)
 
-        # gauntlet
+        # Gauntlet.
         if not re.match("""^([-:,;#%.\sa-zA-Z0-9!]|\w-\w|'[\s\w]+"""
                         """'|"[\s\w]+"|\([\d,\s]+\))*$""",
                         style):

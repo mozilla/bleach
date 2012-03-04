@@ -114,18 +114,36 @@ def test_strip_script_contents():
 def test_strip_with_strip_script_contents():
     """Test the combination of strip=True with strip_script_contents=True."""
     tests = (
-        ('<p>Ouh yeah '
+        # (input, expected output)
+        ('<p>A legitimate test '
             '<script>function know_how(to) { alert("Write JS"); }'
             '</script>'
             '<a href="example.com/">This is a test link.</a>'
             '<span> with a test span and <div>div</div></span>.'
-        '</p>', 'Hello This is a test link. with a test span and div.'),
+         '</p>',
+         'A legitimate test This is a test link. with a test span and div.'),
+        ('<p>This is an easy one too '
+            '<script>document.write(somevar)</script>'
+            '<a href="example.com/">This is a test link.</a>'
+            '<span> with a test span and <div>div</div></span>.'
+         '</p>',
+         'This is an easy one too This is a test link. '
+         'with a test span and div.'),
+        # Tests with <script> tags inside <script> tags.
         ('<p>Good bye. '
-            '<script>function die(gotohell) { <script>alert("With you bad <script> javascript skills."); }'
+            '<script>function die(gotohell) { <script>alert("With you bad '
+                '<script> javascript skills."); }'
             '</script>'
             '<a href="example.com/">This is a test link.</a>'
             '<span> with a test span and <div>div</div></span>.'
         '</p>', 'Good bye. This is a test link. with a test span and div.'),
+        ('<p>Get lost. '
+            '<script>function die(gotohell) { <script>alert("With your bad '
+                '<script> javascript </script>skills."); }'
+            '</script></script>'
+            '<a href="example.com/">This is a test link.</a>'
+            '<span> with a test span and <div>div</div></span>.'
+        '</p>', 'Get lost. This is a test link. with a test span and div.'),
     )
 
     def check(teststr, expected_output):
