@@ -144,6 +144,26 @@ def test_strip_with_strip_script_contents():
             '<a href="example.com/">This is a test link.</a>'
             '<span> with a test span and <div>div</div></span>.'
         '</p>', 'Get lost. This is a test link. with a test span and div.'),
+        # Some more extensive 'real' test.
+        ('''<html><head></head><body>
+            Bla
+            <script type="text/javascript">
+                _uacct = "UA-XXXXXX-X";
+                urchinTracker();
+            </script>
+            <script type="text/javascript" src="http://api.example.com/js/0.X/load.js?mode=auto&amp;ver=99.0"></script>
+            <script type="text/javascript">
+                var ids = clicky_site_ids || [];
+                ids.push(XXXXXXXX);
+                (function() {
+                    var s = document.createElement('script');
+                    s.type = 'text/javascript';
+                    s.async = true;
+                    s.src = '//static.example.com/js';
+                ( document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0] ).appendChild( s );
+                })();
+            </script>
+         </body></html>''', 'Bla'),
     )
 
     def check(teststr, expected_output):

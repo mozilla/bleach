@@ -97,6 +97,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
             # Detect if we have finished stripping a <script> tag and it's
             # contents.
             elif (self.strip_scripts and self.skip_token and
+                    'name'   in self.previous_token and
                     'script' in self.previous_token['name'] and
                     self.previous_token['type'] == 4 and
                     token['type'] == 3):
