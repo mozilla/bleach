@@ -98,14 +98,39 @@ def test_strip_script_contents():
             '<scr<script>function know_how(to) { alert("Write JavaScript"); }'
             '<script></script></scr>'
         '</p>', '&lt;p&gt;Hello &lt;/scr&gt;&lt;/p&gt;'),
-        ('<p>Hello '
+        ('<p>My dear '
             '<scr<script>function know_how(to) { alert("<script>"); }'
             '<script></script></scr>'
-        '</p>', '&lt;p&gt;Hello &lt;/scr&gt;&lt;/p&gt;')
+        '</p>', '&lt;p&gt;My dear &lt;/scr&gt;&lt;/p&gt;')
     )
 
     def check(teststr, expected_output):
         eq_(expected_output, clean(teststr, strip_script_content=True))
+
+    for test, output in tests:
+        yield check, test, output
+
+
+def test_strip_with_strip_script_contents():
+    """Test the combination of strip=True with strip_script_contents=True."""
+    tests = (
+        ('<p>Ouh yeah '
+            '<script>function know_how(to) { alert("Write JS"); }'
+            '</script>'
+            '<a href="example.com/">This is a test link.</a>'
+            '<span> with a test span and <div>div</div></span>.'
+        '</p>', 'Hello This is a test link. with a test span and div.'),
+        ('<p>Good bye. '
+            '<script>function die(gotohell) { <script>alert("With you bad <script> javascript skills."); }'
+            '</script>'
+            '<a href="example.com/">This is a test link.</a>'
+            '<span> with a test span and <div>div</div></span>.'
+        '</p>', 'Good bye. This is a test link. with a test span and div.'),
+    )
+
+    def check(teststr, expected_output):
+        eq_(expected_output, clean(teststr, tags=[], strip=True,
+                                   strip_script_content=True))
 
     for test, output in tests:
         yield check, test, output

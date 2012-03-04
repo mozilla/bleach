@@ -12,6 +12,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
     allowed_svg_properties = []
 
     skip_token = False
+    previous_token = {}
 
     def sanitize_token(self, token):
         """Sanitize a token either by HTML-encoding or dropping.
@@ -29,6 +30,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
         if (getattr(self, 'wildcard_attributes', None) is None and
             isinstance(self.allowed_attributes, dict)):
             self.wildcard_attributes = self.allowed_attributes.get('*', [])
+
 
         if token['type'] in (tokenTypes['StartTag'], tokenTypes['EndTag'],
                              tokenTypes['EmptyTag']):
@@ -71,14 +73,27 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                         attrs['style'] = self.sanitize_css(attrs['style'])
                     token['data'] = [(name, val) for name, val in
                                      attrs.items()]
+                self.previous_token = token
                 return token
             elif self.strip_scripts and 'script' in token['name']:
-                self.skip_token = True
+                if self.skip_token and not (
+                        'data' in self.previous_token and
+                        isinstance(self.previous_token['data'],
+                                   basestring) and
+                        ('"' in self.previous_token['data'] or
+                         "'" in self.previous_token['data'])
+                    ):
+                    self.skip_token = False
+                else:
+                    self.skip_token = True
+                self.previous_token = token
                 pass
             elif self.strip_disallowed_elements:
+                self.previous_token = token
                 pass
             else:
                 self.skip_token = False
+                self.previous_token = token
                 if token['type'] == tokenTypes['EndTag']:
                     token['data'] = '</%s>' % token['name']
                 elif token['data']:
@@ -93,13 +108,16 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                 del token["name"]
                 return token
         elif self.skip_token:
+            self.previous_token = token
             pass
         elif token['type'] == tokenTypes['Comment']:
             self.skip_token = False
             if not self.strip_html_comments:
+                self.previous_token = token
                 return token
         else:
             self.skip_token = False
+            self.previous_token = token
             return token
 
     def sanitize_css(self, style):
