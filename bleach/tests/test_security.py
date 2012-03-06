@@ -164,6 +164,17 @@ def test_strip_with_strip_script_contents():
                 })();
             </script>
          </body></html>''', 'Bla'),
+        # Check that special html chars get escaped even in case of failure.
+        ('''<html><head></head><body>
+            Bla
+            <scr>!_uacct("win>");</script>
+         </body></html>''', 'Bla\n            !_uacct("win&gt;");'),
+        # If something looks like a tag inside an invalid script tag it shall
+        # be stripped too.
+        ('''<html><head></head><body>
+            Bla
+            <scr>!_uacct("<win>");</script>
+         </body></html>''', 'Bla\n            !_uacct("");'),
     )
 
     def check(teststr, expected_output):
