@@ -3,11 +3,9 @@ import urllib
 from html5lib.tokenizer import HTMLTokenizer
 from nose.tools import eq_
 
-from bleach import linkify, url_re
+from bleach import linkify, url_re, DEFAULT_CALLBACKS as DC
 
 
-def filter_url(url):
-    return u'http://bouncer/?u=%s' % urllib.quote_plus(url)
 
 
 def test_url_re():
@@ -45,38 +43,139 @@ def test_trailing_slash():
 
 
 def test_mangle_link():
+    """We can muck with the href attribute of the link."""
+    def filter_url(attrs, new=False):
+        attrs['href'] = (u'http://bouncer/?u=%s' %
+                         urllib.quote_plus(attrs['href']))
+        return attrs
+
     eq_('<a href="http://bouncer/?u=http%3A%2F%2Fexample.com" rel="nofollow">'
         'http://example.com</a>',
-        linkify('http://example.com', filter_url=filter_url))
+        linkify('http://example.com', DC + [filter_url]))
+
+
+def test_mangle_text():
+    """We can muck with the inner text of a link."""
+
+    def ft(attrs, new=False):
+        attrs['_text'] = 'bar'
+        return attrs
+
+    eq_('<a href="http://ex.mp">bar</a> <a href="http://ex.mp/foo">bar</a>',
+        linkify('http://ex.mp <a href="http://ex.mp/foo">foo</a>', [ft]))
 
 
 def test_email_link():
-    eq_('a james@example.com mailto',
-        linkify('a james@example.com mailto'))
-    eq_('a james@example.com.au mailto',
-        linkify('a james@example.com.au mailto'))
-    eq_('a <a href="mailto:james@example.com" rel="nofollow">'
-        'james@example.com</a> mailto',
-        linkify('a james@example.com mailto', parse_email=True))
-    eq_('aussie <a href="mailto:james@example.com.au" rel="nofollow">'
-        'james@example.com.au</a> mailto',
-        linkify('aussie james@example.com.au mailto', parse_email=True))
-    eq_('email to <a href="james@example.com" rel="nofollow">'
-        'james@example.com</a>',
-        linkify('email to <a href="james@example.com">'
-        'james@example.com</a>', parse_email=True))
+    tests = (
+        ('a james@example.com mailto', False, 'a james@example.com mailto'),
+        ('a james@example.com.au mailto', False,
+            'a james@example.com.au mailto'),
+        ('a <a href="mailto:james@example.com">james@example.com</a> mailto',
+            True, 'a james@example.com mailto'),
+        ('aussie <a href="mailto:james@example.com.au">'
+            'james@example.com.au</a> mailto', True,
+            'aussie james@example.com.au mailto'),
+        # This is kind of a pathological case. I guess we do our best here.
+        ('email to <a href="james@example.com" rel="nofollow">'
+            'james@example.com</a>', True,
+            'email to <a href="james@example.com">james@example.com</a>'),
+    )
+
+    def _check(o, p, i):
+        eq_(o, linkify(i, parse_email=p))
+
+    for (o, p, i) in tests:
+        yield _check, o, p, i
 
 
 def test_email_link_escaping():
-    eq_('''<a href='mailto:"james"@example.com' rel="nofollow">'''
-        '''"james"@example.com</a>''',
-        linkify('"james"@example.com', parse_email=True))
-    eq_('''<a href="mailto:&quot;j'ames&quot;@example.com" rel="nofollow">'''
-        '''"j'ames"@example.com</a>''',
-        linkify('"j\'ames"@example.com', parse_email=True))
-    eq_('''<a href='mailto:"ja>mes"@example.com' rel="nofollow">'''
-        '''"ja&gt;mes"@example.com</a>''',
-        linkify('"ja>mes"@example.com', parse_email=True))
+    tests = (
+        ('''<a href='mailto:"james"@example.com'>'''
+            '''"james"@example.com</a>''',
+            '"james"@example.com'),
+        ('''<a href="mailto:&quot;j'ames&quot;@example.com">'''
+            '''"j'ames"@example.com</a>''',
+            '"j\'ames"@example.com'),
+        ('''<a href='mailto:"ja>mes"@example.com'>'''
+            '''"ja&gt;mes"@example.com</a>''',
+            '"ja>mes"@example.com'),
+    )
+
+    def _check(o, i):
+        eq_(o, linkify(i, parse_email=True))
+
+    for (o, i) in tests:
+        yield _check, o, i
+
+
+def test_prevent_links():
+    """Returning None from any callback should remove links or prevent them
+    from being created."""
+
+    def no_new_links(attrs, new=False):
+        if new:
+            return None
+        return attrs
+
+    def no_old_links(attrs, new=False):
+        if not new:
+            return None
+        return attrs
+
+    def noop(attrs, new=False):
+        return attrs
+
+    in_text = 'a ex.mp <a href="http://example.com">example</a>'
+    out_text = 'a <a href="http://ex.mp">ex.mp</a> example'
+    tests = (
+        ([noop], ('a <a href="http://ex.mp">ex.mp</a> '
+                  '<a href="http://example.com">example</a>'), 'noop'),
+        ([no_new_links, noop], in_text, 'no new, noop'),
+        ([noop, no_new_links], in_text, 'noop, no new'),
+        ([no_old_links, noop], out_text, 'no old, noop'),
+        ([noop, no_old_links], out_text, 'noop, no old'),
+        ([no_old_links, no_new_links], 'a ex.mp example', 'no links'),
+    )
+
+    def _check(cb, o, msg):
+        eq_(o, linkify(in_text, cb), msg)
+
+    for (cb, o, msg) in tests:
+        yield _check, cb, o, msg
+
+
+def test_set_attrs():
+    """We can set random attributes on links."""
+
+    def set_attr(attrs, new=False):
+        attrs['rev'] = 'canonical'
+        return attrs
+
+    eq_('<a href="http://ex.mp" rev="canonical">ex.mp</a>',
+        linkify('ex.mp', [set_attr]))
+
+
+def test_only_proto_links():
+    """Only create links if there's a protocol."""
+    def only_proto(attrs, new=False):
+        if new and not attrs['_text'].startswith(('http:', 'https:')):
+            return None
+        return attrs
+
+    in_text = 'a ex.mp http://ex.mp <a href="/foo">bar</a>'
+    out_text = ('a ex.mp <a href="http://ex.mp">http://ex.mp</a> '
+                '<a href="/foo">bar</a>')
+    eq_(out_text, linkify(in_text, [only_proto]))
+
+
+def test_stop_email():
+    """Returning None should prevent a link from being created."""
+    def no_email(attrs, new=False):
+        if attrs['href'].startswith('mailto:'):
+            return None
+        return attrs
+    text = 'do not link james@example.com'
+    eq_(text, linkify(text, parse_email=True, callbacks=[no_email]))
 
 
 def test_tlds():
@@ -98,7 +197,7 @@ def test_escaping():
 
 def test_nofollow_off():
     eq_('<a href="http://example.com">example.com</a>',
-        linkify(u'example.com', nofollow=False))
+        linkify(u'example.com', []))
 
 
 def test_link_in_html():
@@ -295,14 +394,6 @@ def test_ports():
 
     for test, output in tests:
         yield check, test, output
-
-
-def test_target():
-    eq_('<a href="http://example.com" rel="nofollow" '
-        'target="_blank">example.com</a>',
-        linkify(u'example.com', target='_blank'))
-    eq_('<a href="http://example.com" target="_blank">example.com</a>',
-        linkify(u'example.com', target='_blank', nofollow=False))
 
 
 def test_tokenizer():

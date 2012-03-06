@@ -6,8 +6,9 @@ import html5lib
 from html5lib.sanitizer import HTMLSanitizer
 from html5lib.serializer.htmlserializer import HTMLSerializer
 
-from encoding import force_unicode
-from sanitizer import BleachSanitizer
+from . import callbacks as linkify_callbacks
+from .encoding import force_unicode
+from .sanitizer import BleachSanitizer
 
 
 VERSION = (1, 2, 0)
@@ -83,7 +84,7 @@ email_re = re.compile(
 
 NODE_TEXT = 4  # The numeric ID of a text node in simpletree.
 
-identity = lambda x: x  # The identity function.
+DEFAULT_CALLBACKS = [linkify_callbacks.nofollow]
 
 
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
@@ -108,29 +109,14 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
     return _render(parser.parseFragment(text)).strip()
 
 
-def linkify(text, nofollow=True, target=None, filter_url=identity,
-            filter_text=identity, skip_pre=False, parse_email=False,
-            tokenizer=HTMLSanitizer):
+def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
+            parse_email=False, tokenizer=HTMLSanitizer):
     """Convert URL-like strings in an HTML fragment to links.
 
     linkify() converts strings that look like URLs or domain names in a
     blob of text that may be an HTML fragment to links, while preserving
     (a) links already in the string, (b) urls found in attributes, and
     (c) email addresses.
-
-    If the nofollow argument is True (the default) then rel="nofollow"
-    will be added to links created by linkify() as well as links already
-    found in the text.
-
-    The target argument will optionally add a target attribute with the
-    given value to links created by linkify() as well as links already
-    found in the text.
-
-    linkify() uses up to two filters on each link. For links created by
-    linkify(), the href attribute is passed through filter_url()
-    and the text of the link is passed through filter_text(). For links
-    already found in the document, the href attribute is passed through
-    filter_url(), but the text is untouched.
     """
     text = force_unicode(text)
 
@@ -141,16 +127,16 @@ def linkify(text, nofollow=True, target=None, filter_url=identity,
 
     forest = parser.parseFragment(text)
 
-    if nofollow:
-        rel = u'rel="nofollow"'
-    else:
-        rel = u''
-
     def replace_nodes(tree, new_frag, node):
         new_tree = parser.parseFragment(new_frag)
         for n in new_tree.childNodes:
+            # Prevent us from re-parsing links new links as existing links.
+            if n.name == 'a':
+                n._seen = True
             tree.insertBefore(n, node)
         tree.removeChild(node)
+        # Return the number of new nodes.
+        return len(new_tree.childNodes) - 1
 
     def strip_wrapping_parentheses(fragment):
         """Strips wrapping parentheses.
@@ -194,34 +180,75 @@ def linkify(text, nofollow=True, target=None, filter_url=identity,
 
         return fragment, opening_parentheses, closing_parentheses
 
+    def apply_callbacks(attrs, new):
+        for cb in callbacks:
+            attrs = cb(attrs, new)
+            if attrs is None:
+                return None
+        return attrs
+
     def linkify_nodes(tree, parse_text=True):
-        for node in tree.childNodes:
+        # I know this isn't Pythonic, but we're sometimes mutating
+        # tree.childNodes, which ends up breaking the loop and causing us to
+        # reparse code.
+        children = len(tree.childNodes)
+        current = 0  # A pointer to the "current" node.
+        while current < children:
+            node = tree.childNodes[current]
             if node.type == NODE_TEXT and parse_text:
-                new_frag = node.toxml()
+                new_frag = _render(node)
+                # Look for email addresses?
                 if parse_email:
                     new_frag = re.sub(email_re, email_repl, new_frag)
-                    if new_frag != node.toxml():
-                        replace_nodes(tree, new_frag, node)
+                    if new_frag != _render(node):
+                        adj = replace_nodes(tree, new_frag, node)
+                        children += adj
+                        current += adj
                         linkify_nodes(tree, False)
                         continue
                 new_frag = re.sub(url_re, link_repl, new_frag)
-                replace_nodes(tree, new_frag, node)
-            elif node.name == 'a':
+                if new_frag != _render(node):
+                    adj = replace_nodes(tree, new_frag, node)
+                    children += adj
+                    current += adj
+            elif node.name == 'a' and not getattr(node, '_seen', False):
                 if 'href' in node.attributes:
-                    if nofollow:
-                        node.attributes['rel'] = 'nofollow'
-                    if target is not None:
-                        node.attributes['target'] = target
-                    href = node.attributes['href']
-                    node.attributes['href'] = filter_url(href)
+                    attrs = node.attributes
+                    _text = attrs['_text'] = ''.join(_render(c) for
+                                                     c in node.childNodes)
+                    attrs = apply_callbacks(attrs, False)
+                    if attrs is not None:
+                        text = force_unicode(attrs.pop('_text'))
+                        node.attributes = attrs
+                        for n in node.childNodes:
+                            node.removeChild(n)
+                        node.insertText(text)
+                        node._seen = True
+                    else:
+                        replace_nodes(tree, _text, node)
             elif skip_pre and node.name == 'pre':
                 linkify_nodes(node, False)
-            else:
+            elif not getattr(node, '_seen', False):
                 linkify_nodes(node)
+            current += 1
 
     def email_repl(match):
-        repl = u'<a href="mailto:%(mail)s">%(mail)s</a>'
-        return repl % {'mail': match.group(0).replace('"', '&quot;')}
+        addr = match.group(0).replace('"', '&quot;')
+        link = {
+            '_text': addr,
+            'href': 'mailto:%s' % addr,
+        }
+        link = apply_callbacks(link, True)
+
+        if link is None:
+            return addr
+
+        _href = link.pop('href')
+        _text = link.pop('_text')
+
+        repl = '<a href="%s" %s>%s</a>'
+        attribs = ' '.join('%s="%s"' % (k, v) for k, v in link.items())
+        return repl % (_href, attribs, _text)
 
     def link_repl(match):
         url = match.group(0)
@@ -240,15 +267,25 @@ def linkify(text, nofollow=True, target=None, filter_url=identity,
         else:
             href = u''.join([u'http://', url])
 
-        repl = u'%s<a href="%s" %s>%s</a>%s%s'
+        link = {
+            '_text': url,
+            'href': href,
+        }
 
-        attribs = [rel]
-        if target is not None:
-            attribs.append('target="%s"' % target)
+        link = apply_callbacks(link, True)
+
+        if link is None:
+            return url
+
+        _text = link.pop('_text')
+        _href = link.pop('href')
+
+        repl = u'%s<a href="%s" %s>%s</a>%s%s'
+        attribs = ' '.join('%s="%s"' % (k, v) for k, v in link.items())
 
         return repl % ('(' * open_brackets,
-                       filter_url(href), ' '.join(attribs), filter_text(url),
-                       end, ')' * close_brackets)
+                       _href, attribs, _text, end,
+                       ')' * close_brackets)
 
     try:
         linkify_nodes(forest)
