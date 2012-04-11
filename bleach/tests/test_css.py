@@ -1,6 +1,6 @@
 from functools import partial
 
-from nose.tools import eq_
+from nose.tools import eq_, ok_
 
 from bleach import clean
 
@@ -38,3 +38,24 @@ def test_valid_css():
         clean('<p style="float: left; color: ">foo</p>', styles=styles))
     eq_('<p style="">foo</p>',
         clean('<p style="color: float: left;">foo</p>', styles=styles))
+
+
+def test_style_hang():
+    """The sanitizer should not hang on any inline styles"""
+    # TODO: Neaten this up. It's copypasta from MDN/Kuma to repro the bug
+    style = """margin-top: 0px; margin-right: 0px; margin-bottom: 1.286em; margin-left: 0px; padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-top-style: dotted; border-right-style: dotted; border-bottom-style: dotted; border-left-style: dotted; border-top-color: rgb(203, 200, 185); border-right-color: rgb(203, 200, 185); border-bottom-color: rgb(203, 200, 185); border-left-color: rgb(203, 200, 185); background-image: initial; background-attachment: initial; background-origin: initial; background-clip: initial; background-color: rgb(246, 246, 242); overflow-x: auto; overflow-y: auto; font: normal normal normal 100%/normal 'Courier New', 'Andale Mono', monospace; background-position: initial initial; background-repeat: initial initial;"""
+    html = '<p style="%s">Hello world</p>' % style
+    styles = [
+        'border', 'float', 'overflow', 'min-height', 'vertical-align',
+        'white-space',
+        'margin', 'margin-left', 'margin-top', 'margin-bottom', 'margin-right',
+        'padding', 'padding-left', 'padding-top', 'padding-bottom', 'padding-right',
+        'background',
+        'background-color',
+        'font', 'font-size', 'font-weight', 'text-align', 'text-transform',
+    ]
+    expected_style = """margin-top: 0px; margin-right: 0px; margin-bottom: 1.286em; margin-left: 0px; padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; background-color: rgb(246, 246, 242); font: normal normal normal 100%/normal 'Courier New', 'Andale Mono', monospace;"""
+
+    result = clean(html, styles=styles)
+
+    ok_(True)
