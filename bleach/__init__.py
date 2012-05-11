@@ -109,7 +109,8 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
 
 def linkify(text, nofollow=True, target=None, filter_url=identity,
-            filter_text=identity, skip_pre=False, parse_email=False):
+            filter_text=identity, skip_pre=False, parse_email=False,
+            tokenizer=HTMLSanitizer):
     """Convert URL-like strings in an HTML fragment to links.
 
     linkify() converts strings that look like URLs or domain names in a
@@ -136,7 +137,7 @@ def linkify(text, nofollow=True, target=None, filter_url=identity,
     if not text:
         return u''
 
-    parser = html5lib.HTMLParser(tokenizer=HTMLSanitizer)
+    parser = html5lib.HTMLParser(tokenizer=tokenizer)
 
     forest = parser.parseFragment(text)
 

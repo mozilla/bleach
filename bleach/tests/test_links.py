@@ -1,5 +1,6 @@
 import urllib
 
+from html5lib.tokenizer import HTMLTokenizer
 from nose.tools import eq_
 
 from bleach import linkify, url_re
@@ -302,3 +303,10 @@ def test_target():
         linkify(u'example.com', target='_blank'))
     eq_('<a href="http://example.com" target="_blank">example.com</a>',
         linkify(u'example.com', target='_blank', nofollow=False))
+
+
+def test_tokenizer():
+    """Linkify doesn't always have to sanitize."""
+    raw = '<em>test<x></x></em>'
+    eq_('<em>test&lt;x&gt;&lt;/x&gt;</em>', linkify(raw))
+    eq_(raw, linkify(raw, tokenizer=HTMLTokenizer))
