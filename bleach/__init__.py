@@ -1,8 +1,6 @@
-import itertools
 import logging
 import re
 import sys
-import urlparse
 
 import html5lib
 from html5lib.sanitizer import HTMLSanitizer
