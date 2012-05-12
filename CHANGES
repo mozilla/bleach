@@ -1,0 +1,9 @@
+Bleach Changes
+==============
+
+Version 1.2
+-----------
+
+- Bleach will no longer consider unacceptable protocols when linkifying.
+- linkify() now takes a tokenizer argument that allows it to skip sanitization.
+- delinkify() is gone.
