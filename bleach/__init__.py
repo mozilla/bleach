@@ -4,6 +4,7 @@ import sys
 
 import html5lib
 from html5lib.sanitizer import HTMLSanitizer
+from html5lib.tokenizer import HTMLTokenizer
 from html5lib.serializer.htmlserializer import HTMLSerializer
 
 from encoding import force_unicode
