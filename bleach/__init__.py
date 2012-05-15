@@ -87,7 +87,8 @@ identity = lambda x: x  # The identity function.
 
 
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
-          styles=ALLOWED_STYLES, strip=False, strip_comments=True):
+          styles=ALLOWED_STYLES, strip=False, strip_comments=True,
+          strip_script_content=False):
     """Clean an HTML fragment and return it"""
     if not text:
         return u''
@@ -102,6 +103,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
         allowed_css_properties = styles
         strip_disallowed_elements = strip
         strip_html_comments = strip_comments
+        strip_scripts = strip_script_content
 
     parser = html5lib.HTMLParser(tokenizer=s)
 

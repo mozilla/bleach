@@ -11,6 +11,9 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
 
     allowed_svg_properties = []
 
+    skip_token = False
+    previous_token = {}
+
     def sanitize_token(self, token):
         """Sanitize a token either by HTML-encoding or dropping.
 
@@ -20,7 +23,8 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
         Here callable is a function with two arguments of attribute name
         and value. It should return true of false.
 
-        Also gives the option to strip tags instead of encoding.
+        Furthmore it offers options to strip tags instead of encoding them
+        and to strip <script> tags including their content (JavaScript).
 
         """
         if (getattr(self, 'wildcard_attributes', None) is None and
@@ -68,10 +72,41 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                         attrs['style'] = self.sanitize_css(attrs['style'])
                     token['data'] = [(name, val) for name, val in
                                      attrs.items()]
+                self.previous_token = token
                 return token
+            # Strip <script> and it's contents.
+            elif self.strip_scripts and 'script' in token['name']:
+                if self.skip_token:
+                    # Try to detect if we have a <script> tag inside the script
+                    # tag itself.
+                    if (not 'data' in self.previous_token or
+                            not isinstance(self.previous_token['data'],
+                                           basestring)):
+                        self.skip_token = False
+                    # This might be too dumb.
+                    elif any([keyw in self.previous_token['data'].lower()
+                              for keyw in ('"', "'", 'var', ';', '=', '{',
+                                           '}', '[', ']', '++', '--', '+=',
+                                           '-=', '*=', '/=', '%=', 'return',
+                                           'function')]):
+                        self.skip_token = True
+                else:
+                    self.skip_token = True
+                self.previous_token = token
+                pass
+            # Detect if we have finished stripping a <script> tag and it's
+            # contents.
+            elif (self.strip_scripts and self.skip_token and
+                    'name' in self.previous_token and
+                    'script' in self.previous_token['name'] and
+                    self.previous_token['type'] == 4 and
+                    token['type'] == 3):
+                self.skip_token = False
             elif self.strip_disallowed_elements:
+                self.previous_token = token
                 pass
             else:
+                self.skip_token = False
                 if token['type'] == tokenTypes['EndTag']:
                     token['data'] = '</%s>' % token['name']
                 elif token['data']:
@@ -84,11 +119,19 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                     token['data'] = token['data'][:-1] + '/>'
                 token['type'] = tokenTypes['Characters']
                 del token["name"]
+                self.previous_token = token
                 return token
+        elif self.skip_token:
+            self.previous_token = token
+            pass
         elif token['type'] == tokenTypes['Comment']:
+            self.skip_token = False
             if not self.strip_html_comments:
+                self.previous_token = token
                 return token
         else:
+            self.skip_token = False
+            self.previous_token = token
             return token
 
     def sanitize_css(self, style):
@@ -99,10 +142,10 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
         the whitelist.
 
         """
-        # disallow urls
+        # Disallow URLs.
         style = re.compile('url\s*\(\s*[^\s)]+?\s*\)\s*').sub(' ', style)
 
-        # gauntlet
+        # Gauntlet.
         if not re.match("""^([-:,;#%.\sa-zA-Z0-9!]|\w-\w|'[\s\w]+"""
                         """'|"[\s\w]+"|\([\d,\s]+\))*$""",
                         style):

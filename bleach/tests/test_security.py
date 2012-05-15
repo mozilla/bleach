@@ -87,6 +87,104 @@ def test_strip():
     eq_('pt&gt;pt&gt;alert(1)', clean(s, strip=True))
 
 
+def test_strip_script_contents():
+    """Using strip_script_content=True will remove a script completely."""
+    tests = (
+        ('<p>Hello '
+            '<script>function know_how(to) { alert("Write JavaScript"); }'
+            '</script>'
+        '</p>', '&lt;p&gt;Hello &lt;/p&gt;'),
+        ('<p>Hello '
+            '<scr<script>function know_how(to) { alert("Write JavaScript"); }'
+            '<script></script></scr>'
+        '</p>', '&lt;p&gt;Hello &lt;/scr&gt;&lt;/p&gt;'),
+        ('<p>My dear '
+            '<scr<script>function know_how(to) { alert("<script>"); }'
+            '<script></script></scr>'
+        '</p>', '&lt;p&gt;My dear &lt;/scr&gt;&lt;/p&gt;')
+    )
+
+    def check(teststr, expected_output):
+        eq_(expected_output, clean(teststr, strip_script_content=True))
+
+    for test, output in tests:
+        yield check, test, output
+
+
+def test_strip_with_strip_script_contents():
+    """Test the combination of strip=True with strip_script_contents=True."""
+    tests = (
+        # (input, expected output)
+        ('<p>A legitimate test '
+            '<script>function know_how(to) { alert("Write JS"); }'
+            '</script>'
+            '<a href="example.com/">This is a test link.</a>'
+            '<span> with a test span and <div>div</div></span>.'
+         '</p>',
+         'A legitimate test This is a test link. with a test span and div.'),
+        ('<p>This is an easy one too '
+            '<script>document.write(somevar)</script>'
+            '<a href="example.com/">This is a test link.</a>'
+            '<span> with a test span and <div>div</div></span>.'
+         '</p>',
+         'This is an easy one too This is a test link. '
+         'with a test span and div.'),
+        # Tests with <script> tags inside <script> tags.
+        ('<p>Good bye. '
+            '<script>function die(gotohell) { <script>alert("With you bad '
+                '<script> javascript skills."); }'
+            '</script>'
+            '<a href="example.com/">This is a test link.</a>'
+            '<span> with a test span and <div>div</div></span>.'
+        '</p>', 'Good bye. This is a test link. with a test span and div.'),
+        ('<p>Get lost. '
+            '<script>function die(gotohell) { <script>alert("With your bad '
+                '<script> javascript </script>skills."); }'
+            '</script></script>'
+            '<a href="example.com/">This is a test link.</a>'
+            '<span> with a test span and <div>div</div></span>.'
+        '</p>', 'Get lost. This is a test link. with a test span and div.'),
+        # Some more extensive 'real' test.
+        ('''<html><head></head><body>
+            Bla
+            <script type="text/javascript">
+                _uacct = "UA-XXXXXX-X";
+                urchinTracker();
+            </script>
+            <script type="text/javascript" src="http://api.example.com/js/0.X/load.js?mode=auto&amp;ver=99.0"></script>
+            <script type="text/javascript">
+                var ids = clicky_site_ids || [];
+                ids.push(XXXXXXXX);
+                (function() {
+                    var s = document.createElement('script');
+                    s.type = 'text/javascript';
+                    s.async = true;
+                    s.src = '//static.example.com/js';
+                ( document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0] ).appendChild( s );
+                })();
+            </script>
+         </body></html>''', 'Bla'),
+        # Check that special html chars get escaped even in case of failure.
+        ('''<html><head></head><body>
+            Bla
+            <scr>!_uacct("win>");</script>
+         </body></html>''', 'Bla\n            !_uacct("win&gt;");'),
+        # If something looks like a tag inside an invalid script tag it shall
+        # be stripped too.
+        ('''<html><head></head><body>
+            Bla
+            <scr>!_uacct("<win>");</script>
+         </body></html>''', 'Bla\n            !_uacct("");'),
+    )
+
+    def check(teststr, expected_output):
+        eq_(expected_output, clean(teststr, tags=[], strip=True,
+                                   strip_script_content=True))
+
+    for test, output in tests:
+        yield check, test, output
+
+
 def test_nasty():
     """Nested, broken up, multiple tags, are still foiled!"""
     test = ('<scr<script></script>ipt type="text/javascript">alert("foo");</'
