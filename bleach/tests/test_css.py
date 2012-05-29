@@ -54,8 +54,8 @@ def test_style_hang():
         'background-color',
         'font', 'font-size', 'font-weight', 'text-align', 'text-transform',
     ]
-    expected_style = """margin-top: 0px; margin-right: 0px; margin-bottom: 1.286em; margin-left: 0px; padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; background-color: rgb(246, 246, 242); font: normal normal normal 100%/normal 'Courier New', 'Andale Mono', monospace;"""
+
+    expected = """<p style="margin-top: 0px; margin-right: 0px; margin-bottom: 1.286em; margin-left: 0px; padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; background-color: rgb(246, 246, 242); font: normal normal normal 100%/normal 'Courier New', 'Andale Mono', monospace;">Hello world</p>"""
 
     result = clean(html, styles=styles)
-
-    ok_(True)
+    eq_(expected, result)
