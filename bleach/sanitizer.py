@@ -103,10 +103,15 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
         style = re.compile('url\s*\(\s*[^\s)]+?\s*\)\s*').sub(' ', style)
 
         # gauntlet
-        if not re.match("""^([-:,;#%.\sa-zA-Z0-9!]|\w-\w|'[\s\w]+"""
-                        """'|"[\s\w]+"|\([\d,\s]+\))*$""",
-                        style):
-            return ''
+        # TODO: Make sure this does what it's meant to - I *think* it wants to
+        # validate style attribute contents.
+        parts = style.split(';')
+        gauntlet = re.compile("""^([-/:,#%.\sa-zA-Z0-9!]|\w-\w|'[\s\w]+"""
+                              """'|"[\s\w]+"|\([\d,\s]+\))*$""")
+        for part in parts:
+            if not gauntlet.match(part):
+                return ''
+        
         if not re.match("^\s*([-\w]+\s*:[^:;]*(;\s*|$))*$", style):
             return ''
 
