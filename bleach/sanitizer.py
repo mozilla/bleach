@@ -111,7 +111,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
         for part in parts:
             if not gauntlet.match(part):
                 return ''
-        
+
         if not re.match("^\s*([-\w]+\s*:[^:;]*(;\s*|$))*$", style):
             return ''
 
@@ -131,7 +131,8 @@ class BleachSanitizer(HTMLTokenizer, BleachSanitizerMixin):
     def __init__(self, stream, encoding=None, parseMeta=True, useChardet=True,
                  lowercaseElementName=True, lowercaseAttrName=True, **kwargs):
         HTMLTokenizer.__init__(self, stream, encoding, parseMeta, useChardet,
-                               lowercaseElementName, lowercaseAttrName, **kwargs)
+                               lowercaseElementName, lowercaseAttrName,
+                               **kwargs)
 
     def __iter__(self):
         for token in HTMLTokenizer.__iter__(self):
