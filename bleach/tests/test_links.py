@@ -317,3 +317,9 @@ def test_ignore_bad_protocols():
         linkify('foohttp://bar'))
     eq_('foohttp://<a href="http://exampl.com" rel="nofollow">exampl.com</a>',
         linkify('foohttp://exampl.com'))
+
+
+def test_max_recursion_depth():
+    """If we hit the max recursion depth, just return the string."""
+    test = '<em>' * 2000 + 'foo' + '</em>' * 2000
+    eq_(test, linkify(test))

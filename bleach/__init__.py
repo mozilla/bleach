@@ -250,7 +250,11 @@ def linkify(text, nofollow=True, target=None, filter_url=identity,
                        filter_url(href), ' '.join(attribs), filter_text(url),
                        end, ')' * close_brackets)
 
-    linkify_nodes(forest)
+    try:
+        linkify_nodes(forest)
+    except RuntimeError, e:
+        # If we hit the max recursion depth, just return what we've got.
+        log.error('Probable recursion error: %r' % e, exc_info=sys.exc_info())
 
     return _render(forest)
 
