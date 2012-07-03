@@ -260,7 +260,7 @@ def _render(tree):
     try:
         return force_unicode(_serialize(tree))
     except Exception, e:
-        log.error('HTML: %r' % e, exc_info=sys.exc_info())
+        log.warning('HTML: %r' % e, exc_info=sys.exc_info())
         try:
             return force_unicode(tree.toxml())
         except Exception, e:
