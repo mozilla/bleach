@@ -15,7 +15,7 @@ Given a fragment of HTML, Bleach will parse it according to the HTML5 parsing
 algorithm and sanitize any disallowed tags or attributes. This algorithm also
 takes care of things like unclosed and (some) misnested tags.
 
-.. _note:
+.. note::
    You may pass in a ``string`` or a ``unicode`` object, but Bleach will
    always return ``unicode``.
 

@@ -20,7 +20,7 @@ By default, ``linkify()`` will perform some sanitization, only allowing a set
 of "safe" tags. Because it uses the HTML5 parsing algorithm, it will always
 handle things like unclosed tags.
 
-.. _note:
+.. note::
    You may pass a ``string`` or ``unicode`` object, but Bleach will always
    return ``unicode``.
 
@@ -179,7 +179,7 @@ If you want to remove certain links, even if they are written in the text with
 ``<pre>`` tags are often special, literal sections. If you don't want to create
 any new links within a ``<pre>`` section, pass ``skip_pre=True``.
 
-.. _note:
+.. note::
    Though new links will not be created, existing links created with ``<a>``
    tags will still be passed through all the callbacks.
 
