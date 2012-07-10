@@ -12,7 +12,7 @@ from encoding import force_unicode
 from sanitizer import BleachSanitizer
 
 
-VERSION = (1, 1, 2)
+VERSION = (1, 1, 3)
 __version__ = '.'.join(map(str, VERSION))
 
 __all__ = ['clean', 'linkify']
