@@ -10,6 +10,12 @@ Version 1.2
 - delinkify() is gone.
 
 
+Version 1.1.3
+-------------
+
+- Fix parsing bare URLs when parse_email=True.
+
+
 Version 1.1.2
 -------------
 
