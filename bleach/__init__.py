@@ -201,7 +201,7 @@ def linkify(text, nofollow=True, target=None, filter_url=identity,
                     new_frag = re.sub(email_re, email_repl, new_frag)
                     if new_frag != node.toxml():
                         replace_nodes(tree, new_frag, node)
-                        linkify_nodes(tree, False)
+                        linkify_nodes(tree)
                         continue
                 new_frag = re.sub(url_re, link_repl, new_frag)
                 replace_nodes(tree, new_frag, node)

@@ -302,3 +302,12 @@ def test_target():
         linkify(u'example.com', target='_blank'))
     eq_('<a href="http://example.com" target="_blank">example.com</a>',
         linkify(u'example.com', target='_blank', nofollow=False))
+
+
+def test_link_emails_and_urls():
+    """parse_email=True shouldn't prevent URLs from getting linkified."""
+    output = ('<a href="http://example.com" rel="nofollow">'
+              'http://example.com</a> <a href="mailto:person@example.com" '
+              'rel="nofollow">person@example.com</a>')
+    eq_(output, linkify('http://example.com person@example.com',
+                        parse_email=True))
