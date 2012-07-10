@@ -414,3 +414,12 @@ def test_max_recursion_depth():
     """If we hit the max recursion depth, just return the string."""
     test = '<em>' * 2000 + 'foo' + '</em>' * 2000
     eq_(test, linkify(test))
+
+
+def test_link_emails_and_urls():
+    """parse_email=True shouldn't prevent URLs from getting linkified."""
+    output = ('<a href="http://example.com" rel="nofollow">'
+              'http://example.com</a> <a href="mailto:person@example.com">'
+              'person@example.com</a>')
+    eq_(output, linkify('http://example.com person@example.com',
+                        parse_email=True))

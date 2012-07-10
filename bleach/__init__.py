@@ -204,7 +204,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                         adj = replace_nodes(tree, new_frag, node)
                         children += adj
                         current += adj
-                        linkify_nodes(tree, False)
+                        linkify_nodes(tree)
                         continue
                 new_frag = re.sub(url_re, link_repl, new_frag)
                 if new_frag != _render(node):
