@@ -86,6 +86,9 @@ NODE_TEXT = 4  # The numeric ID of a text node in simpletree.
 
 DEFAULT_CALLBACKS = [linkify_callbacks.nofollow]
 
+PY_26 = (sys.version_info < (2, 7))
+RECURSION_EXCEPTION = RuntimeError if not PY_26 else AttributeError
+
 
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
           styles=ALLOWED_STYLES, strip=False, strip_comments=True):
@@ -289,7 +292,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
 
     try:
         linkify_nodes(forest)
-    except RuntimeError, e:
+    except (RECURSION_EXCEPTION), e:
         # If we hit the max recursion depth, just return what we've got.
         log.error('Probable recursion error: %r' % e, exc_info=sys.exc_info())
 
