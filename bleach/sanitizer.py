@@ -107,7 +107,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
         # validate style attribute contents.
         parts = style.split(';')
         gauntlet = re.compile("""^([-/:,#%.\sa-zA-Z0-9!]|\w-\w|'[\s\w]+"""
-                              """'|"[\s\w]+"|\([\d,\s]+\))*$""")
+                              """'|"[\s\w]+"|\([\d,%\.\s]+\))*$""")
         for part in parts:
             if not gauntlet.match(part):
                 return ''

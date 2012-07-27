@@ -20,6 +20,8 @@ def test_allowed_css():
          ['color', 'float']),
         ('color: red; float: left; padding: 1em;', 'color: red;', ['color']),
         ('cursor: -moz-grab;', 'cursor: -moz-grab;', ['cursor']),
+        ('color: hsl(30,100%,50%);', 'color: hsl(30,100%,50%);', ['color']),
+        ('color: rgba(255,0,0,0.4);', 'color: rgba(255,0,0,0.4);', ['color']),
     )
 
     p = '<p style="%s">bar</p>'
