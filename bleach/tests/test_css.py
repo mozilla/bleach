@@ -22,6 +22,7 @@ def test_allowed_css():
         ('cursor: -moz-grab;', 'cursor: -moz-grab;', ['cursor']),
         ('color: hsl(30,100%,50%);', 'color: hsl(30,100%,50%);', ['color']),
         ('color: rgba(255,0,0,0.4);', 'color: rgba(255,0,0,0.4);', ['color']),
+        ("text-overflow: ',' ellipsis;", "text-overflow: ',' ellipsis;", ['text-overflow']),
     )
 
     p = '<p style="%s">bar</p>'
