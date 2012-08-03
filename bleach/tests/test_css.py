@@ -22,7 +22,10 @@ def test_allowed_css():
         ('cursor: -moz-grab;', 'cursor: -moz-grab;', ['cursor']),
         ('color: hsl(30,100%,50%);', 'color: hsl(30,100%,50%);', ['color']),
         ('color: rgba(255,0,0,0.4);', 'color: rgba(255,0,0,0.4);', ['color']),
-        ("text-overflow: ',' ellipsis;", "text-overflow: ',' ellipsis;", ['text-overflow']),
+        ("text-overflow: ',' ellipsis;", 
+         "text-overflow: ',' ellipsis;", ['text-overflow']),
+        ('clip: rect(40px, 200px, 150px, 30px);',
+         'clip: rect(40px, 200px, 150px, 30px);', ['clip']),
     )
 
     p = '<p style="%s">bar</p>'
@@ -82,4 +85,27 @@ def test_style_hang():
                 """Hello world</p>""")
 
     result = clean(html, styles=styles)
+    eq_(expected, result)
+
+
+def test_skip_css_gauntlet():
+    """The 'gauntlet' regex validating styles should be skippable"""
+    html = '<p style="color: red; background: $$$@@@^^^;">HI THERE</p>'
+    styles = ['background', 'color']
+
+    # With gauntlet, the whole style containing garbage is stripped
+    expected = '<p style="">HI THERE</p>'
+    result = clean(html, styles=styles)
+    eq_(expected, result)
+
+    # Without gauntlet, both the clean and garbagey styles are allowed
+    expected = '<p style="color: red; background: $$$@@@^^^;">HI THERE</p>'
+    result = clean(html, styles=styles, skip_gauntlet=True)
+    eq_(expected, result)
+
+    # Oh, and just to be sure, let's see if color gets stripped when not
+    # whitelisted.
+    styles = ['background']
+    expected = '<p style="background: $$$@@@^^^;">HI THERE</p>'
+    result = clean(html, styles=styles, skip_gauntlet=True)
     eq_(expected, result)
