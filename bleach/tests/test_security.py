@@ -95,3 +95,14 @@ def test_nasty():
               u'&gt;alert("foo");&lt;/script&gt;script&lt;del&gt;&lt;/del&gt;'
               u'&gt;')
     eq_(expect, clean(test))
+
+
+def test_poster_attribute():
+    """Poster attributes should not allow javascript."""
+    tags = ['video']
+    attrs = {'video': ['poster']}
+    test = '<video poster="javascript:alert(1)"></video>'
+    expect = '<video></video>'
+    eq_(expect, clean(test, tags=tags, attributes=attrs))
+    ok = '<video poster="/foo.png"></video>'
+    eq_(ok, clean(ok, tags=tags, attributes=attrs))
