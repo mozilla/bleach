@@ -83,7 +83,7 @@ By default, Bleach *escapes* disallowed or invalid markup. For example::
 If you would rather Bleach stripped this markup entirely, you can pass
 ``strip=True``::
 
-    >>> bleach.clean('<span>is not allowed</span>')
+    >>> bleach.clean('<span>is not allowed</span>', strip=True)
     u'is not allowed'
 
 
