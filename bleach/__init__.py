@@ -294,7 +294,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         linkify_nodes(forest)
     except (RECURSION_EXCEPTION), e:
         # If we hit the max recursion depth, just return what we've got.
-        log.error('Probable recursion error: %r' % e, exc_info=sys.exc_info())
+        log.exception('Probable recursion error: %r' % e)
 
     return _render(forest)
 
