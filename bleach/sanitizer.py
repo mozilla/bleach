@@ -104,15 +104,24 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
         # disallow urls
         style = re.compile('url\s*\(\s*[^\s)]+?\s*\)\s*').sub(' ', style)
 
-        # gauntlet
-        # TODO: Make sure this does what it's meant to - I *think* it wants to
-        # validate style attribute contents.
-        parts = style.split(';')
-        gauntlet = re.compile("""^([-/:,#%.'\sa-zA-Z0-9!]|\w-\w|'[\s\w]+'\s*"""
-                              """|"[\s\w]+"|\([\d,%\.\s]+\))*$""")
-        for part in parts:
-            if not gauntlet.match(part):
-                return ''
+        if not self.skip_css_gauntlet:
+            # gauntlet
+            # TODO: Make sure this does what it's meant to - I *think* it wants
+            # to validate style attribute contents.
+            parts = style.split(';')
+            gauntlet = re.compile("""
+            ^(
+                # TODO: Is there anything that the following does *not* allow?
+                [-/:,#%.'\sa-zA-Z0-9!\(\)] |
+                \w-\w |          # eg. a-a, 0-0, a-0 (TODO: what's it for?)
+                '[\s\w]+'\s* |   # eg. 'foo' 'bar' 'baz' 
+                "[\s\w]+"\s* |   # eg. "foo" "bar" "baz"
+                \([\d,%\.\s]+\)  # eg. (100% 50% 10%); (1.0 0.5 0.1)
+            )*$
+            """, re.VERBOSE)
+            for part in parts:
+                if not gauntlet.match(part):
+                    return ''
 
         if not re.match("^\s*([-\w]+\s*:[^:;]*(;\s*|$))*$", style):
             return ''
