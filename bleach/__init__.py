@@ -303,13 +303,8 @@ def _render(tree):
     """Try rendering as HTML, then XML, then give up."""
     try:
         return force_unicode(_serialize(tree))
-    except Exception, e:
-        log.warning('HTML: %r' % e, exc_info=sys.exc_info())
-        try:
-            return force_unicode(tree.toxml())
-        except Exception, e:
-            log.error('XML: %r' % e, exc_info=sys.exc_info())
-            return u''
+    except AssertionError:  # The treewalker throws this sometimes.
+        return force_unicode(tree.toxml())
 
 
 def _serialize(domtree):
