@@ -49,7 +49,7 @@ http://pypi.python.org/pypi/bleach
 So easily install it by ``pip``:
 ::
     
-    pip install bleach
+    $ pip install bleach
 
 Or by ``easy_install``
 ::
@@ -58,7 +58,7 @@ Or by ``easy_install``
 
 Another way is by cloning ``bleach``'s `git repo <https://github.com/jsocol/bleach>`_ ::
     
-    git clone git://github.com/jsocol/bleach.git
+    $ git clone git://github.com/jsocol/bleach.git
 
 Then install it by running:
 ::
