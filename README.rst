@@ -49,7 +49,7 @@ http://pypi.python.org/pypi/bleach
 So easily install it by ``pip``:
 ::
     
-    pip install django-markwhat
+    pip install bleach
 
 Or by ``easy_install``
 ::
