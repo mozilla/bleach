@@ -423,3 +423,10 @@ def test_link_emails_and_urls():
               'person@example.com</a>')
     eq_(output, linkify('http://example.com person@example.com',
                         parse_email=True))
+
+
+def test_links_case_insensitive():
+    """Protocols and domain names are case insensitive."""
+    expect = ('<a href="HTTP://EXAMPLE.COM" rel="nofollow">'
+              'HTTP://EXAMPLE.COM</a>')
+    eq_(expect, linkify('HTTP://EXAMPLE.COM'))
