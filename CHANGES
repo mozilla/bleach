@@ -11,6 +11,7 @@ Version 1.2
 - Removed exception handling from _render. clean() and linkify() may now
   throw.
 - linkify() correctly ignores case for protocols and domain names.
+- linkify() correctly handles markup within an <a> tag.
 
 
 Version 1.1.3

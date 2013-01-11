@@ -218,15 +218,17 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
             elif node.name == 'a' and not getattr(node, '_seen', False):
                 if 'href' in node.attributes:
                     attrs = node.attributes
-                    _text = attrs['_text'] = ''.join(_render(c) for
+                    _text = attrs['_text'] = ''.join(c.toxml() for
                                                      c in node.childNodes)
                     attrs = apply_callbacks(attrs, False)
                     if attrs is not None:
                         text = force_unicode(attrs.pop('_text'))
                         node.attributes = attrs
-                        for n in node.childNodes:
+                        for n in reversed(node.childNodes):
                             node.removeChild(n)
-                        node.insertText(text)
+                        text = parser.parseFragment(text)
+                        for n in text.childNodes:
+                            node.appendChild(n)
                         node._seen = True
                     else:
                         replace_nodes(tree, _text, node)

@@ -430,3 +430,11 @@ def test_links_case_insensitive():
     expect = ('<a href="HTTP://EXAMPLE.COM" rel="nofollow">'
               'HTTP://EXAMPLE.COM</a>')
     eq_(expect, linkify('HTTP://EXAMPLE.COM'))
+
+
+def test_elements_inside_links():
+    eq_(u'<a href="#" rel="nofollow">hello<br></a>',
+        linkify('<a href="#">hello<br></a>'))
+
+    eq_(u'<a href="#" rel="nofollow"><strong>bold</strong> hello<br></a>',
+        linkify('<a href="#"><strong>bold</strong> hello<br></a>'))
