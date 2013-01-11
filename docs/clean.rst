@@ -53,6 +53,26 @@ The default value is also a conservative dict found in
 ``bleach.ALLOWED_ATTRIBUTES``.
 
 
+Callable Filters
+----------------
+
+You can also use a callable (instead of a list) in the ``attributes`` kwarg. If
+the callable returns ``True``, the attribute is allowed. Otherwise, it is
+stripped. For example::
+
+    def filter_src(name, value):
+        if name in ('alt', 'height', 'width'):
+            return True
+        if name == 'src':
+            p = urlparse(value)
+            return (not p.netloc) or p.netloc == 'mydomain.com'
+        return False
+
+    attrs = {
+        'img': filter_src,
+    }
+
+
 Styles Whitelist
 ================
 
