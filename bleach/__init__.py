@@ -66,9 +66,10 @@ url_re = re.compile(
     (?:[/?][^\s\{\}\|\\\^\[\]`<>"]*)?
         # /path/zz (excluding "unsafe" chars from RFC 1738,
         # except for # and ~, which happen in practice)
-    """ % (u'|'.join(PROTOCOLS), u'|'.join(TLDS)), re.VERBOSE | re.UNICODE)
+    """ % (u'|'.join(PROTOCOLS), u'|'.join(TLDS)),
+    re.IGNORECASE | re.VERBOSE | re.UNICODE)
 
-proto_re = re.compile(r'^[\w-]+:/{0,3}')
+proto_re = re.compile(r'^[\w-]+:/{0,3}', re.IGNORECASE)
 
 punct_re = re.compile(r'([\.,]+)$')
 
