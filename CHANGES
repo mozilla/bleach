@@ -9,7 +9,8 @@ Version 1.2
   sanitization.
 - delinkify() is gone.
 - Removed exception handling from _render. clean() and linkify() may now
-  throw
+  throw.
+- linkify() correctly ignores case for protocols and domain names.
 
 
 Version 1.1.3
