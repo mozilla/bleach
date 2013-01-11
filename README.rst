@@ -40,6 +40,32 @@ different character encoding, you should convert from a bytestring to
 ``unicode`` before passing the text to Bleach.
 
 
+Installation
+------------
+``bleach`` is available on pypi:
+
+http://pypi.python.org/pypi/bleach
+
+So easily install it by ``pip``:
+::
+    
+    $ pip install bleach
+
+Or by ``easy_install``
+::
+    
+    $ easy_install bleach
+
+Another way is by cloning ``bleach``'s `git repo <https://github.com/jsocol/bleach>`_ ::
+    
+    $ git clone git://github.com/jsocol/bleach.git
+
+Then install it by running:
+::
+    
+    $ python setup.py install
+
+
 .. _html5lib: http://code.google.com/p/html5lib/
 .. _GitHub: http://github.com/jsocol/bleach
 .. _ReadTheDocs: http://bleach.readthedocs.org/
