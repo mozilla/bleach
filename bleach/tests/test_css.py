@@ -22,13 +22,21 @@ def test_allowed_css():
         ('cursor: -moz-grab;', 'cursor: -moz-grab;', ['cursor']),
         ('color: hsl(30,100%,50%);', 'color: hsl(30,100%,50%);', ['color']),
         ('color: rgba(255,0,0,0.4);', 'color: rgba(255,0,0,0.4);', ['color']),
-        ("text-overflow: ',' ellipsis;", "text-overflow: ',' ellipsis;", ['text-overflow']),
+        ("text-overflow: ',' ellipsis;", "text-overflow: ',' ellipsis;",
+         ['text-overflow']),
+        ('text-overflow: "," ellipsis;', 'text-overflow: "," ellipsis;',
+         ['text-overflow']),
+        ('font-family: "Arial";', 'font-family: "Arial";', ['font-family']),
     )
 
-    p = '<p style="%s">bar</p>'
+    p_single = '<p style="%s">bar</p>'
+    p_double = "<p style='%s'>bar</p>"
 
-    def check(input, output, styles):
-        eq_(p % output, clean(p % input, styles=styles))
+    def check(i, o, s):
+        if '"' in i:
+            eq_(p_double % o, clean(p_double % i, styles=s))
+        else:
+            eq_(p_single % o, clean(p_single % i, styles=s))
 
     for i, o, s in tests:
         yield check, i, o, s
