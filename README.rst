@@ -42,20 +42,16 @@ different character encoding, you should convert from a bytestring to
 
 Installation
 ------------
-Bleach is available on pypi:
 
-http://pypi.python.org/pypi/bleach
-
-So easily install it by ``pip``::
+Bleach is available on PyPI_, so you can install it with ``pip``::
 
     $ pip install bleach
 
-Or by ``easy_install``::
+Or with ``easy_install``::
 
     $ easy_install bleach
 
-Another way is by cloning Bleach's
-`git repo <https://github.com/jsocol/bleach>`_ ::
+Or by cloning the repo from GitHub_::
 
     $ git clone git://github.com/jsocol/bleach.git
 
@@ -67,3 +63,4 @@ Then install it by running::
 .. _html5lib: http://code.google.com/p/html5lib/
 .. _GitHub: https://github.com/jsocol/bleach
 .. _ReadTheDocs: http://bleach.readthedocs.org/
+.. _PyPI: http://pypi.python.org/pypi/bleach

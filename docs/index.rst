@@ -19,8 +19,28 @@ edit, and filter links most other auto-linkers can't.
 The version of bleach on GitHub_ is the always the most up-to-date and the
 ``master`` branch should always work.
 
+Installing Bleach
+=================
+
+Bleach is available on PyPI_, so you can install it with ``pip``::
+
+    $ pip install bleach
+
+Or with ``easy_install``::
+
+    $ easy_install bleach
+
+Or by cloning the repo from GitHub_::
+
+    $ git clone git://github.com/jsocol/bleach.git
+
+Then install it by running::
+
+    $ python setup.py install
+
 
 Contents:
+=========
 
 .. toctree::
    :maxdepth: 2
