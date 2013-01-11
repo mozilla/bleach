@@ -23,6 +23,8 @@ def test_allowed_css():
         ('color: hsl(30,100%,50%);', 'color: hsl(30,100%,50%);', ['color']),
         ('color: rgba(255,0,0,0.4);', 'color: rgba(255,0,0,0.4);', ['color']),
         ("text-overflow: ',' ellipsis;", "text-overflow: ',' ellipsis;", ['text-overflow']),
+        ("font-family:'Arial','sans-serif'", "font-family: 'Arial','sans-serif';",
+            ['font-family'])
     )
 
     p = '<p style="%s">bar</p>'
@@ -33,6 +35,36 @@ def test_allowed_css():
     for i, o, s in tests:
         yield check, i, o, s
 
+def test_allowed_css_single_quote():
+    tests = (
+        ("font-family: Arial; color: red; float: left; "
+         'background-color: red;', 'color: red;', ['color']),
+        ("border: 1px solid blue; color: red; float: left;", 'color: red;',
+         ['color']),
+        ("border: 1px solid blue; color: red; float: left;",
+         'color: red; float: left;', ['color', 'float']),
+        ("color: red; float: left; padding: 1em;", 'color: red; float: left;',
+         ['color', 'float']),
+        ("color: red; float: left; padding: 1em;", 'color: red;', ['color']),
+        ("cursor: -moz-grab;", 'cursor: -moz-grab;', ['cursor']),
+        ("color: hsl(30,100%,50%);", 'color: hsl(30,100%,50%);', ['color']),
+        ("color: rgba(255,0,0,0.4);", 'color: rgba(255,0,0,0.4);', ['color']),
+        ('text-overflow: "," ellipsis;', 'text-overflow: "," ellipsis;', ['text-overflow']),
+        ('font-family:"Arial","sans-serif"', 'font-family: "Arial","sans-serif";',
+            ['font-family'])
+    )
+
+    p =  "<p style='%s'>bar</p>"
+    p2 = '<p style="%s">bar</p>'
+
+    def check(input, output, styles):
+        if '"' in output:
+            eq_(p % output, clean(p % input, styles=styles))
+        else: 
+            eq_(p2 % output, clean(p % input, styles=styles))
+
+    for i, o, s in tests:
+        yield check, i, o, s
 
 def test_valid_css():
     """The sanitizer should fix missing CSS values."""
