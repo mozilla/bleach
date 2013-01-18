@@ -60,3 +60,4 @@ Indices and tables
 
 .. _html5lib: http://code.google.com/p/html5lib/
 .. _GitHub: https://github.com/jsocol/bleach
+.. _PyPI: http://pypi.python.org/pypi/bleach
