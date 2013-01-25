@@ -8,6 +8,11 @@ def test_empty():
     eq_('', bleach.clean(''))
 
 
+def test_nbsp():
+    eq_(u'\xa0test string\xa0', bleach.clean('&nbsp;test string&nbsp;'))
+
+
+ 
 def test_comments_only():
     comment = '<!-- this is a comment -->'
     open_comment = '<!-- this is an open comment'
