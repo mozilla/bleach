@@ -106,3 +106,7 @@ def test_poster_attribute():
     eq_(expect, clean(test, tags=tags, attributes=attrs))
     ok = '<video poster="/foo.png"></video>'
     eq_(ok, clean(ok, tags=tags, attributes=attrs))
+
+
+def test_feed_protocol():
+    eq_('<a>foo</a>', clean('<a href="feed:file:///tmp/foo">foo</a>'))
