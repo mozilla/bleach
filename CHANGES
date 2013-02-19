@@ -1,9 +1,19 @@
 Bleach Changes
 ==============
 
+Version 1.2.1
+-------------
+
+- clean() no longer considers "feed:" an acceptable protocol due to
+  inconsistencies in browser behavior.
+
+
 Version 1.2
 -----------
 
+- linkify() has changed considerably. Many keyword arguments have been
+  replaced with a single callbacks list. Please see the documentation
+  for more information.
 - Bleach will no longer consider unacceptable protocols when linkifying.
 - linkify() now takes a tokenizer argument that allows it to skip
   sanitization.
