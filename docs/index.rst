@@ -22,7 +22,7 @@ The version of bleach on GitHub_ is the always the most up-to-date and the
 .. warn::
 
    Bleach is currently incompatible with html5lib 1.0b and any versions below
-   0.9.5.
+   0.95.
 
 
 Installing Bleach
