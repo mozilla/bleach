@@ -1,6 +1,11 @@
 Bleach Changes
 ==============
 
+Version 1.2.2
+-------------
+
+- Pin html5lib to version 0.95 for now due to major API break.
+
 Version 1.2.1
 -------------
 

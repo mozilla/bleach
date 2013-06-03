@@ -6,7 +6,7 @@ setup(
     description='An easy whitelist-based HTML-sanitizing tool.',
     long_description=open('README.rst').read(),
     author='James Socol',
-    author_email='james@mozilla.com',
+    author_email='me@jamessocol.com',
     url='http://github.com/jsocol/bleach',
     license='BSD',
     packages=find_packages(),
