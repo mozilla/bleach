@@ -85,7 +85,7 @@ allowed but no values will be.
 For example, to allow users to set the color and font-weight of text::
 
     attrs = {
-        '*': 'style'
+        '*': ['style']
     }
     tags = ['p', 'em', 'strong']
     styles = ['color', 'font-weight']
