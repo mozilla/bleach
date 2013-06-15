@@ -1,6 +1,7 @@
 import datetime
 from decimal import Decimal
 import types
+import six
 
 
 def is_protected_type(obj):
@@ -27,12 +28,14 @@ def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):
     if strings_only and is_protected_type(s):
         return s
     try:
-        if not isinstance(s, basestring,):
-            if hasattr(s, '__unicode__'):
-                s = unicode(s)
+        if not isinstance(s, six.string_types):
+            if hasattr(s, '__str__'):
+                s = str(s)
+            elif hasattr(s, '__unicode__'):
+                s = getattr(s, '__unicode__')()
             else:
                 try:
-                    s = unicode(str(s), encoding, errors)
+                    s = sis.text_type(s, encoding, errors)
                 except UnicodeEncodeError:
                     if not isinstance(s, Exception):
                         raise
@@ -49,6 +52,50 @@ def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):
             # errors), so that if s is a SafeString, it ends up being a
             # SafeUnicode at the end.
             s = s.decode(encoding, errors)
-    except UnicodeDecodeError, e:
+    except UnicodeDecodeError as e:
         raise UnicodeDecodeError(*e.args)
+    return s
+
+
+def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):
+    """
+    Similar to smart_text, except that lazy instances are resolved to
+    strings, rather than kept as lazy objects.
+
+    If strings_only is True, don't convert (some) non-string-like objects.
+    """
+    # Handle the common case first, saves 30-40% when s is an instance of
+    # six.text_type. This function gets called often in that setting.
+    if isinstance(s, six.text_type):
+        return s
+    if strings_only and is_protected_type(s):
+        return s
+    try:
+        if not isinstance(s, six.string_types):
+            if hasattr(s, '__unicode__'):
+                s = s.__unicode__()
+            else:
+                if six.PY3:
+                    if isinstance(s, bytes):
+                        s = six.text_type(s, encoding, errors)
+                    else:
+                        s = six.text_type(s)
+                else:
+                    s = six.text_type(bytes(s), encoding, errors)
+        else:
+            # Note: We use .decode() here, instead of six.text_type(s, encoding,
+            # errors), so that if s is a SafeBytes, it ends up being a
+            # SafeText at the end.
+            s = s.decode(encoding, errors)
+    except UnicodeDecodeError as e:
+        if not isinstance(s, Exception):
+            raise DjangoUnicodeDecodeError(s, *e.args)
+        else:
+            # If we get to here, the caller has passed in an Exception
+            # subclass populated with non-ASCII bytestring data without a
+            # working unicode method. Try to handle this without raising a
+            # further exception by individually forcing the exception args
+            # to unicode.
+            s = ' '.join([force_text(arg, encoding, strings_only,
+                    errors) for arg in s])
     return s

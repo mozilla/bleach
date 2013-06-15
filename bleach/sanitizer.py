@@ -56,7 +56,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                                                unescape(attrs[attr])).lower()
                         # Remove replacement characters from unescaped
                         # characters.
-                        val_unescaped = val_unescaped.replace(u"\ufffd", "")
+                        val_unescaped = val_unescaped.replace("\ufffd", "")
                         if (re.match(r'^[a-z0-9][-+.a-z0-9]*:', val_unescaped)
                             and (val_unescaped.split(':')[0] not in
                                  self.allowed_protocols)):
@@ -79,13 +79,13 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                 pass
             else:
                 if token['type'] == tokenTypes['EndTag']:
-                    token['data'] = '</%s>' % token['name']
+                    token['data'] = '</{!s}>'.format(token['name'])
                 elif token['data']:
-                    attrs = ''.join([' %s="%s"' % (k, escape(v)) for k, v in
+                    attrs = ''.join([' {!s}="{!s}"'.format(k, escape(v)) for k, v in
                                     token['data']])
-                    token['data'] = '<%s%s>' % (token['name'], attrs)
+                    token['data'] = '<{!s}{!s}>'.format(token['name'], attrs)
                 else:
-                    token['data'] = '<%s>' % token['name']
+                    token['data'] = '<{!s}>'.format(token['name'])
                 if token['selfClosing']:
                     token['data'] = token['data'][:-1] + '/>'
                 token['type'] = tokenTypes['Characters']

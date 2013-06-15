@@ -9,7 +9,7 @@ def test_empty():
 
 
 def test_nbsp():
-    eq_(u'\xa0test string\xa0', bleach.clean('&nbsp;test string&nbsp;'))
+    eq_('\xa0test string\xa0', bleach.clean('&nbsp;test string&nbsp;'))
 
 
 def test_comments_only():
@@ -18,7 +18,7 @@ def test_comments_only():
     eq_('', bleach.clean(comment))
     eq_('', bleach.clean(open_comment))
     eq_(comment, bleach.clean(comment, strip_comments=False))
-    eq_('%s-->' % open_comment, bleach.clean(open_comment,
+    eq_('{!s}-->'.format(open_comment), bleach.clean(open_comment,
                                              strip_comments=False))
 
 
@@ -55,7 +55,7 @@ def test_function_arguments():
 
 def test_named_arguments():
     ATTRS = {'a': ['rel', 'href']}
-    s = u'<a href="http://xx.com" rel="alternate">xx.com</a>'
+    s = '<a href="http://xx.com" rel="alternate">xx.com</a>'
     eq_('<a href="http://xx.com">xx.com</a>', bleach.clean(s))
     eq_(s, bleach.clean(s, attributes=ATTRS))
 
@@ -81,19 +81,19 @@ def test_bare_entities():
 
 
 def test_escaped_entities():
-    s = u'&lt;em&gt;strong&lt;/em&gt;'
+    s = '&lt;em&gt;strong&lt;/em&gt;'
     eq_(s, bleach.clean(s))
 
 
 def test_serializer():
-    s = u'<table></table>'
+    s = '<table></table>'
     eq_(s, bleach.clean(s, tags=['table']))
-    eq_(u'test<table></table>', bleach.linkify(u'<table>test</table>'))
-    eq_(u'<p>test</p>', bleach.clean(u'<p>test</p>', tags=['p']))
+    eq_('test<table></table>', bleach.linkify('<table>test</table>'))
+    eq_('<p>test</p>', bleach.clean('<p>test</p>', tags=['p']))
 
 
 def test_no_href_links():
-    s = u'<a name="anchor">x</a>'
+    s = '<a name="anchor">x</a>'
     eq_(s, bleach.linkify(s))
 
 
@@ -138,7 +138,7 @@ def test_allowed_styles():
 
 def test_idempotent():
     """Make sure that applying the filter twice doesn't change anything."""
-    dirty = u'<span>invalid & </span> < extra http://link.com<em>'
+    dirty = '<span>invalid & </span> < extra http://link.com<em>'
 
     clean = bleach.clean(dirty)
     eq_(clean, bleach.clean(clean))
@@ -149,8 +149,8 @@ def test_idempotent():
 
 def test_lowercase_html():
     """We should output lowercase HTML."""
-    dirty = u'<EM CLASS="FOO">BAR</EM>'
-    clean = u'<em class="FOO">BAR</em>'
+    dirty = '<EM CLASS="FOO">BAR</EM>'
+    clean = '<em class="FOO">BAR</em>'
     eq_(clean, bleach.clean(dirty, attributes=['class']))
 
 
@@ -160,14 +160,14 @@ def test_wildcard_attributes():
         'img': ['src'],
     }
     TAG = ['img', 'em']
-    dirty = (u'both <em id="foo" style="color: black">can</em> have '
-             u'<img id="bar" src="foo"/>')
-    clean = u'both <em id="foo">can</em> have <img id="bar" src="foo">'
+    dirty = ('both <em id="foo" style="color: black">can</em> have '
+             '<img id="bar" src="foo"/>')
+    clean = 'both <em id="foo">can</em> have <img id="bar" src="foo">'
     eq_(clean, bleach.clean(dirty, tags=TAG, attributes=ATTR))
 
 
 def test_sarcasm():
     """Jokes should crash.<sarcasm/>"""
-    dirty = u'Yeah right <sarcasm/>'
-    clean = u'Yeah right &lt;sarcasm/&gt;'
+    dirty = 'Yeah right <sarcasm/>'
+    clean = 'Yeah right &lt;sarcasm/&gt;'
     eq_(clean, bleach.clean(dirty))
