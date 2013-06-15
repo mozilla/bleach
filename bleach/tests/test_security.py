@@ -91,9 +91,9 @@ def test_nasty():
     """Nested, broken up, multiple tags, are still foiled!"""
     test = ('<scr<script></script>ipt type="text/javascript">alert("foo");</'
             '<script></script>script<del></del>>')
-    expect = (u'&lt;scr&lt;script&gt;&lt;/script&gt;ipt type="text/javascript"'
-              u'&gt;alert("foo");&lt;/script&gt;script&lt;del&gt;&lt;/del&gt;'
-              u'&gt;')
+    expect = ('&lt;scr&lt;script&gt;&lt;/script&gt;ipt type="text/javascript"'
+              '&gt;alert("foo");&lt;/script&gt;script&lt;del&gt;&lt;/del&gt;'
+              '&gt;')
     eq_(expect, clean(test))
 
 

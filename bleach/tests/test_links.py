@@ -1,4 +1,7 @@
-import urllib
+try :
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from html5lib.tokenizer import HTMLTokenizer
 from nose.tools import eq_
@@ -12,7 +15,7 @@ def test_url_re():
     def no_match(s):
         match = url_re.search(s)
         if match:
-            assert not match, 'matched %s' % s[slice(*match.span())]
+            assert not match, 'matched {!s}'.format(s[slice(*match.span())])
     yield no_match, 'just what i am looking for...it'
 
 
@@ -45,8 +48,8 @@ def test_trailing_slash():
 def test_mangle_link():
     """We can muck with the href attribute of the link."""
     def filter_url(attrs, new=False):
-        attrs['href'] = (u'http://bouncer/?u=%s' %
-                         urllib.quote_plus(attrs['href']))
+        attrs['href'] = 'http://bouncer/?u={!s}'.format(
+                         quote_plus(attrs['href']))
         return attrs
 
     eq_('<a href="http://bouncer/?u=http%3A%2F%2Fexample.com" rel="nofollow">'
@@ -151,7 +154,7 @@ def test_set_attrs():
         attrs['rev'] = 'canonical'
         return attrs
 
-    eq_('<a href="http://ex.mp" rev="canonical">ex.mp</a>',
+    eq_('<a rev="canonical" href="http://ex.mp">ex.mp</a>',
         linkify('ex.mp', [set_attr]))
 
 
@@ -197,7 +200,7 @@ def test_escaping():
 
 def test_nofollow_off():
     eq_('<a href="http://example.com">example.com</a>',
-        linkify(u'example.com', []))
+        linkify('example.com', []))
 
 
 def test_link_in_html():
@@ -311,11 +314,11 @@ def test_libgl():
 
 def test_end_of_sentence():
     """example.com. should match."""
-    out = u'<a href="http://%s" rel="nofollow">%s</a>%s'
-    in_ = u'%s%s'
+    out = '<a href="http://{!s}" rel="nofollow">{!s}</a>{!s}'
+    in_ = '{!s}{!s}'
 
     def check(u, p):
-        eq_(out % (u, u, p), linkify(in_ % (u, p)))
+        eq_(out.format(u, u, p), linkify(in_.format(u, p)))
 
     tests = (
         ('example.com', '.'),
@@ -336,38 +339,38 @@ def test_end_of_clause():
 
 def test_sarcasm():
     """Jokes should crash.<sarcasm/>"""
-    dirty = u'Yeah right <sarcasm/>'
-    clean = u'Yeah right &lt;sarcasm/&gt;'
+    dirty = 'Yeah right <sarcasm/>'
+    clean = 'Yeah right &lt;sarcasm/&gt;'
     eq_(clean, linkify(dirty))
 
 
 def test_wrapping_parentheses():
     """URLs wrapped in parantheses should not include them."""
-    out = u'%s<a href="http://%s" rel="nofollow">%s</a>%s'
+    out = '{!s}<a href="http://{!s}" rel="nofollow">{!s}</a>{!s}'
 
     tests = (
-        ('(example.com)', out % ('(', 'example.com', 'example.com', ')')),
-        ('(example.com/)', out % ('(', 'example.com/', 'example.com/', ')')),
-        ('(example.com/foo)', out % ('(', 'example.com/foo',
+        ('(example.com)', out.format('(', 'example.com', 'example.com', ')')),
+        ('(example.com/)', out.format('(', 'example.com/', 'example.com/', ')')),
+        ('(example.com/foo)', out.format('(', 'example.com/foo',
                                      'example.com/foo', ')')),
-        ('(((example.com/))))', out % ('(((', 'example.com/)',
+        ('(((example.com/))))', out.format('(((', 'example.com/)',
                                        'example.com/)', ')))')),
-        ('example.com/))', out % ('', 'example.com/))',
+        ('example.com/))', out.format('', 'example.com/))',
                                   'example.com/))', '')),
         ('http://en.wikipedia.org/wiki/Test_(assessment)',
-            out % ('', 'en.wikipedia.org/wiki/Test_(assessment)',
+            out.format('', 'en.wikipedia.org/wiki/Test_(assessment)',
                    'http://en.wikipedia.org/wiki/Test_(assessment)', '')),
         ('(http://en.wikipedia.org/wiki/Test_(assessment))',
-            out % ('(', 'en.wikipedia.org/wiki/Test_(assessment)',
+            out.format('(', 'en.wikipedia.org/wiki/Test_(assessment)',
                    'http://en.wikipedia.org/wiki/Test_(assessment)', ')')),
         ('((http://en.wikipedia.org/wiki/Test_(assessment))',
-            out % ('((', 'en.wikipedia.org/wiki/Test_(assessment',
+            out.format('((', 'en.wikipedia.org/wiki/Test_(assessment',
                    'http://en.wikipedia.org/wiki/Test_(assessment', '))')),
         ('(http://en.wikipedia.org/wiki/Test_(assessment)))',
-            out % ('(', 'en.wikipedia.org/wiki/Test_(assessment))',
+            out.format('(', 'en.wikipedia.org/wiki/Test_(assessment))',
                    'http://en.wikipedia.org/wiki/Test_(assessment))', ')')),
         ('(http://en.wikipedia.org/wiki/)Test_(assessment',
-            out % ('(', 'en.wikipedia.org/wiki/)Test_(assessment',
+            out.format('(', 'en.wikipedia.org/wiki/)Test_(assessment',
                    'http://en.wikipedia.org/wiki/)Test_(assessment', '')),
     )
 
@@ -389,7 +392,7 @@ def test_ports():
     )
 
     def check(test, output):
-        eq_(u'<a href="{0}" rel="nofollow">{0}</a>{1}'.format(*output),
+        eq_('<a href="{0}" rel="nofollow">{0}</a>{1}'.format(*output),
             linkify(test))
 
     for test, output in tests:
@@ -433,8 +436,8 @@ def test_links_case_insensitive():
 
 
 def test_elements_inside_links():
-    eq_(u'<a href="#" rel="nofollow">hello<br></a>',
+    eq_('<a href="#" rel="nofollow">hello<br></a>',
         linkify('<a href="#">hello<br></a>'))
 
-    eq_(u'<a href="#" rel="nofollow"><strong>bold</strong> hello<br></a>',
+    eq_('<a href="#" rel="nofollow"><strong>bold</strong> hello<br></a>',
         linkify('<a href="#"><strong>bold</strong> hello<br></a>'))
