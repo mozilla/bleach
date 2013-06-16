@@ -13,8 +13,7 @@ from . import callbacks as linkify_callbacks
 from .encoding import force_unicode
 from .sanitizer import BleachSanitizer
 
-# import six
-
+import six
 
 
 VERSION = (1, 2, 1)
@@ -356,7 +355,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                         for n in text:
                             node.append(n)
                         _seen.add(node)
-                        
+
             elif current_child >= 0:
                 if node.tag == ETREE_TAG('pre') and skip_pre:
                     linkify_nodes(node, False)
@@ -369,7 +368,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         addr = match.group(0).replace('"', '&quot;')
         link = {
             '_text': addr,
-            'href': 'mailto:{0}'.format(addr),
+            'href': 'mailto:{!s}'.format(addr),
         }
         link = apply_callbacks(link, True)
 
@@ -413,8 +412,8 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         _text = link.pop('_text')
         _href = link.pop('href')
 
-        repl = '{!s}<a href="{!s}" {!s}>{!s}</a>{!s}{!s}'
-        attribs = ' '.join('{!s}="{!s}"'.format(k, v) for k, v in link.items())
+        repl = six.u('{!s}<a href="{!s}" {!s}>{!s}</a>{!s}{!s}')
+        attribs = ' '.join(six.u('{!s}="{!s}"').format(k, v) for k, v in link.items())
 
         return repl.format('(' * open_brackets,
                        _href, attribs, _text, end,
@@ -431,10 +430,11 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
 
 def _render(tree):
     """Try rendering as HTML, then XML, then give up."""
-    try:
-        return force_unicode(_serialize(tree))
-    except AssertionError:  # The treewalker throws this sometimes.
-        return force_unicode(tree.toxml())
+    # try:
+    return force_unicode(_serialize(tree))
+    # except AssertionError:  # The treewalker throws this sometimes.
+    #     from xml.etree import ElementTree as ET
+    #     return ET.tostring(tree, method="html")
 
 
 def _serialize(domtree):
