@@ -6,6 +6,10 @@ from html5lib.sanitizer import HTMLSanitizerMixin
 from html5lib.tokenizer import HTMLTokenizer
 
 
+PROTOS = HTMLSanitizerMixin.acceptable_protocols
+PROTOS.remove('feed')
+
+
 class BleachSanitizerMixin(HTMLSanitizerMixin):
     """Mixin to replace sanitize_token() and sanitize_css()."""
 

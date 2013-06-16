@@ -11,8 +11,8 @@ from .encoding import force_unicode
 from .sanitizer import BleachSanitizer
 
 
-VERSION = (1, 2)
-__version__ = '.'.join(map(str, VERSION))
+VERSION = (1, 2, 1)
+__version__ = '1.2.1'
 
 __all__ = ['clean', 'linkify']
 
@@ -98,8 +98,6 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
         return u''
 
     text = force_unicode(text)
-    if text.startswith(u'<!--'):
-        text = u' ' + text
 
     class s(BleachSanitizer):
         allowed_elements = tags
@@ -110,7 +108,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
     parser = html5lib.HTMLParser(tokenizer=s)
 
-    return _render(parser.parseFragment(text)).strip()
+    return _render(parser.parseFragment(text))
 
 
 def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,

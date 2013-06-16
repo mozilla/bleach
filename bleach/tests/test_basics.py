@@ -8,6 +8,10 @@ def test_empty():
     eq_('', bleach.clean(''))
 
 
+def test_nbsp():
+    eq_(u'\xa0test string\xa0', bleach.clean('&nbsp;test string&nbsp;'))
+
+
 def test_comments_only():
     comment = '<!-- this is a comment -->'
     open_comment = '<!-- this is an open comment'
@@ -141,6 +145,17 @@ def test_idempotent():
 
     linked = bleach.linkify(dirty)
     eq_(linked, bleach.linkify(linked))
+
+
+def test_rel_already_there():
+    """Make sure rel attribute is updated not replaced"""
+    linked = (u'Click <a href="http://example.com" rel="tooltip">'
+              u'here</a>.')
+    link_good = (u'Click <a href="http://example.com" rel="tooltip nofollow">'
+                 u'here</a>.')
+
+    eq_(link_good, bleach.linkify(linked))
+    eq_(link_good, bleach.linkify(link_good))
 
 
 def test_lowercase_html():
