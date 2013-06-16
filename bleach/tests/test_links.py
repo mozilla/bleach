@@ -154,7 +154,7 @@ def test_set_attrs():
         attrs['rev'] = 'canonical'
         return attrs
 
-    eq_('<a rev="canonical" href="http://ex.mp">ex.mp</a>',
+    eq_('<a href="http://ex.mp" rev="canonical">ex.mp</a>',
         linkify('ex.mp', [set_attr]))
 
 
