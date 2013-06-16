@@ -1,3 +1,12 @@
+=====
+Broken Bleach
+=====
+
+This version of bleach is a work in progress to port bleach to Python3/Six. Currently, 
+this fork passes all tests on Python 3.2 but a few tests still fail on Python 2.7.5.
+
+The code might not be pretty, and there might be bugs, but it's a work in progress.
+
 ======
 Bleach
 ======
