@@ -147,6 +147,17 @@ def test_idempotent():
     eq_(linked, bleach.linkify(linked))
 
 
+def test_rel_already_there():
+    """Make sure rel attribute is updated not replaced"""
+    linked = ('Click <a href="http://example.com" rel="tooltip">'
+              'here</a>.')
+    link_good = ('Click <a href="http://example.com" rel="tooltip nofollow">'
+                 'here</a>.')
+
+    eq_(link_good, bleach.linkify(linked))
+    eq_(link_good, bleach.linkify(link_good))
+
+
 def test_lowercase_html():
     """We should output lowercase HTML."""
     dirty = '<EM CLASS="FOO">BAR</EM>'
@@ -162,7 +173,7 @@ def test_wildcard_attributes():
     TAG = ['img', 'em']
     dirty = ('both <em id="foo" style="color: black">can</em> have '
              '<img id="bar" src="foo"/>')
-    clean = 'both <em id="foo">can</em> have <img id="bar" src="foo">'
+    clean = 'both <em id="foo">can</em> have <img src="foo" id="bar">'
     eq_(clean, bleach.clean(dirty, tags=TAG, attributes=ATTR))
 
 
