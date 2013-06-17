@@ -3,6 +3,8 @@ import html5lib
 from nose.tools import eq_
 
 import bleach
+from bleach.tests import tools as bleach_test_tools
+in_ = bleach_test_tools.in_
 
 
 def test_empty():
@@ -61,9 +63,11 @@ def test_function_arguments():
 
 def test_named_arguments():
     ATTRS = {'a': ['rel', 'href']}
-    s = '<a href="http://xx.com" rel="alternate">xx.com</a>'
-    eq_('<a href="http://xx.com">xx.com</a>', bleach.clean(s))
-    eq_(s, bleach.clean(s, attributes=ATTRS))
+    s = ('<a href="http://xx.com" rel="alternate">xx.com</a>',
+         '<a rel="alternate" href="http://xx.com">xx.com</a>')
+
+    eq_('<a href="http://xx.com">xx.com</a>', bleach.clean(s[0]))
+    in_(s, bleach.clean(s[0], attributes=ATTRS))
 
 
 def test_disallowed_html():
@@ -157,11 +161,13 @@ def test_rel_already_there():
     """Make sure rel attribute is updated not replaced"""
     linked = ('Click <a href="http://example.com" rel="tooltip">'
               'here</a>.')
-    link_good = ('Click <a href="http://example.com" rel="tooltip nofollow">'
-                 'here</a>.')
+    link_good = (('Click <a href="http://example.com" rel="tooltip nofollow">'
+                 'here</a>.'),
+                 ('Click <a rel="tooltip nofollow" href="http://example.com">'
+                 'here</a>.'))
 
-    eq_(link_good, bleach.linkify(linked))
-    eq_(link_good, bleach.linkify(link_good))
+    in_(link_good, bleach.linkify(linked))
+    in_(link_good, bleach.linkify(link_good[0]))
 
 
 def test_lowercase_html():
@@ -179,8 +185,9 @@ def test_wildcard_attributes():
     TAG = ['img', 'em']
     dirty = ('both <em id="foo" style="color: black">can</em> have '
              '<img id="bar" src="foo"/>')
-    clean = 'both <em id="foo">can</em> have <img src="foo" id="bar">'
-    eq_(clean, bleach.clean(dirty, tags=TAG, attributes=ATTR))
+    clean = ('both <em id="foo">can</em> have <img src="foo" id="bar">',
+             'both <em id="foo">can</em> have <img id="bar" src="foo">')
+    in_(clean, bleach.clean(dirty, tags=TAG, attributes=ATTR))
 
 
 def test_sarcasm():

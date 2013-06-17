@@ -5,7 +5,7 @@ import six
 
 
 from bleach import clean, linkify
-
+from bleach.tests.tools import in_
 
 
 if six.PY3:
@@ -42,27 +42,31 @@ def test_mixed():
 
 
 def test_mixed_linkify():
-    eq_(U('Домашняя <a href="http://example.com" rel="nofollow">'
+    in_((U('Домашняя <a href="http://example.com" rel="nofollow">'
         'http://example.com</a> ヘルプとチュートリアル'),
+        U('Домашняя <a rel="nofollow" href="http://example.com">'
+        'http://example.com</a> ヘルプとチュートリアル')),
         linkify('Домашняя http://example.com ヘルプとチュートリアル'))
 
 
 def test_url_utf8():
     """Allow UTF8 characters in URLs themselves."""
-    out = '<a href="%(url)s" rel="nofollow">%(url)s</a>'
+    outs = (U('<a href="{0!s}" rel="nofollow">{0!s}</a>'),
+            U('<a rel="nofollow" href="{0!s}">{0!s}</a>'))
+
+    out = lambda url: [x.format(U(url)) for x in outs]
 
     tests = (
-        ('http://éxámplé.com/', out % {'url': U('http://éxámplé.com/')}),
-        ('http://éxámplé.com/íàñá/',
-                out % {'url': U('http://éxámplé.com/íàñá/')}),
+        ('http://éxámplé.com/', out('http://éxámplé.com/')),
+        ('http://éxámplé.com/íàñá/', out('http://éxámplé.com/íàñá/')),
         ('http://éxámplé.com/íàñá/?foo=bar',
-            out % {'url': U('http://éxámplé.com/íàñá/?foo=bar')}),
+         out('http://éxámplé.com/íàñá/?foo=bar')),
         ('http://éxámplé.com/íàñá/?fóo=bár',
-            out % {'url': U('http://éxámplé.com/íàñá/?fóo=bár')}),
+         out('http://éxámplé.com/íàñá/?fóo=bár')),
     )
 
     def check(test, expected_output):
-        eq_(expected_output, linkify(test))
+        in_(expected_output, linkify(test))
 
     for test, expected_output in tests:
         yield check, test, expected_output
