@@ -8,9 +8,13 @@ Bleach (for Python 3)
 This version of bleach is a work in progress to port bleach to Python3/Six. Currently, 
 this fork passes all tests on Python 3.2 using html5lib 1.0b1. 
 
-If you want to run it on Python 2.7.5, you have to use the version of html5lib here: 
-https://github.com/marcdm/html5lib-python (at least until html5lib is updated). This is
-because of this bug https://github.com/html5lib/html5lib-python/issues/63
+If you want to run it on Python 2.7.5 or Python 3.3 you have to use the version of 
+html5lib here: https://github.com/marcdm/html5lib-python (at least until html5lib 
+is updated). This is because of this bug https://github.com/html5lib/html5lib-python/issues/63
+
+You can do this using pip with the command::
+
+    pip install git+git://github.com/marcdm/html5lib-python.git#egg=html5lib
 
 The code might not be pretty, and there may be bugs. Please let me know.
 
