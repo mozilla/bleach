@@ -347,7 +347,7 @@ def test_skip_pre():
                   '<pre><a href="http://xx.com" rel="nofollow">http://xx.com'
                   '</a></pre>',
                   '<a rel="nofollow" href="http://xx.com">http://xx.com</a> '
-                  '<pre><a href="http://xx.com" rel="nofollow">http://xx.com'
+                  '<pre><a rel="nofollow" href="http://xx.com">http://xx.com'
                   '</a></pre>')
     in_(linked, linkify(simple, skip_pre=True))
     in_(all_linked, linkify(simple))
