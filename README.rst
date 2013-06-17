@@ -1,11 +1,15 @@
 =====
-Broken Bleach
+Bleach (for Python 3)
 =====
 
 This version of bleach is a work in progress to port bleach to Python3/Six. Currently, 
-this fork passes all tests on Python 3.2 but a few tests still fail on Python 2.7.5.
+this fork passes all tests on Python 3.2 using html5lib 1.0b1. 
 
-The code might not be pretty, and there might be bugs, but it's a work in progress.
+If you want to run it on Python 2.7.5, you have to use the version of html5lib here: 
+https://github.com/marcdm/html5lib-python (at least until html5lib is updated). This is
+because of this bug https://github.com/html5lib/html5lib-python/issues/63
+
+The code might not be pretty, and there may be bugs. Please let me know.
 
 ======
 Bleach
