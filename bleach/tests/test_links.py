@@ -170,7 +170,8 @@ def test_set_attrs():
         attrs['rev'] = 'canonical'
         return attrs
 
-    eq_('<a href="http://ex.mp" rev="canonical">ex.mp</a>',
+    in_(('<a href="http://ex.mp" rev="canonical">ex.mp</a>',
+         '<a rev="canonical" href="http://ex.mp">ex.mp</a>'),
         linkify('ex.mp', [set_attr]))
 
 
@@ -201,13 +202,16 @@ def test_tlds():
     in_(('<a href="http://example.com" rel="nofollow">example.com</a>',
          '<a rel="nofollow" href="http://example.com">example.com</a>'),
         linkify('example.com'))
-    eq_('<a href="http://example.co.uk" rel="nofollow">example.co.uk</a>',
+    in_(('<a href="http://example.co.uk" rel="nofollow">example.co.uk</a>',
+         '<a rel="nofollow" href="http://example.co.uk">example.co.uk</a>'),
         linkify('example.co.uk'))
-    eq_('<a href="http://example.edu" rel="nofollow">example.edu</a>',
+    in_(('<a href="http://example.edu" rel="nofollow">example.edu</a>',
+         '<a rel="nofollow" href="http://example.edu">example.edu</a>'),
         linkify('example.edu'))
     eq_('example.xxx', linkify('example.xxx'))
     eq_(' brie', linkify(' brie'))
-    eq_('<a href="http://bit.ly/fun" rel="nofollow">bit.ly/fun</a>',
+    in_(('<a href="http://bit.ly/fun" rel="nofollow">bit.ly/fun</a>',
+         '<a rel="nofollow" href="http://bit.ly/fun">bit.ly/fun</a>'),
         linkify('bit.ly/fun'))
 
 
@@ -224,8 +228,11 @@ def test_link_in_html():
     in_(('<i><a href="http://yy.com" rel="nofollow">http://yy.com</a></i>',
          '<i><a rel="nofollow" href="http://yy.com">http://yy.com</a></i>'),
         linkify('<i>http://yy.com</i>'))
-    eq_('<em><strong><a href="http://xx.com" rel="nofollow">http://xx.com</a>'
-        '</strong></em>',
+
+    in_(('<em><strong><a href="http://xx.com" rel="nofollow">http://xx.com'
+         '</a></strong></em>',
+         '<em><strong><a rel="nofollow" href="http://xx.com">http://xx.com'
+         '</a></strong></em>'),
         linkify('<em><strong>http://xx.com</strong></em>'))
 
 
@@ -338,14 +345,18 @@ def test_skip_pre():
               '<pre>http://xx.com</pre>')
     all_linked = ('<a href="http://xx.com" rel="nofollow">http://xx.com</a> '
                   '<pre><a href="http://xx.com" rel="nofollow">http://xx.com'
+                  '</a></pre>',
+                  '<a rel="nofollow" href="http://xx.com">http://xx.com</a> '
+                  '<pre><a href="http://xx.com" rel="nofollow">http://xx.com'
                   '</a></pre>')
     in_(linked, linkify(simple, skip_pre=True))
-    eq_(all_linked, linkify(simple))
+    in_(all_linked, linkify(simple))
 
     already_linked = '<pre><a href="http://xx.com">xx</a></pre>'
-    nofollowed = '<pre><a href="http://xx.com" rel="nofollow">xx</a></pre>'
-    eq_(nofollowed, linkify(already_linked))
-    eq_(nofollowed, linkify(already_linked, skip_pre=True))
+    nofollowed = ('<pre><a href="http://xx.com" rel="nofollow">xx</a></pre>',
+                  '<pre><a rel="nofollow" href="http://xx.com">xx</a></pre>')
+    in_(nofollowed, linkify(already_linked))
+    in_(nofollowed, linkify(already_linked, skip_pre=True))
 
 
 def test_libgl():
@@ -376,7 +387,8 @@ def test_end_of_sentence():
 
 def test_end_of_clause():
     """example.com/foo, shouldn't include the ,"""
-    eq_('<a href="http://ex.com/foo" rel="nofollow">ex.com/foo</a>, bar',
+    in_(('<a href="http://ex.com/foo" rel="nofollow">ex.com/foo</a>, bar',
+         '<a rel="nofollow" href="http://ex.com/foo">ex.com/foo</a>, bar'),
         linkify('ex.com/foo, bar'))
 
 
