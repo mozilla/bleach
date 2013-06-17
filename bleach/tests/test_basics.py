@@ -1,3 +1,4 @@
+import six
 import html5lib
 from nose.tools import eq_
 
@@ -9,7 +10,12 @@ def test_empty():
 
 
 def test_nbsp():
-    eq_('\xa0test string\xa0', bleach.clean('&nbsp;test string&nbsp;'))
+    if six.PY3:
+        expected = '\xa0test string\xa0'
+    else:
+        expected = six.u('\\xa0test string\\xa0')
+
+    eq_(expected, bleach.clean('&nbsp;test string&nbsp;'))
 
 
 def test_comments_only():
@@ -19,7 +25,7 @@ def test_comments_only():
     eq_('', bleach.clean(open_comment))
     eq_(comment, bleach.clean(comment, strip_comments=False))
     eq_('{!s}-->'.format(open_comment), bleach.clean(open_comment,
-                                             strip_comments=False))
+                                                     strip_comments=False))
 
 
 def test_with_comments():
@@ -112,7 +118,7 @@ def test_stripping():
         bleach.clean('a test <em>with</em> <b>html</b> tags', strip=True))
     eq_('a test <em>with</em>  <b>html</b> tags',
         bleach.clean('a test <em>with</em> <img src="http://example.com/"> '
-                '<b>html</b> tags', strip=True))
+                     '<b>html</b> tags', strip=True))
 
     s = '<p><a href="http://example.com/">link text</a></p>'
     eq_('<p>link text</p>', bleach.clean(s, tags=['p'], strip=True))
