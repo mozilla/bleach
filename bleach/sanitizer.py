@@ -80,13 +80,13 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                 pass
             else:
                 if token['type'] == tokenTypes['EndTag']:
-                    token['data'] = '</{!s}>'.format(token['name'])
+                    token['data'] = '</{0!s}>'.format(token['name'])
                 elif token['data']:
-                    attrs = ''.join([' {!s}="{!s}"'.format(k, escape(v)) for k, v in
+                    attrs = ''.join([' {0!s}="{1!s}"'.format(k, escape(v)) for k, v in
                                     token['data']])
-                    token['data'] = '<{!s}{!s}>'.format(token['name'], attrs)
+                    token['data'] = '<{0!s}{1!s}>'.format(token['name'], attrs)
                 else:
-                    token['data'] = '<{!s}>'.format(token['name'])
+                    token['data'] = '<{0!s}>'.format(token['name'])
                 if token['selfClosing']:
                     token['data'] = token['data'][:-1] + '/>'
                 token['type'] = tokenTypes['Characters']

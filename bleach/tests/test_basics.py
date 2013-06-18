@@ -25,7 +25,7 @@ def test_comments_only():
     eq_('', bleach.clean(comment))
     eq_('', bleach.clean(open_comment))
     eq_(comment, bleach.clean(comment, strip_comments=False))
-    eq_('{!s}-->'.format(open_comment), bleach.clean(open_comment,
+    eq_('{0!s}-->'.format(open_comment), bleach.clean(open_comment,
                                                      strip_comments=False))
 
 
