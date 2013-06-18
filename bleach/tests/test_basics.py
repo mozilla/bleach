@@ -3,8 +3,7 @@ import html5lib
 from nose.tools import eq_
 
 import bleach
-from bleach.tests import tools as bleach_test_tools
-in_ = bleach_test_tools.in_
+from bleach.tests.tools import in_
 
 
 def test_empty():
