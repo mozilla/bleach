@@ -14,7 +14,7 @@ def test_url_re():
     def no_match(s):
         match = url_re.search(s)
         if match:
-            assert not match, 'matched {!s}'.format(s[slice(*match.span())])
+            assert not match, 'matched {0!s}'.format(s[slice(*match.span())])
     yield no_match, 'just what i am looking for...it'
 
 
@@ -57,7 +57,7 @@ def test_trailing_slash():
 def test_mangle_link():
     """We can muck with the href attribute of the link."""
     def filter_url(attrs, new=False):
-        attrs['href'] = 'http://bouncer/?u={!s}'.format(quote_plus(attrs['href']))
+        attrs['href'] = 'http://bouncer/?u={0!s}'.format(quote_plus(attrs['href']))
         return attrs
 
     in_(('<a href="http://bouncer/?u=http%3A%2F%2Fexample.com" rel="nofollow">'
@@ -368,7 +368,7 @@ def test_end_of_sentence():
     """example.com. should match."""
     outs = ('<a href="http://{0!s}" rel="nofollow">{0!s}</a>{1!s}',
             '<a rel="nofollow" href="http://{0!s}">{0!s}</a>{1!s}')
-    intxt = '{!s}{!s}'
+    intxt = '{0!s}{1!s}'
 
     def check(u, p):
         in_([out.format(u, p) for out in outs],
@@ -401,8 +401,8 @@ def test_sarcasm():
 
 def test_wrapping_parentheses():
     """URLs wrapped in parantheses should not include them."""
-    outs = ('{!s}<a href="http://{!s}" rel="nofollow">{!s}</a>{!s}',
-            '{!s}<a rel="nofollow" href="http://{!s}">{!s}</a>{!s}')
+    outs = ('{0!s}<a href="http://{1!s}" rel="nofollow">{2!s}</a>{3!s}',
+            '{0!s}<a rel="nofollow" href="http://{1!s}">{2!s}</a>{3!s}')
 
     tests = (
         ('(example.com)', ('(', 'example.com', 'example.com', ')')),

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import pdb
+from __future__ import unicode_literals
 import logging
 import re
 import sys
@@ -12,8 +12,6 @@ from html5lib.serializer.htmlserializer import HTMLSerializer
 from . import callbacks as linkify_callbacks
 from .encoding import force_unicode
 from .sanitizer import BleachSanitizer
-
-import six
 
 
 VERSION = (1, 2, 1)
@@ -80,8 +78,8 @@ punct_re = re.compile(r'([\.,]+)$')
 
 email_re = re.compile(
     r"""(?<!//)
-    (([-!#$%&'*+/=?^_`{!s}|~0-9A-Z]+
-        (\.[-!#$%&'*+/=?^_`{!s}|~0-9A-Z]+)*  # dot-atom
+    (([-!#$%&'*+/=?^_`{0!s}|~0-9A-Z]+
+        (\.[-!#$%&'*+/=?^_`{1!s}|~0-9A-Z]+)*  # dot-atom
     |^"([\001-\010\013\014\016-\037!#-\[\]-\177]
         |\\[\001-011\013\014\016-\177])*"  # quoted-string
     )@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6})\.?  # domain
@@ -96,8 +94,8 @@ ETREE_TAG = lambda x: "".join(['{http://www.w3.org/1999/xhtml}',x])
 
 DEFAULT_CALLBACKS = [linkify_callbacks.nofollow]
 
-PY_26 = (sys.version_info < (2, 7))
-RECURSION_EXCEPTION = RuntimeError if not PY_26 else AttributeError
+# PY_26 = (sys.version_info < (2, 7))
+# RECURSION_EXCEPTION = RuntimeError if not PY_26 else AttributeError
 
 
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
@@ -120,8 +118,6 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
     return _render(parser.parseFragment(text))
 
 
-
-
 def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
             parse_email=False, tokenizer=HTMLSanitizer):
     """Convert URL-like strings in an HTML fragment to links.
@@ -140,16 +136,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
 
     forest = parser.parseFragment(text)
     _seen = set([])
-    # def replace_nodes(tree, new_frag, node):
-    #     new_tree = parser.parseFragment(new_frag)
-    #     for n in new_tree.childNodes:
-    #         # Prevent us from re-parsing links new links as existing links.
-    #         if n.name == 'a':
-    #             n._seen = True
-    #         tree.insertBefore(n, node)
-    #     tree.removeChild(node)
-    #     # Return the number of new nodes.
-    #     return len(new_tree.childNodes) - 1
+
     def replace_nodes(tree, new_frag, node, index=0):
         """
         Doesn't really replace nodes, but inserts the nodes contained in
@@ -171,7 +158,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                 _seen.add(n)
             tree.insert(index+count, n)
             count += 1
-        # if we got a node to remove...            
+        # if we got a node to remove...
         if node is not None:
             tree.remove(node)
         return count
@@ -225,63 +212,15 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                 return None
         return attrs
 
-    # def linkify_nodes(tree, parse_text=True):
-    #     # I know this isn't Pythonic, but we're sometimes mutating
-    #     # tree.childNodes, which ends up breaking the loop and causing us to
-    #     # reparse code.
-    #     children = len(tree)
-    #     current = 0  # A pointer to the "current" node.
-    #     while current < children:
-    #         node = tree.childNodes[current]
-    #         if node.type == NODE_TEXT and parse_text:
-    #             new_frag = _render(node)
-    #             # Look for email addresses?
-    #             if parse_email:
-    #                 new_frag = re.sub(email_re, email_repl, new_frag)
-    #                 if new_frag != _render(node):
-    #                     adj = replace_nodes(tree, new_frag, node)
-    #                     children += adj
-    #                     current += adj
-    #                     linkify_nodes(tree)
-    #                     continue
-    #             new_frag = re.sub(url_re, link_repl, new_frag)
-    #             if new_frag != _render(node):
-    #                 adj = replace_nodes(tree, new_frag, node)
-    #                 children += adj
-    #                 current += adj
-    #         elif node.name == 'a' and not getattr(node, '_seen', False):
-    #             if 'href' in node.attributes:
-    #                 attrs = node.attributes
-    #                 _text = attrs['_text'] = ''.join(c.toxml() for
-    #                                                  c in node.childNodes)
-    #                 attrs = apply_callbacks(attrs, False)
-    #                 if attrs is not None:
-    #                     text = force_unicode(attrs.pop('_text'))
-    #                     node.attributes = attrs
-    #                     for n in reversed(node.childNodes):
-    #                         node.removeChild(n)
-    #                     text = parser.parseFragment(text)
-    #                     for n in text.childNodes:
-    #                         node.appendChild(n)
-    #                     node._seen = True
-    #                 else:
-    #                     replace_nodes(tree, _text, node)
-    #         elif skip_pre and node.name == 'pre':
-    #             linkify_nodes(node, False)
-    #         elif not getattr(node, '_seen', False):
-    #             linkify_nodes(node)
-    #         current += 1
     def _render_inner(node):
         out = ['' if node.text is None else node.text]
-        for subnode in node :
+        for subnode in node:
             out.append(_render(subnode))
             if subnode.tail:
                 out.append(subnode.tail)
         return ''.join(out)
 
-
     def linkify_nodes(tree, parse_text=True):
-
         children = len(tree)
         current_child = -1
         # start at -1 to process the parent first
@@ -317,7 +256,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                     if new_tail != node.tail:
                         node.tail = ''
                         adj = replace_nodes(tree, new_tail, None,
-                            current_child+1)
+                                            current_child+1)
                         #insert the new nodes made from my tail into
                         # the tree right after me. current_child+1
                         children += adj
@@ -368,7 +307,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         addr = match.group(0).replace('"', '&quot;')
         link = {
             '_text': addr,
-            'href': 'mailto:{!s}'.format(addr),
+            'href': 'mailto:{0!s}'.format(addr),
         }
         link = apply_callbacks(link, True)
 
@@ -378,8 +317,8 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         _href = link.pop('href')
         _text = link.pop('_text')
 
-        repl = '<a href="{!s}" {!s}>{!s}</a>'
-        attribs = ' '.join('{!s}="{!s}"'.format(k, v) for k, v in link.items())
+        repl = '<a href="{0!s}" {1!s}>{2!s}</a>'
+        attribs = ' '.join('{0!s}="{1!s}"'.format(k, v) for k, v in link.items())
         return repl.format(_href, attribs, _text)
 
     def link_repl(match):
@@ -387,7 +326,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         open_brackets = close_brackets = 0
         if url.startswith('('):
             url, open_brackets, close_brackets = (
-                    strip_wrapping_parentheses(url)
+                                                strip_wrapping_parentheses(url)
             )
         end = ''
         m = re.search(punct_re, url)
@@ -412,18 +351,18 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         _text = link.pop('_text')
         _href = link.pop('href')
 
-        repl = six.u('{!s}<a href="{!s}" {!s}>{!s}</a>{!s}{!s}')
-        attribs = ' '.join(six.u('{!s}="{!s}"').format(k, v) for k, v in link.items())
+        repl = '{0!s}<a href="{1!s}" {2!s}>{3!s}</a>{4!s}{5!s}'
+        attribs = ' '.join('{0!s}="{1!s}"'.format(k, v) for k, v in link.items())
 
         return repl.format('(' * open_brackets,
-                       _href, attribs, _text, end,
-                       ')' * close_brackets)
+                           _href, attribs, _text, end,
+                           ')' * close_brackets)
 
     try:
         linkify_nodes(forest)
-    except (RECURSION_EXCEPTION) as e:
+    except RuntimeError as e:
         # If we hit the max recursion depth, just return what we've got.
-        log.exception('Probable recursion error: {!r}'.format(e))
+        log.exception('Probable recursion error: {0!r}'.format(e))
 
     return _render(forest)
 

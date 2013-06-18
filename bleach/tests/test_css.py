@@ -29,8 +29,8 @@ def test_allowed_css():
         ('font-family: "Arial";', 'font-family: "Arial";', ['font-family']),
     )
 
-    p_single = '<p style="{!s}">bar</p>'
-    p_double = "<p style='{!s}'>bar</p>"
+    p_single = '<p style="{0!s}">bar</p>'
+    p_double = "<p style='{0!s}'>bar</p>"
 
     def check(i, o, s):
         if '"' in i:
@@ -70,7 +70,7 @@ def test_style_hang():
              """font: normal normal normal 100%/normal 'Courier New', """
              """'Andale Mono', monospace; background-position: initial """
              """initial; background-repeat: initial initial;""")
-    html = '<p style="{!s}">Hello world</p>'.format(style)
+    html = '<p style="{0!s}">Hello world</p>'.format(style)
     styles = [
         'border', 'float', 'overflow', 'min-height', 'vertical-align',
         'white-space',
