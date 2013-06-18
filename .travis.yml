@@ -5,6 +5,5 @@ python:
  - "3.3"
  - "pypy"
 install: 
- - "pip install git+git://github.com/marcdm/html5lib-python.git#egg=html5lib"
- - "pip install -r requirements.txt --use-mirrors"
+  - "pip install -r requirements.txt --use-mirrors"
 script: nosetests
