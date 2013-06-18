@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import re
 from xml.sax.saxutils import escape, unescape
 
