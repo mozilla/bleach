@@ -1,5 +1,5 @@
 # These are the requirements to run the test suite.
 six
-html5lib
+html5lib>=1.0b1
 # nose
 # nose needed for testing
