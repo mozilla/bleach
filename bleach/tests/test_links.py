@@ -1,18 +1,20 @@
-import urllib
+try :
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from html5lib.tokenizer import HTMLTokenizer
 from nose.tools import eq_
 
 from bleach import linkify, url_re, DEFAULT_CALLBACKS as DC
-
-
+from bleach.tests.tools import in_
 
 
 def test_url_re():
     def no_match(s):
         match = url_re.search(s)
         if match:
-            assert not match, 'matched %s' % s[slice(*match.span())]
+            assert not match, 'matched {0!s}'.format(s[slice(*match.span())])
     yield no_match, 'just what i am looking for...it'
 
 
@@ -21,36 +23,47 @@ def test_empty():
 
 
 def test_simple_link():
-    eq_('a <a href="http://example.com" rel="nofollow">http://example.com'
+    in_(('a <a href="http://example.com" rel="nofollow">http://example.com'
         '</a> link',
+        'a <a rel="nofollow" href="http://example.com">http://example.com'
+        '</a> link'),
         linkify('a http://example.com link'))
-    eq_('a <a href="https://example.com" rel="nofollow">https://example.com'
+    in_(('a <a href="https://example.com" rel="nofollow">https://example.com'
         '</a> link',
+        'a <a rel="nofollow" href="https://example.com">https://example.com'
+        '</a> link'),
         linkify('a https://example.com link'))
-    eq_('an <a href="http://example.com" rel="nofollow">example.com</a> link',
-        linkify('an example.com link'))
+    in_(('an <a href="http://example.com" rel="nofollow">example.com</a> link',
+         'an <a rel="nofollow" href="http://example.com">example.com</a> link'),
+         linkify('an example.com link'))
 
 
 def test_trailing_slash():
-    eq_('<a href="http://example.com/" rel="nofollow">http://example.com/</a>',
-       linkify('http://example.com/'))
-    eq_('<a href="http://example.com/foo/" rel="nofollow">'
-        'http://example.com/foo/</a>',
-       linkify('http://example.com/foo/'))
-    eq_('<a href="http://example.com/foo/bar/" rel="nofollow">'
-        'http://example.com/foo/bar/</a>',
-       linkify('http://example.com/foo/bar/'))
+    in_(('<a href="http://example.com/" rel="nofollow">http://example.com/</a>',
+         '<a rel="nofollow" href="http://example.com/">http://example.com/</a>'),
+        linkify('http://example.com/'))
+    in_(('<a href="http://example.com/foo/" rel="nofollow">'
+         'http://example.com/foo/</a>',
+         '<a rel="nofollow" href="http://example.com/foo/">'
+         'http://example.com/foo/</a>'),
+        linkify('http://example.com/foo/'))
+    in_(('<a href="http://example.com/foo/bar/" rel="nofollow">'
+         'http://example.com/foo/bar/</a>',
+         '<a rel="nofollow" href="http://example.com/foo/bar/">'
+         'http://example.com/foo/bar/</a>'),
+        linkify('http://example.com/foo/bar/'))
 
 
 def test_mangle_link():
     """We can muck with the href attribute of the link."""
     def filter_url(attrs, new=False):
-        attrs['href'] = (u'http://bouncer/?u=%s' %
-                         urllib.quote_plus(attrs['href']))
+        attrs['href'] = 'http://bouncer/?u={0!s}'.format(quote_plus(attrs['href']))
         return attrs
 
-    eq_('<a href="http://bouncer/?u=http%3A%2F%2Fexample.com" rel="nofollow">'
-        'http://example.com</a>',
+    in_(('<a href="http://bouncer/?u=http%3A%2F%2Fexample.com" rel="nofollow">'
+         'http://example.com</a>',
+         '<a rel="nofollow" href="http://bouncer/?u=http%3A%2F%2Fexample.com">'
+         'http://example.com</a>'),
         linkify('http://example.com', DC + [filter_url]))
 
 
@@ -76,13 +89,19 @@ def test_email_link():
             'james@example.com.au</a> mailto', True,
             'aussie james@example.com.au mailto'),
         # This is kind of a pathological case. I guess we do our best here.
-        ('email to <a href="james@example.com" rel="nofollow">'
-            'james@example.com</a>', True,
-            'email to <a href="james@example.com">james@example.com</a>'),
+        (('email to <a href="james@example.com" rel="nofollow">'
+          'james@example.com</a>',
+          'email to <a rel="nofollow" href="james@example.com">'
+          'james@example.com</a>'),
+         True,
+         'email to <a href="james@example.com">james@example.com</a>'),
     )
 
     def _check(o, p, i):
-        eq_(o, linkify(i, parse_email=p))
+        if isinstance(o, (list, tuple)):
+            in_(o, linkify(i, parse_email=p))
+        else:
+            eq_(o, linkify(i, parse_email=p))
 
     for (o, p, i) in tests:
         yield _check, o, p, i
@@ -151,7 +170,8 @@ def test_set_attrs():
         attrs['rev'] = 'canonical'
         return attrs
 
-    eq_('<a href="http://ex.mp" rev="canonical">ex.mp</a>',
+    in_(('<a href="http://ex.mp" rev="canonical">ex.mp</a>',
+         '<a rev="canonical" href="http://ex.mp">ex.mp</a>'),
         linkify('ex.mp', [set_attr]))
 
 
@@ -179,15 +199,19 @@ def test_stop_email():
 
 
 def test_tlds():
-    eq_('<a href="http://example.com" rel="nofollow">example.com</a>',
+    in_(('<a href="http://example.com" rel="nofollow">example.com</a>',
+         '<a rel="nofollow" href="http://example.com">example.com</a>'),
         linkify('example.com'))
-    eq_('<a href="http://example.co.uk" rel="nofollow">example.co.uk</a>',
+    in_(('<a href="http://example.co.uk" rel="nofollow">example.co.uk</a>',
+         '<a rel="nofollow" href="http://example.co.uk">example.co.uk</a>'),
         linkify('example.co.uk'))
-    eq_('<a href="http://example.edu" rel="nofollow">example.edu</a>',
+    in_(('<a href="http://example.edu" rel="nofollow">example.edu</a>',
+         '<a rel="nofollow" href="http://example.edu">example.edu</a>'),
         linkify('example.edu'))
     eq_('example.xxx', linkify('example.xxx'))
     eq_(' brie', linkify(' brie'))
-    eq_('<a href="http://bit.ly/fun" rel="nofollow">bit.ly/fun</a>',
+    in_(('<a href="http://bit.ly/fun" rel="nofollow">bit.ly/fun</a>',
+         '<a rel="nofollow" href="http://bit.ly/fun">bit.ly/fun</a>'),
         linkify('bit.ly/fun'))
 
 
@@ -197,61 +221,81 @@ def test_escaping():
 
 def test_nofollow_off():
     eq_('<a href="http://example.com">example.com</a>',
-        linkify(u'example.com', []))
+        linkify('example.com', []))
 
 
 def test_link_in_html():
-    eq_('<i><a href="http://yy.com" rel="nofollow">http://yy.com</a></i>',
+    in_(('<i><a href="http://yy.com" rel="nofollow">http://yy.com</a></i>',
+         '<i><a rel="nofollow" href="http://yy.com">http://yy.com</a></i>'),
         linkify('<i>http://yy.com</i>'))
-    eq_('<em><strong><a href="http://xx.com" rel="nofollow">http://xx.com</a>'
-        '</strong></em>',
+
+    in_(('<em><strong><a href="http://xx.com" rel="nofollow">http://xx.com'
+         '</a></strong></em>',
+         '<em><strong><a rel="nofollow" href="http://xx.com">http://xx.com'
+         '</a></strong></em>'),
         linkify('<em><strong>http://xx.com</strong></em>'))
 
 
 def test_links_https():
-    eq_('<a href="https://yy.com" rel="nofollow">https://yy.com</a>',
+    in_(('<a href="https://yy.com" rel="nofollow">https://yy.com</a>',
+         '<a rel="nofollow" href="https://yy.com">https://yy.com</a>'),
         linkify('https://yy.com'))
 
 
 def test_add_rel_nofollow():
     """Verify that rel="nofollow" is added to an existing link"""
-    eq_('<a href="http://yy.com" rel="nofollow">http://yy.com</a>',
+    in_(('<a href="http://yy.com" rel="nofollow">http://yy.com</a>',
+         '<a rel="nofollow" href="http://yy.com">http://yy.com</a>'),
         linkify('<a href="http://yy.com">http://yy.com</a>'))
 
 
 def test_url_with_path():
-    eq_('<a href="http://example.com/path/to/file" rel="nofollow">'
-        'http://example.com/path/to/file</a>',
+    in_(('<a href="http://example.com/path/to/file" rel="nofollow">'
+         'http://example.com/path/to/file</a>',
+         '<a rel="nofollow" href="http://example.com/path/to/file">'
+         'http://example.com/path/to/file</a>'),
         linkify('http://example.com/path/to/file'))
 
 
 def test_link_ftp():
-    eq_('<a href="ftp://ftp.mozilla.org/some/file" rel="nofollow">'
-        'ftp://ftp.mozilla.org/some/file</a>',
+    in_(('<a href="ftp://ftp.mozilla.org/some/file" rel="nofollow">'
+         'ftp://ftp.mozilla.org/some/file</a>',
+         '<a rel="nofollow" href="ftp://ftp.mozilla.org/some/file">'
+         'ftp://ftp.mozilla.org/some/file</a>'),
         linkify('ftp://ftp.mozilla.org/some/file'))
 
 
 def test_link_query():
-    eq_('<a href="http://xx.com/?test=win" rel="nofollow">'
+    in_(('<a href="http://xx.com/?test=win" rel="nofollow">'
         'http://xx.com/?test=win</a>',
+        '<a rel="nofollow" href="http://xx.com/?test=win">'
+        'http://xx.com/?test=win</a>'),
         linkify('http://xx.com/?test=win'))
-    eq_('<a href="http://xx.com/?test=win" rel="nofollow">'
+    in_(('<a href="http://xx.com/?test=win" rel="nofollow">'
         'xx.com/?test=win</a>',
+        '<a rel="nofollow" href="http://xx.com/?test=win">'
+        'xx.com/?test=win</a>'),
         linkify('xx.com/?test=win'))
-    eq_('<a href="http://xx.com?test=win" rel="nofollow">'
+    in_(('<a href="http://xx.com?test=win" rel="nofollow">'
         'xx.com?test=win</a>',
+        '<a rel="nofollow" href="http://xx.com?test=win">'
+        'xx.com?test=win</a>'),
         linkify('xx.com?test=win'))
 
 
 def test_link_fragment():
-    eq_('<a href="http://xx.com/path#frag" rel="nofollow">'
-        'http://xx.com/path#frag</a>',
+    in_(('<a href="http://xx.com/path#frag" rel="nofollow">'
+         'http://xx.com/path#frag</a>',
+         '<a rel="nofollow" href="http://xx.com/path#frag">'
+         'http://xx.com/path#frag</a>'),
         linkify('http://xx.com/path#frag'))
 
 
 def test_link_entities():
-    eq_('<a href="http://xx.com/?a=1&amp;b=2" rel="nofollow">'
+    in_(('<a href="http://xx.com/?a=1&amp;b=2" rel="nofollow">'
         'http://xx.com/?a=1&amp;b=2</a>',
+        '<a rel="nofollow" href="http://xx.com/?a=1&amp;b=2">'
+        'http://xx.com/?a=1&amp;b=2</a>'),
         linkify('http://xx.com/?a=1&b=2'))
 
 
@@ -262,9 +306,12 @@ def test_escaped_html():
 
 
 def test_link_http_complete():
-    eq_('<a href="https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d'
+    in_(('<a href="https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d'
         '&amp;e#f" rel="nofollow">'
         'https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f</a>',
+        '<a rel="nofollow" href="https://user:pass@ftp.mozilla.org/x/'
+        'y.exe?a=b&amp;c=d&amp;e#f">'
+        'https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f</a>'),
         linkify('https://user:pass@ftp.mozilla.org/x/y.exe?a=b&c=d&e#f'))
 
 
@@ -282,8 +329,10 @@ def test_javascript_url():
 
 def test_unsafe_url():
     """Any unsafe char ({}[]<>, etc.) in the path should end URL scanning."""
-    eq_('All your{"<a href="http://xx.yy.com/grover.png" '
-                     'rel="nofollow">xx.yy.com/grover.png</a>"}base are',
+    in_(('All your{"<a href="http://xx.yy.com/grover.png" '
+         'rel="nofollow">xx.yy.com/grover.png</a>"}base are',
+         'All your{"<a rel="nofollow" href="http://xx.yy.com/grover.png"'
+         '>xx.yy.com/grover.png</a>"}base are'),
         linkify('All your{"xx.yy.com/grover.png"}base are'))
 
 
@@ -291,17 +340,23 @@ def test_skip_pre():
     """Skip linkification in <pre> tags."""
     simple = 'http://xx.com <pre>http://xx.com</pre>'
     linked = ('<a href="http://xx.com" rel="nofollow">http://xx.com</a> '
+              '<pre>http://xx.com</pre>',
+              '<a rel="nofollow" href="http://xx.com">http://xx.com</a> '
               '<pre>http://xx.com</pre>')
     all_linked = ('<a href="http://xx.com" rel="nofollow">http://xx.com</a> '
                   '<pre><a href="http://xx.com" rel="nofollow">http://xx.com'
+                  '</a></pre>',
+                  '<a rel="nofollow" href="http://xx.com">http://xx.com</a> '
+                  '<pre><a rel="nofollow" href="http://xx.com">http://xx.com'
                   '</a></pre>')
-    eq_(linked, linkify(simple, skip_pre=True))
-    eq_(all_linked, linkify(simple))
+    in_(linked, linkify(simple, skip_pre=True))
+    in_(all_linked, linkify(simple))
 
     already_linked = '<pre><a href="http://xx.com">xx</a></pre>'
-    nofollowed = '<pre><a href="http://xx.com" rel="nofollow">xx</a></pre>'
-    eq_(nofollowed, linkify(already_linked))
-    eq_(nofollowed, linkify(already_linked, skip_pre=True))
+    nofollowed = ('<pre><a href="http://xx.com" rel="nofollow">xx</a></pre>',
+                  '<pre><a rel="nofollow" href="http://xx.com">xx</a></pre>')
+    in_(nofollowed, linkify(already_linked))
+    in_(nofollowed, linkify(already_linked, skip_pre=True))
 
 
 def test_libgl():
@@ -311,11 +366,13 @@ def test_libgl():
 
 def test_end_of_sentence():
     """example.com. should match."""
-    out = u'<a href="http://%s" rel="nofollow">%s</a>%s'
-    in_ = u'%s%s'
+    outs = ('<a href="http://{0!s}" rel="nofollow">{0!s}</a>{1!s}',
+            '<a rel="nofollow" href="http://{0!s}">{0!s}</a>{1!s}')
+    intxt = '{0!s}{1!s}'
 
     def check(u, p):
-        eq_(out % (u, u, p), linkify(in_ % (u, p)))
+        in_([out.format(u, p) for out in outs],
+            linkify(intxt.format(u, p)))
 
     tests = (
         ('example.com', '.'),
@@ -330,49 +387,50 @@ def test_end_of_sentence():
 
 def test_end_of_clause():
     """example.com/foo, shouldn't include the ,"""
-    eq_('<a href="http://ex.com/foo" rel="nofollow">ex.com/foo</a>, bar',
+    in_(('<a href="http://ex.com/foo" rel="nofollow">ex.com/foo</a>, bar',
+         '<a rel="nofollow" href="http://ex.com/foo">ex.com/foo</a>, bar'),
         linkify('ex.com/foo, bar'))
 
 
 def test_sarcasm():
     """Jokes should crash.<sarcasm/>"""
-    dirty = u'Yeah right <sarcasm/>'
-    clean = u'Yeah right &lt;sarcasm/&gt;'
+    dirty = 'Yeah right <sarcasm/>'
+    clean = 'Yeah right &lt;sarcasm/&gt;'
     eq_(clean, linkify(dirty))
 
 
 def test_wrapping_parentheses():
     """URLs wrapped in parantheses should not include them."""
-    out = u'%s<a href="http://%s" rel="nofollow">%s</a>%s'
+    outs = ('{0!s}<a href="http://{1!s}" rel="nofollow">{2!s}</a>{3!s}',
+            '{0!s}<a rel="nofollow" href="http://{1!s}">{2!s}</a>{3!s}')
 
     tests = (
-        ('(example.com)', out % ('(', 'example.com', 'example.com', ')')),
-        ('(example.com/)', out % ('(', 'example.com/', 'example.com/', ')')),
-        ('(example.com/foo)', out % ('(', 'example.com/foo',
-                                     'example.com/foo', ')')),
-        ('(((example.com/))))', out % ('(((', 'example.com/)',
-                                       'example.com/)', ')))')),
-        ('example.com/))', out % ('', 'example.com/))',
-                                  'example.com/))', '')),
+        ('(example.com)', ('(', 'example.com', 'example.com', ')')),
+        ('(example.com/)', ('(', 'example.com/', 'example.com/', ')')),
+        ('(example.com/foo)', ('(', 'example.com/foo',
+         'example.com/foo', ')')),
+        ('(((example.com/))))', ('(((', 'example.com/)',
+         'example.com/)', ')))')),
+        ('example.com/))', ('', 'example.com/))', 'example.com/))', '')),
         ('http://en.wikipedia.org/wiki/Test_(assessment)',
-            out % ('', 'en.wikipedia.org/wiki/Test_(assessment)',
-                   'http://en.wikipedia.org/wiki/Test_(assessment)', '')),
+         ('', 'en.wikipedia.org/wiki/Test_(assessment)',
+          'http://en.wikipedia.org/wiki/Test_(assessment)', '')),
         ('(http://en.wikipedia.org/wiki/Test_(assessment))',
-            out % ('(', 'en.wikipedia.org/wiki/Test_(assessment)',
-                   'http://en.wikipedia.org/wiki/Test_(assessment)', ')')),
+         ('(', 'en.wikipedia.org/wiki/Test_(assessment)',
+          'http://en.wikipedia.org/wiki/Test_(assessment)', ')')),
         ('((http://en.wikipedia.org/wiki/Test_(assessment))',
-            out % ('((', 'en.wikipedia.org/wiki/Test_(assessment',
-                   'http://en.wikipedia.org/wiki/Test_(assessment', '))')),
+         ('((', 'en.wikipedia.org/wiki/Test_(assessment',
+          'http://en.wikipedia.org/wiki/Test_(assessment', '))')),
         ('(http://en.wikipedia.org/wiki/Test_(assessment)))',
-            out % ('(', 'en.wikipedia.org/wiki/Test_(assessment))',
-                   'http://en.wikipedia.org/wiki/Test_(assessment))', ')')),
+         ('(', 'en.wikipedia.org/wiki/Test_(assessment))',
+          'http://en.wikipedia.org/wiki/Test_(assessment))', ')')),
         ('(http://en.wikipedia.org/wiki/)Test_(assessment',
-            out % ('(', 'en.wikipedia.org/wiki/)Test_(assessment',
-                   'http://en.wikipedia.org/wiki/)Test_(assessment', '')),
+         ('(', 'en.wikipedia.org/wiki/)Test_(assessment',
+          'http://en.wikipedia.org/wiki/)Test_(assessment', '')),
     )
 
     def check(test, expected_output):
-        eq_(expected_output, linkify(test))
+        in_([o.format(*expected_output) for o in outs], linkify(test))
 
     for test, expected_output in tests:
         yield check, test, expected_output
@@ -389,7 +447,9 @@ def test_ports():
     )
 
     def check(test, output):
-        eq_(u'<a href="{0}" rel="nofollow">{0}</a>{1}'.format(*output),
+        outs = ('<a href="{0}" rel="nofollow">{0}</a>{1}',
+                '<a rel="nofollow" href="{0}">{0}</a>{1}')
+        in_([out.format(*output) for out in outs],
             linkify(test))
 
     for test, output in tests:
@@ -406,7 +466,8 @@ def test_tokenizer():
 def test_ignore_bad_protocols():
     eq_('foohttp://bar',
         linkify('foohttp://bar'))
-    eq_('foohttp://<a href="http://exampl.com" rel="nofollow">exampl.com</a>',
+    in_(('foohttp://<a href="http://exampl.com" rel="nofollow">exampl.com</a>',
+         'foohttp://<a rel="nofollow" href="http://exampl.com">exampl.com</a>'),
         linkify('foohttp://exampl.com'))
 
 
@@ -420,21 +481,28 @@ def test_link_emails_and_urls():
     """parse_email=True shouldn't prevent URLs from getting linkified."""
     output = ('<a href="http://example.com" rel="nofollow">'
               'http://example.com</a> <a href="mailto:person@example.com">'
+              'person@example.com</a>',
+              '<a rel="nofollow" href="http://example.com">'
+              'http://example.com</a> <a href="mailto:person@example.com">'
               'person@example.com</a>')
-    eq_(output, linkify('http://example.com person@example.com',
+    in_(output, linkify('http://example.com person@example.com',
                         parse_email=True))
 
 
 def test_links_case_insensitive():
     """Protocols and domain names are case insensitive."""
     expect = ('<a href="HTTP://EXAMPLE.COM" rel="nofollow">'
+              'HTTP://EXAMPLE.COM</a>',
+              '<a rel="nofollow" href="HTTP://EXAMPLE.COM">'
               'HTTP://EXAMPLE.COM</a>')
-    eq_(expect, linkify('HTTP://EXAMPLE.COM'))
+    in_(expect, linkify('HTTP://EXAMPLE.COM'))
 
 
 def test_elements_inside_links():
-    eq_(u'<a href="#" rel="nofollow">hello<br></a>',
+    in_(('<a href="#" rel="nofollow">hello<br></a>',
+         '<a rel="nofollow" href="#">hello<br></a>'),
         linkify('<a href="#">hello<br></a>'))
 
-    eq_(u'<a href="#" rel="nofollow"><strong>bold</strong> hello<br></a>',
+    in_(('<a href="#" rel="nofollow"><strong>bold</strong> hello<br></a>',
+         '<a rel="nofollow" href="#"><strong>bold</strong> hello<br></a>'),
         linkify('<a href="#"><strong>bold</strong> hello<br></a>'))

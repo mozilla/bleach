@@ -1,7 +1,9 @@
+import six
 import html5lib
 from nose.tools import eq_
 
 import bleach
+from bleach.tests.tools import in_
 
 
 def test_empty():
@@ -9,7 +11,12 @@ def test_empty():
 
 
 def test_nbsp():
-    eq_(u'\xa0test string\xa0', bleach.clean('&nbsp;test string&nbsp;'))
+    if six.PY3:
+        expected = '\xa0test string\xa0'
+    else:
+        expected = six.u('\\xa0test string\\xa0')
+
+    eq_(expected, bleach.clean('&nbsp;test string&nbsp;'))
 
 
 def test_comments_only():
@@ -18,8 +25,8 @@ def test_comments_only():
     eq_('', bleach.clean(comment))
     eq_('', bleach.clean(open_comment))
     eq_(comment, bleach.clean(comment, strip_comments=False))
-    eq_('%s-->' % open_comment, bleach.clean(open_comment,
-                                             strip_comments=False))
+    eq_('{0!s}-->'.format(open_comment), bleach.clean(open_comment,
+                                                     strip_comments=False))
 
 
 def test_with_comments():
@@ -55,9 +62,11 @@ def test_function_arguments():
 
 def test_named_arguments():
     ATTRS = {'a': ['rel', 'href']}
-    s = u'<a href="http://xx.com" rel="alternate">xx.com</a>'
-    eq_('<a href="http://xx.com">xx.com</a>', bleach.clean(s))
-    eq_(s, bleach.clean(s, attributes=ATTRS))
+    s = ('<a href="http://xx.com" rel="alternate">xx.com</a>',
+         '<a rel="alternate" href="http://xx.com">xx.com</a>')
+
+    eq_('<a href="http://xx.com">xx.com</a>', bleach.clean(s[0]))
+    in_(s, bleach.clean(s[0], attributes=ATTRS))
 
 
 def test_disallowed_html():
@@ -81,19 +90,19 @@ def test_bare_entities():
 
 
 def test_escaped_entities():
-    s = u'&lt;em&gt;strong&lt;/em&gt;'
+    s = '&lt;em&gt;strong&lt;/em&gt;'
     eq_(s, bleach.clean(s))
 
 
 def test_serializer():
-    s = u'<table></table>'
+    s = '<table></table>'
     eq_(s, bleach.clean(s, tags=['table']))
-    eq_(u'test<table></table>', bleach.linkify(u'<table>test</table>'))
-    eq_(u'<p>test</p>', bleach.clean(u'<p>test</p>', tags=['p']))
+    eq_('test<table></table>', bleach.linkify('<table>test</table>'))
+    eq_('<p>test</p>', bleach.clean('<p>test</p>', tags=['p']))
 
 
 def test_no_href_links():
-    s = u'<a name="anchor">x</a>'
+    s = '<a name="anchor">x</a>'
     eq_(s, bleach.linkify(s))
 
 
@@ -112,7 +121,7 @@ def test_stripping():
         bleach.clean('a test <em>with</em> <b>html</b> tags', strip=True))
     eq_('a test <em>with</em>  <b>html</b> tags',
         bleach.clean('a test <em>with</em> <img src="http://example.com/"> '
-                '<b>html</b> tags', strip=True))
+                     '<b>html</b> tags', strip=True))
 
     s = '<p><a href="http://example.com/">link text</a></p>'
     eq_('<p>link text</p>', bleach.clean(s, tags=['p'], strip=True))
@@ -138,7 +147,7 @@ def test_allowed_styles():
 
 def test_idempotent():
     """Make sure that applying the filter twice doesn't change anything."""
-    dirty = u'<span>invalid & </span> < extra http://link.com<em>'
+    dirty = '<span>invalid & </span> < extra http://link.com<em>'
 
     clean = bleach.clean(dirty)
     eq_(clean, bleach.clean(clean))
@@ -147,10 +156,23 @@ def test_idempotent():
     eq_(linked, bleach.linkify(linked))
 
 
+def test_rel_already_there():
+    """Make sure rel attribute is updated not replaced"""
+    linked = ('Click <a href="http://example.com" rel="tooltip">'
+              'here</a>.')
+    link_good = (('Click <a href="http://example.com" rel="tooltip nofollow">'
+                 'here</a>.'),
+                 ('Click <a rel="tooltip nofollow" href="http://example.com">'
+                 'here</a>.'))
+
+    in_(link_good, bleach.linkify(linked))
+    in_(link_good, bleach.linkify(link_good[0]))
+
+
 def test_lowercase_html():
     """We should output lowercase HTML."""
-    dirty = u'<EM CLASS="FOO">BAR</EM>'
-    clean = u'<em class="FOO">BAR</em>'
+    dirty = '<EM CLASS="FOO">BAR</EM>'
+    clean = '<em class="FOO">BAR</em>'
     eq_(clean, bleach.clean(dirty, attributes=['class']))
 
 
@@ -160,14 +182,15 @@ def test_wildcard_attributes():
         'img': ['src'],
     }
     TAG = ['img', 'em']
-    dirty = (u'both <em id="foo" style="color: black">can</em> have '
-             u'<img id="bar" src="foo"/>')
-    clean = u'both <em id="foo">can</em> have <img id="bar" src="foo">'
-    eq_(clean, bleach.clean(dirty, tags=TAG, attributes=ATTR))
+    dirty = ('both <em id="foo" style="color: black">can</em> have '
+             '<img id="bar" src="foo"/>')
+    clean = ('both <em id="foo">can</em> have <img src="foo" id="bar">',
+             'both <em id="foo">can</em> have <img id="bar" src="foo">')
+    in_(clean, bleach.clean(dirty, tags=TAG, attributes=ATTR))
 
 
 def test_sarcasm():
     """Jokes should crash.<sarcasm/>"""
-    dirty = u'Yeah right <sarcasm/>'
-    clean = u'Yeah right &lt;sarcasm/&gt;'
+    dirty = 'Yeah right <sarcasm/>'
+    clean = 'Yeah right &lt;sarcasm/&gt;'
     eq_(clean, bleach.clean(dirty))

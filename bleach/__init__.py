@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+from __future__ import unicode_literals
 import logging
 import re
 import sys
@@ -61,12 +64,12 @@ TLDS.reverse()
 
 url_re = re.compile(
     r"""\(*  # Match any opening parentheses.
-    \b(?<![@.])(?:(?:%s):/{0,3}(?:(?:\w+:)?\w+@)?)?  # http://
-    ([\w-]+\.)+(?:%s)(?:\:\d+)?(?!\.\w)\b   # xx.yy.tld(:##)?
-    (?:[/?][^\s\{\}\|\\\^\[\]`<>"]*)?
+    \b(?<![@.])(?:(?:{0}):/{{0,3}}(?:(?:\w+:)?\w+@)?)?  # http://
+    ([\w-]+\.)+(?:{1})(?:\:\d+)?(?!\.\w)\b   # xx.yy.tld(:##)?
+    (?:[/?][^\s\{{\}}\|\\\^\[\]`<>"]*)?
         # /path/zz (excluding "unsafe" chars from RFC 1738,
         # except for # and ~, which happen in practice)
-    """ % (u'|'.join(PROTOCOLS), u'|'.join(TLDS)),
+    """.format('|'.join(PROTOCOLS), '|'.join(TLDS)),
     re.IGNORECASE | re.VERBOSE | re.UNICODE)
 
 proto_re = re.compile(r'^[\w-]+:/{0,3}', re.IGNORECASE)
@@ -75,8 +78,8 @@ punct_re = re.compile(r'([\.,]+)$')
 
 email_re = re.compile(
     r"""(?<!//)
-    (([-!#$%&'*+/=?^_`{}|~0-9A-Z]+
-        (\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*  # dot-atom
+    (([-!#$%&'*+/=?^_`{0!s}|~0-9A-Z]+
+        (\.[-!#$%&'*+/=?^_`{1!s}|~0-9A-Z]+)*  # dot-atom
     |^"([\001-\010\013\014\016-\037!#-\[\]-\177]
         |\\[\001-011\013\014\016-\177])*"  # quoted-string
     )@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6})\.?  # domain
@@ -85,17 +88,21 @@ email_re = re.compile(
 
 NODE_TEXT = 4  # The numeric ID of a text node in simpletree.
 
+ETREE_TAG = lambda x: "".join(['{http://www.w3.org/1999/xhtml}',x])
+# a simple routine that returns the tag name with the namespace prefix
+# as returned by etree's Element.tag attribute
+
 DEFAULT_CALLBACKS = [linkify_callbacks.nofollow]
 
-PY_26 = (sys.version_info < (2, 7))
-RECURSION_EXCEPTION = RuntimeError if not PY_26 else AttributeError
+# PY_26 = (sys.version_info < (2, 7))
+# RECURSION_EXCEPTION = RuntimeError if not PY_26 else AttributeError
 
 
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
           styles=ALLOWED_STYLES, strip=False, strip_comments=True):
     """Clean an HTML fragment and return it"""
     if not text:
-        return u''
+        return ''
 
     text = force_unicode(text)
 
@@ -123,22 +130,38 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
     text = force_unicode(text)
 
     if not text:
-        return u''
+        return ''
 
     parser = html5lib.HTMLParser(tokenizer=tokenizer)
 
     forest = parser.parseFragment(text)
+    _seen = set([])
 
-    def replace_nodes(tree, new_frag, node):
+    def replace_nodes(tree, new_frag, node, index=0):
+        """
+        Doesn't really replace nodes, but inserts the nodes contained in
+        new_frag into the treee at position index and returns the number
+        of nodes inserted.
+        If node is passed in, it is removed from the tree
+        """
+        count = 0
         new_tree = parser.parseFragment(new_frag)
-        for n in new_tree.childNodes:
-            # Prevent us from re-parsing links new links as existing links.
-            if n.name == 'a':
-                n._seen = True
-            tree.insertBefore(n, node)
-        tree.removeChild(node)
-        # Return the number of new nodes.
-        return len(new_tree.childNodes) - 1
+        # capture any non-tag text at the start of the fragment
+        if new_tree.text:
+            if index == 0:
+                tree.text += new_tree.text
+            else:
+                tree[index-1].tail += new_tree.text
+        # the put in the tagged elements into the old tree
+        for n in new_tree:
+            if n.tag == ETREE_TAG('a'):
+                _seen.add(n)
+            tree.insert(index+count, n)
+            count += 1
+        # if we got a node to remove...
+        if node is not None:
+            tree.remove(node)
+        return count
 
     def strip_wrapping_parentheses(fragment):
         """Strips wrapping parentheses.
@@ -189,58 +212,102 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                 return None
         return attrs
 
+    def _render_inner(node):
+        out = ['' if node.text is None else node.text]
+        for subnode in node:
+            out.append(_render(subnode))
+            if subnode.tail:
+                out.append(subnode.tail)
+        return ''.join(out)
+
     def linkify_nodes(tree, parse_text=True):
-        # I know this isn't Pythonic, but we're sometimes mutating
-        # tree.childNodes, which ends up breaking the loop and causing us to
-        # reparse code.
-        children = len(tree.childNodes)
-        current = 0  # A pointer to the "current" node.
-        while current < children:
-            node = tree.childNodes[current]
-            if node.type == NODE_TEXT and parse_text:
-                new_frag = _render(node)
-                # Look for email addresses?
-                if parse_email:
-                    new_frag = re.sub(email_re, email_repl, new_frag)
-                    if new_frag != _render(node):
-                        adj = replace_nodes(tree, new_frag, node)
+        children = len(tree)
+        current_child = -1
+        # start at -1 to process the parent first
+        while current_child < len(tree):
+            if current_child < 0:
+                node = tree
+                if parse_text and node.text:
+                    new_txt = old_txt = node.text
+                    if parse_email:
+                        new_txt = re.sub(email_re, email_repl, node.text)
+                        if new_txt and new_txt != node.text:
+                            node.text = ''
+                            adj = replace_nodes(tree, new_txt, None, 0)
+                            children += adj
+                            current_child += adj
+                            linkify_nodes(tree, True)
+                            continue
+
+                    new_txt = re.sub(url_re, link_repl, new_txt)
+                    if new_txt != old_txt:
+                        node.text = ''
+                        adj = replace_nodes(tree, new_txt, None, 0)
                         children += adj
-                        current += adj
-                        linkify_nodes(tree)
+                        current_child += adj
                         continue
-                new_frag = re.sub(url_re, link_repl, new_frag)
-                if new_frag != _render(node):
-                    adj = replace_nodes(tree, new_frag, node)
+            else:
+                node = tree[current_child]
+
+            if parse_text and node.tail:
+                new_tail = old_tail = node.tail
+                if parse_email:
+                    new_tail = re.sub(email_re, email_repl, new_tail)
+                    if new_tail != node.tail:
+                        node.tail = ''
+                        adj = replace_nodes(tree, new_tail, None,
+                                            current_child+1)
+                        #insert the new nodes made from my tail into
+                        # the tree right after me. current_child+1
+                        children += adj
+
+                new_tail = re.sub(url_re, link_repl, new_tail)
+                if new_tail != old_tail:
+                    node.tail = ''
+                    adj = replace_nodes(tree, new_tail, None, current_child+1)
                     children += adj
-                    current += adj
-            elif node.name == 'a' and not getattr(node, '_seen', False):
-                if 'href' in node.attributes:
-                    attrs = node.attributes
-                    _text = attrs['_text'] = ''.join(c.toxml() for
-                                                     c in node.childNodes)
+
+            if node.tag == ETREE_TAG('a') and not (node in _seen):
+                if not node.get('href', None) is None:
+                    attrs = dict(node.items())
+
+                    _text = attrs['_text'] = _render_inner(node)
+
                     attrs = apply_callbacks(attrs, False)
-                    if attrs is not None:
-                        text = force_unicode(attrs.pop('_text'))
-                        node.attributes = attrs
-                        for n in reversed(node.childNodes):
-                            node.removeChild(n)
-                        text = parser.parseFragment(text)
-                        for n in text.childNodes:
-                            node.appendChild(n)
-                        node._seen = True
+
+                    if attrs is None:
+                        # <a> tag replaced by the text within it
+                        adj = replace_nodes(tree, _text, node,
+                                            current_child)
+                        current_child -= 1
+                        # pull back current_child by 1 to scan the
+                        # new nodes again.
                     else:
-                        replace_nodes(tree, _text, node)
-            elif skip_pre and node.name == 'pre':
-                linkify_nodes(node, False)
-            elif not getattr(node, '_seen', False):
-                linkify_nodes(node)
-            current += 1
+                        text = force_unicode(attrs.pop('_text'))
+                        for attr_key, attr_val in attrs.items():
+                            node.set(attr_key, attr_val)
+
+                        for n in reversed(list(node)):
+                            node.remove(n)
+                        text = parser.parseFragment(text)
+                        node.text = text.text
+                        for n in text:
+                            node.append(n)
+                        _seen.add(node)
+
+            elif current_child >= 0:
+                if node.tag == ETREE_TAG('pre') and skip_pre:
+                    linkify_nodes(node, False)
+                elif not (node in _seen):
+                    linkify_nodes(node, True)
+
+            current_child += 1
 
     def email_repl(match):
         addr = match.group(0).replace('"', '&quot;')
         link = {
             '_text': addr,
-            'href': 'mailto:%s' % addr,
+            'href': 'mailto:{0!s}'.format(addr),
         }
         link = apply_callbacks(link, True)
 
@@ -250,18 +317,18 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         _href = link.pop('href')
         _text = link.pop('_text')
 
-        repl = '<a href="%s" %s>%s</a>'
-        attribs = ' '.join('%s="%s"' % (k, v) for k, v in link.items())
-        return repl % (_href, attribs, _text)
+        repl = '<a href="{0!s}" {1!s}>{2!s}</a>'
+        attribs = ' '.join('{0!s}="{1!s}"'.format(k, v) for k, v in link.items())
+        return repl.format(_href, attribs, _text)
 
     def link_repl(match):
         url = match.group(0)
         open_brackets = close_brackets = 0
         if url.startswith('('):
             url, open_brackets, close_brackets = (
-                    strip_wrapping_parentheses(url)
+                                                strip_wrapping_parentheses(url)
             )
-        end = u''
+        end = ''
         m = re.search(punct_re, url)
         if m:
             end = m.group(0)
@@ -269,7 +336,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         if re.search(proto_re, url):
             href = url
         else:
-            href = u''.join([u'http://', url])
+            href = ''.join(['http://', url])
 
         link = {
             '_text': url,
@@ -284,32 +351,33 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         _text = link.pop('_text')
         _href = link.pop('href')
 
-        repl = u'%s<a href="%s" %s>%s</a>%s%s'
-        attribs = ' '.join('%s="%s"' % (k, v) for k, v in link.items())
+        repl = '{0!s}<a href="{1!s}" {2!s}>{3!s}</a>{4!s}{5!s}'
+        attribs = ' '.join('{0!s}="{1!s}"'.format(k, v) for k, v in link.items())
 
-        return repl % ('(' * open_brackets,
-                       _href, attribs, _text, end,
-                       ')' * close_brackets)
+        return repl.format('(' * open_brackets,
+                           _href, attribs, _text, end,
+                           ')' * close_brackets)
 
     try:
         linkify_nodes(forest)
-    except (RECURSION_EXCEPTION), e:
+    except RuntimeError as e:
         # If we hit the max recursion depth, just return what we've got.
-        log.exception('Probable recursion error: %r' % e)
+        log.exception('Probable recursion error: {0!r}'.format(e))
 
     return _render(forest)
 
 
 def _render(tree):
     """Try rendering as HTML, then XML, then give up."""
-    try:
-        return force_unicode(_serialize(tree))
-    except AssertionError:  # The treewalker throws this sometimes.
-        return force_unicode(tree.toxml())
+    # try:
+    return force_unicode(_serialize(tree))
+    # except AssertionError:  # The treewalker throws this sometimes.
+    #     from xml.etree import ElementTree as ET
+    #     return ET.tostring(tree, method="html")
 
 
 def _serialize(domtree):
-    walker = html5lib.treewalkers.getTreeWalker('simpletree')
+    walker = html5lib.treewalkers.getTreeWalker('etree')
     stream = walker(domtree)
     serializer = HTMLSerializer(quote_attr_values=True,
                                 omit_optional_tags=False)
