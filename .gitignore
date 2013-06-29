@@ -6,3 +6,4 @@ dist
 *.egg-info
 .noseids
 build
+.tox
