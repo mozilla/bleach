@@ -92,7 +92,7 @@ RECURSION_EXCEPTION = RuntimeError if not PY_26 else AttributeError
 
 
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
-          styles=ALLOWED_STYLES, strip=False, strip_comments=True):
+          styles=ALLOWED_STYLES, strip=False, strip_comments=False):
     """Clean an HTML fragment and return it"""
     if not text:
         return u''
