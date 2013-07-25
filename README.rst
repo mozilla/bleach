@@ -60,7 +60,7 @@ Then install it by running::
     $ python setup.py install
 
 
-.. _html5lib: http://code.google.com/p/html5lib/
+.. _html5lib: https://github.com/html5lib/html5lib-python
 .. _GitHub: https://github.com/jsocol/bleach
 .. _ReadTheDocs: http://bleach.readthedocs.org/
 .. _PyPI: http://pypi.python.org/pypi/bleach
