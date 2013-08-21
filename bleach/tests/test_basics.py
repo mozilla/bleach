@@ -147,6 +147,17 @@ def test_idempotent():
     eq_(linked, bleach.linkify(linked))
 
 
+def test_rel_already_there():
+    """Make sure rel attribute is updated not replaced"""
+    linked = (u'Click <a href="http://example.com" rel="tooltip">'
+              u'here</a>.')
+    link_good = (u'Click <a href="http://example.com" rel="tooltip nofollow">'
+                 u'here</a>.')
+
+    eq_(link_good, bleach.linkify(linked))
+    eq_(link_good, bleach.linkify(link_good))
+
+
 def test_lowercase_html():
     """We should output lowercase HTML."""
     dirty = u'<EM CLASS="FOO">BAR</EM>'
