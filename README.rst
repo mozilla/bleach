@@ -1,17 +1,3 @@
-=====
-Bleach (for Python 3 - forked)
-=====
-
-.. image:: https://travis-ci.org/marcdm/bleach.png?branch=master
-  :target: https://travis-ci.org/marcdm/bleach
-
-This version of bleach is a work in progress to port bleach to Python3/Six. 
-
-Currently, this fork passes all tests on Python 2.6, 2.7, 3.2 and 3.3 
-using html5lib 0.999. 
-
-The code might not be pretty, and there may be bugs. Please let me know.
-
 ======
 Bleach
 ======
