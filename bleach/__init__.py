@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 import logging
 import re
-import sys
 
 import html5lib
 from html5lib.sanitizer import HTMLSanitizer
@@ -93,9 +92,6 @@ ETREE_TAG = lambda x: "".join(['{http://www.w3.org/1999/xhtml}',x])
 # as returned by etree's Element.tag attribute
 
 DEFAULT_CALLBACKS = [linkify_callbacks.nofollow]
-
-# PY_26 = (sys.version_info < (2, 7))
-# RECURSION_EXCEPTION = RuntimeError if not PY_26 else AttributeError
 
 
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
