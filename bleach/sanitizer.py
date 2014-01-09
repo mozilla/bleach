@@ -15,8 +15,6 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
     """Mixin to replace sanitize_token() and sanitize_css()."""
 
     allowed_svg_properties = []
-    # TODO: When the next html5lib version comes out, nuke this.
-    attr_val_is_uri = HTMLSanitizerMixin.attr_val_is_uri + ['poster']
 
     def sanitize_token(self, token):
         """Sanitize a token either by HTML-encoding or dropping.
