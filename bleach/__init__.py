@@ -14,8 +14,8 @@ from .encoding import force_unicode
 from .sanitizer import BleachSanitizer
 
 
-VERSION = (1, 2, 1)
-__version__ = '1.2.1'
+VERSION = (1, 3, 1)
+__version__ = '1.3.1'
 
 __all__ = ['clean', 'linkify']
 
