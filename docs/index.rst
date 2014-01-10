@@ -19,11 +19,6 @@ edit, and filter links most other auto-linkers can't.
 The version of bleach on GitHub_ is always the most up-to-date and the
 ``master`` branch should always work.
 
-.. warn::
-
-   Bleach is currently incompatible with html5lib 1.0b and any versions below
-   0.95.
-
 
 Installing Bleach
 =================
