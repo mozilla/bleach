@@ -365,11 +365,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
 
 def _render(tree):
     """Try rendering as HTML, then XML, then give up."""
-    # try:
     return force_unicode(_serialize(tree))
-    # except AssertionError:  # The treewalker throws this sometimes.
-    #     from xml.etree import ElementTree as ET
-    #     return ET.tostring(tree, method="html")
 
 
 def _serialize(domtree):
