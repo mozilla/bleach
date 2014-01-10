@@ -51,7 +51,6 @@ Contents:
    goals
 
 
-
 Indices and tables
 ==================
 
@@ -59,6 +58,6 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. _html5lib: http://code.google.com/p/html5lib/
+.. _html5lib: https://github.com/html5lib/html5lib-python
 .. _GitHub: https://github.com/jsocol/bleach
-.. _PyPI: http://pypi.python.org/pypi/bleach
+.. _PyPI: https://pypi.python.org/pypi/bleach
