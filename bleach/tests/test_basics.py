@@ -26,7 +26,7 @@ def test_comments_only():
     eq_('', bleach.clean(open_comment))
     eq_(comment, bleach.clean(comment, strip_comments=False))
     eq_('{0!s}-->'.format(open_comment), bleach.clean(open_comment,
-                                                     strip_comments=False))
+                                                      strip_comments=False))
 
 
 def test_with_comments():
@@ -161,9 +161,9 @@ def test_rel_already_there():
     linked = ('Click <a href="http://example.com" rel="tooltip">'
               'here</a>.')
     link_good = (('Click <a href="http://example.com" rel="tooltip nofollow">'
-                 'here</a>.'),
+                  'here</a>.'),
                  ('Click <a rel="tooltip nofollow" href="http://example.com">'
-                 'here</a>.'))
+                  'here</a>.'))
 
     in_(link_good, bleach.linkify(linked))
     in_(link_good, bleach.linkify(link_good[0]))

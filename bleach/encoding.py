@@ -44,9 +44,9 @@ def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):
                 else:
                     s = six.text_type(bytes(s), encoding, errors)
         else:
-            # Note: We use .decode() here, instead of six.text_type(s, encoding,
-            # errors), so that if s is a SafeBytes, it ends up being a
-            # SafeText at the end.
+            # Note: We use .decode() here, instead of six.text_type(s,
+            # encoding, errors), so that if s is a SafeBytes, it ends up being
+            # a SafeText at the end.
             s = s.decode(encoding, errors)
     except UnicodeDecodeError as e:
         if not isinstance(s, Exception):
@@ -57,6 +57,6 @@ def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):
             # working unicode method. Try to handle this without raising a
             # further exception by individually forcing the exception args
             # to unicode.
-            s = ' '.join([force_text(arg, encoding, strings_only,
+            s = ' '.join([force_unicode(arg, encoding, strings_only,
                           errors) for arg in s])
     return s

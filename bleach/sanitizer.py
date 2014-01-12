@@ -29,7 +29,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
 
         """
         if (getattr(self, 'wildcard_attributes', None) is None and
-            isinstance(self.allowed_attributes, dict)):
+                isinstance(self.allowed_attributes, dict)):
             self.wildcard_attributes = self.allowed_attributes.get('*', [])
 
         if token['type'] in (tokenTypes['StartTag'], tokenTypes['EndTag'],
@@ -66,8 +66,8 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                                                  ' ',
                                                  unescape(attrs[attr]))
                     if (token['name'] in self.svg_allow_local_href and
-                        'xlink:href' in attrs and
-                        re.search(r'^\s*[^#\s].*', attrs['xlink:href'])):
+                            'xlink:href' in attrs and
+                            re.search(r'^\s*[^#\s].*', attrs['xlink:href'])):
                         del attrs['xlink:href']
                     if 'style' in attrs:
                         attrs['style'] = self.sanitize_css(attrs['style'])
@@ -80,7 +80,8 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                 if token['type'] == tokenTypes['EndTag']:
                     token['data'] = '</{0!s}>'.format(token['name'])
                 elif token['data']:
-                    attrs = ''.join([' {0!s}="{1!s}"'.format(k, escape(v)) for k, v in
+                    attr = ' {0!s}="{1!s}"'
+                    attrs = ''.join([attr.format(k, escape(v)) for k, v in
                                     token['data']])
                     token['data'] = '<{0!s}{1!s}>'.format(token['name'], attrs)
                 else:
@@ -111,8 +112,8 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
         # TODO: Make sure this does what it's meant to - I *think* it wants to
         # validate style attribute contents.
         parts = style.split(';')
-        gauntlet = re.compile("""^([-/:,#%.'"\sa-zA-Z0-9!]|\w-\w|'[\s\w]+'\s*"""
-                              """|"[\s\w]+"|\([\d,%\.\s]+\))*$""")
+        gauntlet = re.compile("""^([-/:,#%.'"\sa-zA-Z0-9!]|\w-\w|'[\s\w]+'"""
+                              """\s*|"[\s\w]+"|\([\d,%\.\s]+\))*$""")
         for part in parts:
             if not gauntlet.match(part):
                 return ''

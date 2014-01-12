@@ -87,7 +87,7 @@ email_re = re.compile(
 
 NODE_TEXT = 4  # The numeric ID of a text node in simpletree.
 
-ETREE_TAG = lambda x: "".join(['{http://www.w3.org/1999/xhtml}',x])
+ETREE_TAG = lambda x: "".join(['{http://www.w3.org/1999/xhtml}', x])
 # a simple routine that returns the tag name with the namespace prefix
 # as returned by etree's Element.tag attribute
 
@@ -314,16 +314,16 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         _text = link.pop('_text')
 
         repl = '<a href="{0!s}" {1!s}>{2!s}</a>'
-        attribs = ' '.join('{0!s}="{1!s}"'.format(k, v) for k, v in link.items())
+        attr = '{0!s}="{1!s}"'
+        attribs = ' '.join(attr.format(k, v) for k, v in link.items())
         return repl.format(_href, attribs, _text)
 
     def link_repl(match):
         url = match.group(0)
         open_brackets = close_brackets = 0
         if url.startswith('('):
-            url, open_brackets, close_brackets = (
-                                                strip_wrapping_parentheses(url)
-            )
+            _wrapping = strip_wrapping_parentheses(url)
+            url, open_brackets, close_brackets = _wrapping
         end = ''
         m = re.search(punct_re, url)
         if m:
@@ -348,7 +348,8 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         _href = link.pop('href')
 
         repl = '{0!s}<a href="{1!s}" {2!s}>{3!s}</a>{4!s}{5!s}'
-        attribs = ' '.join('{0!s}="{1!s}"'.format(k, v) for k, v in link.items())
+        attr = '{0!s}="{1!s}"'
+        attribs = ' '.join(attr.format(k, v) for k, v in link.items())
 
         return repl.format('(' * open_brackets,
                            _href, attribs, _text, end,

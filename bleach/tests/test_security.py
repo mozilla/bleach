@@ -25,10 +25,10 @@ def test_invalid_attr():
         clean('<a onclick="evil" href="test">test</a>'))
     eq_('<img src="test">',
         clean('<img onclick="evil" src="test" />',
-                tags=IMG, attributes=IMG_ATTR))
+              tags=IMG, attributes=IMG_ATTR))
     eq_('<img src="test">',
         clean('<img href="invalid" src="test" />',
-                tags=IMG, attributes=IMG_ATTR))
+              tags=IMG, attributes=IMG_ATTR))
 
 
 def test_unquoted_attr():
@@ -57,7 +57,7 @@ def test_invalid_filter_attr():
 
     eq_('<img src="http://example.com/">',
         clean('<img onclick="evil" src="http://example.com/" />',
-                tags=IMG, attributes=IMG_ATTR))
+              tags=IMG, attributes=IMG_ATTR))
 
     eq_('<img>', clean('<img onclick="evil" src="http://badhost.com/" />',
                        tags=IMG, attributes=IMG_ATTR))

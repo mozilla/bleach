@@ -1,4 +1,4 @@
-try :
+try:
     from urllib.parse import quote_plus
 except ImportError:
     from urllib import quote_plus
@@ -33,15 +33,15 @@ def test_simple_link():
         'a <a rel="nofollow" href="https://example.com">https://example.com'
         '</a> link'),
         linkify('a https://example.com link'))
-    in_(('an <a href="http://example.com" rel="nofollow">example.com</a> link',
-         'an <a rel="nofollow" href="http://example.com">example.com</a> link'),
-         linkify('an example.com link'))
+    in_(('a <a href="http://example.com" rel="nofollow">example.com</a> link',
+         'a <a rel="nofollow" href="http://example.com">example.com</a> link'),
+        linkify('a example.com link'))
 
 
 def test_trailing_slash():
-    in_(('<a href="http://example.com/" rel="nofollow">http://example.com/</a>',
-         '<a rel="nofollow" href="http://example.com/">http://example.com/</a>'),
-        linkify('http://example.com/'))
+    in_(('<a href="http://examp.com/" rel="nofollow">http://examp.com/</a>',
+         '<a rel="nofollow" href="http://examp.com/">http://examp.com/</a>'),
+        linkify('http://examp.com/'))
     in_(('<a href="http://example.com/foo/" rel="nofollow">'
          'http://example.com/foo/</a>',
          '<a rel="nofollow" href="http://example.com/foo/">'
@@ -57,7 +57,8 @@ def test_trailing_slash():
 def test_mangle_link():
     """We can muck with the href attribute of the link."""
     def filter_url(attrs, new=False):
-        attrs['href'] = 'http://bouncer/?u={0!s}'.format(quote_plus(attrs['href']))
+        quoted = quote_plus(attrs['href'])
+        attrs['href'] = 'http://bouncer/?u={0!s}'.format(quoted)
         return attrs
 
     in_(('<a href="http://bouncer/?u=http%3A%2F%2Fexample.com" rel="nofollow">'
@@ -466,9 +467,9 @@ def test_tokenizer():
 def test_ignore_bad_protocols():
     eq_('foohttp://bar',
         linkify('foohttp://bar'))
-    in_(('foohttp://<a href="http://exampl.com" rel="nofollow">exampl.com</a>',
-         'foohttp://<a rel="nofollow" href="http://exampl.com">exampl.com</a>'),
-        linkify('foohttp://exampl.com'))
+    in_(('fohttp://<a href="http://exampl.com" rel="nofollow">exampl.com</a>',
+         'fohttp://<a rel="nofollow" href="http://exampl.com">exampl.com</a>'),
+        linkify('fohttp://exampl.com'))
 
 
 def test_max_recursion_depth():
