@@ -1,10 +1,15 @@
 """A set of basic callbacks for bleach.linkify."""
+from __future__ import unicode_literals
 
 
 def nofollow(attrs, new=False):
     if attrs['href'].startswith('mailto:'):
         return attrs
-    attrs['rel'] = 'nofollow'
+    rel = [x for x in attrs.get('rel', '').split(' ') if x]
+    if not 'nofollow' in [x.lower() for x in rel]:
+        rel.append('nofollow')
+    attrs['rel'] = ' '.join(rel)
+
     return attrs
 
 

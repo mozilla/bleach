@@ -16,13 +16,8 @@ regular-expression-based sanitizers.
 Bleach's ``linkify`` function is highly configurable and can be used to find,
 edit, and filter links most other auto-linkers can't.
 
-The version of bleach on GitHub_ is the always the most up-to-date and the
+The version of bleach on GitHub_ is always the most up-to-date and the
 ``master`` branch should always work.
-
-.. warn::
-
-   Bleach is currently incompatible with html5lib 1.0b and any versions below
-   0.95.
 
 
 Installing Bleach
@@ -56,7 +51,6 @@ Contents:
    goals
 
 
-
 Indices and tables
 ==================
 
@@ -64,6 +58,6 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. _html5lib: http://code.google.com/p/html5lib/
+.. _html5lib: https://github.com/html5lib/html5lib-python
 .. _GitHub: https://github.com/jsocol/bleach
-.. _PyPI: http://pypi.python.org/pypi/bleach
+.. _PyPI: https://pypi.python.org/pypi/bleach
