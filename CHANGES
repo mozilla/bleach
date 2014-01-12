@@ -1,12 +1,19 @@
 Bleach Changes
 ==============
 
-Version 1.3.1
--------------
+Version 1.4
+-----------
 
-- Update linkify to use etree type Treeewalker instead of simpletree
-- Updated html5lib to version >= 0.999
-- Update all code to be compatible with Python 3 and 2 using six
+- Update linkify to use etree type Treeewalker instead of simpletree.
+- Updated html5lib to version >= 0.999.
+- Update all code to be compatible with Python 3 and 2 using six.
+- Switch to Apache License.
+
+
+Version 1.3
+-----------
+
+- Used by Python 3-only fork.
 
 
 Version 1.2.2
