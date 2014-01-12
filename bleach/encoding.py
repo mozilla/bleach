@@ -11,10 +11,10 @@ def is_protected_type(obj):
     force_unicode(strings_only=True).
     """
     return isinstance(obj, (
-        types.NoneType,
-        int, long,
-        datetime.datetime, datetime.date, datetime.time,
-        float, Decimal)
+        six.integer_types +
+        (types.NoneType,
+         datetime.datetime, datetime.date, datetime.time,
+         float, Decimal))
     )
 
 
