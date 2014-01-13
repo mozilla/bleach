@@ -57,9 +57,10 @@ TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
        tv tw tz ua ug uk us uy uz va vc ve vg vi vn vu wf ws xn ye yt yu za zm
        zw""".split()
 
-PROTOCOLS = HTMLSanitizer.acceptable_protocols
-
+# Make sure that .com doesn't get matched by .co first
 TLDS.reverse()
+
+PROTOCOLS = HTMLSanitizer.acceptable_protocols
 
 url_re = re.compile(
     r"""\(*  # Match any opening parentheses.
