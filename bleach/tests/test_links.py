@@ -187,11 +187,15 @@ def test_stop_email():
 def test_tlds():
     eq_('<a href="http://example.com" rel="nofollow">example.com</a>',
         linkify('example.com'))
+    eq_('<a href="http://example.co" rel="nofollow">example.co</a>',
+        linkify('example.co'))
     eq_('<a href="http://example.co.uk" rel="nofollow">example.co.uk</a>',
         linkify('example.co.uk'))
     eq_('<a href="http://example.edu" rel="nofollow">example.edu</a>',
         linkify('example.edu'))
-    eq_('example.xxx', linkify('example.xxx'))
+    eq_('<a href="http://example.xxx" rel="nofollow">example.xxx</a>',
+        linkify('example.xxx'))
+    eq_('example.yyy', linkify('example.yyy'))
     eq_(' brie', linkify(' brie'))
     eq_('<a href="http://bit.ly/fun" rel="nofollow">bit.ly/fun</a>',
         linkify('bit.ly/fun'))
