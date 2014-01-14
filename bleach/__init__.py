@@ -65,7 +65,7 @@ url_re = re.compile(
     r"""\(*  # Match any opening parentheses.
     \b(?<![@.])(?:(?:{0}):/{{0,3}}(?:(?:\w+:)?\w+@)?)?  # http://
     ([\w-]+\.)+(?:{1})(?:\:\d+)?(?!\.\w)\b   # xx.yy.tld(:##)?
-    (?:[/?][^\s\{{\}}\|\\\^\[\]`<>"]*)?
+    (?:[/?][^\s\{{\}}\|\\\^\[\]\(\)`<>"]*)?
         # /path/zz (excluding "unsafe" chars from RFC 1738,
         # except for # and ~, which happen in practice)
     """.format('|'.join(PROTOCOLS), '|'.join(TLDS)),
