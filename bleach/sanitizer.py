@@ -34,7 +34,10 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
 
         if token['type'] in (tokenTypes['StartTag'], tokenTypes['EndTag'],
                              tokenTypes['EmptyTag']):
-            if token['name'] in self.allowed_elements:
+            if (self.allowed_elements(token['name'])
+                if callable(self.allowed_elements)
+                else token['name'] in self.allowed_elements
+            ):
                 if 'data' in token:
                     if isinstance(self.allowed_attributes, dict):
                         allowed_attributes = self.allowed_attributes.get(

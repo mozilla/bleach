@@ -75,6 +75,18 @@ def test_function_arguments_attributes():
                      tags=['img'], attributes=ATTRS))
 
 
+def test_function_arguments_tags():
+    @staticmethod
+    def is_script(name):
+        if name == 'script':
+            return False
+        return True
+
+    eq_('<b>Bold</b> &lt;script&gt;evil();&lt;/script&gt;',
+        bleach.clean('<b>Bold</b> <script>evil();</script>',
+                     tags=is_script))
+
+
 def test_named_arguments():
     ATTRS = {'a': ['rel', 'href']}
     s = ('<a href="http://xx.com" rel="alternate">xx.com</a>',
