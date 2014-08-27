@@ -51,13 +51,28 @@ def test_bad_html():
         bleach.clean('a <em>fixed tag'))
 
 
-def test_function_arguments():
+def test_arguments():
     TAGS = ['span', 'br']
     ATTRS = {'span': ['style']}
 
-    eq_('a <br><span style="">test</span>',
-        bleach.clean('a <br/><span style="color:red">test</span>',
+    eq_('a <br><span style="">&lt;b&gt;test&lt;/b&gt;</span>',
+        bleach.clean('a <br/><span style="color:red"><b>test</b></span>',
                      tags=TAGS, attributes=ATTRS))
+
+
+def test_function_arguments_attributes():
+    def allowedattr(name, value):
+        if name in ['alt', 'href']:
+            return True
+        return False
+
+    ATTRS = {
+        'img': allowedattr
+    }
+
+    eq_('<img alt="Bla" href="bla.jpg">',
+        bleach.clean('<img href="bla.jpg" alt="Bla" style="display: none;">',
+                     tags=['img'], attributes=ATTRS))
 
 
 def test_named_arguments():
