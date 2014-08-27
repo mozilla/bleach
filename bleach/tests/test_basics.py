@@ -70,8 +70,8 @@ def test_function_arguments_attributes():
         'img': allowedattr
     }
 
-    eq_('<img alt="Bla" href="bla.jpg">',
-        bleach.clean('<img href="bla.jpg" alt="Bla" style="display: none;">',
+    eq_('<img alt="Bla"><img href="bla.jpg">',
+        bleach.clean('<img alt="Bla"><img href="bla.jpg" style="display: none;">',
                      tags=['img'], attributes=ATTRS))
 
 
