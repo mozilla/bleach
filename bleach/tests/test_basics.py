@@ -71,8 +71,10 @@ def test_function_arguments_attributes():
     }
 
     eq_('<img alt="Bla"><img href="bla.jpg">',
-        bleach.clean('<img alt="Bla"><img href="bla.jpg" style="display: none;">',
-                     tags=['img'], attributes=ATTRS))
+        bleach.clean(
+            '<img alt="Bla"><img href="bla.jpg" style="display: none;">',
+            tags=['img'], attributes=ATTRS
+        ))
 
 
 def test_function_arguments_tags():

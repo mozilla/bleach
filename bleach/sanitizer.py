@@ -34,7 +34,8 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
 
         if token['type'] in (tokenTypes['StartTag'], tokenTypes['EndTag'],
                              tokenTypes['EmptyTag']):
-            if (self.allowed_elements(token['name'])
+            if (
+                self.allowed_elements(token['name'])
                 if callable(self.allowed_elements)
                 else token['name'] in self.allowed_elements
             ):
@@ -52,7 +53,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                                       if callable(allowed_attributes)
                                       else name in allowed_attributes)])
                     for attr in self.attr_val_is_uri:
-                        if not attr in attrs:
+                        if attr not in attrs:
                             continue
                         val_unescaped = re.sub("[`\000-\040\177-\240\s]+", '',
                                                unescape(attrs[attr])).lower()
