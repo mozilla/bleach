@@ -66,6 +66,9 @@ non-goal use cases include:
   you have to allow so many tags that a blacklist approach (e.g. forbidding
   ``<script>`` or ``<object>``) may be more appropriate.
 
+* **Removing *all* HTML.** There are much faster tools available if you want to
+  remove or escape all HTML from a document.
+
 * **Cleaning up after trusted users.** Bleach is powerful but it is not fast.
   If you trust your users, trust them and don't rely on Bleach to clean up
   their mess.
