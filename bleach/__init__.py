@@ -253,7 +253,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                         node.tail = ''
                         adj = replace_nodes(tree, new_tail, None,
                                             current_child+1)
-                        #insert the new nodes made from my tail into
+                        # Insert the new nodes made from my tail into
                         # the tree right after me. current_child+1
                         children += adj
 

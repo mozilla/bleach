@@ -49,7 +49,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                                       if callable(allowed_attributes)
                                       else name in allowed_attributes)])
                     for attr in self.attr_val_is_uri:
-                        if not attr in attrs:
+                        if attr not in attrs:
                             continue
                         val_unescaped = re.sub("[`\000-\040\177-\240\s]+", '',
                                                unescape(attrs[attr])).lower()

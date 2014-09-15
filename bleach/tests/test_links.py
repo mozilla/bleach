@@ -24,14 +24,14 @@ def test_empty():
 
 def test_simple_link():
     in_(('a <a href="http://example.com" rel="nofollow">http://example.com'
-        '</a> link',
-        'a <a rel="nofollow" href="http://example.com">http://example.com'
-        '</a> link'),
+         '</a> link',
+         'a <a rel="nofollow" href="http://example.com">http://example.com'
+         '</a> link'),
         linkify('a http://example.com link'))
     in_(('a <a href="https://example.com" rel="nofollow">https://example.com'
-        '</a> link',
-        'a <a rel="nofollow" href="https://example.com">https://example.com'
-        '</a> link'),
+         '</a> link',
+         'a <a rel="nofollow" href="https://example.com">https://example.com'
+         '</a> link'),
         linkify('a https://example.com link'))
     in_(('a <a href="http://example.com" rel="nofollow">example.com</a> link',
          'a <a rel="nofollow" href="http://example.com">example.com</a> link'),
@@ -268,19 +268,19 @@ def test_link_ftp():
 
 def test_link_query():
     in_(('<a href="http://xx.com/?test=win" rel="nofollow">'
-        'http://xx.com/?test=win</a>',
-        '<a rel="nofollow" href="http://xx.com/?test=win">'
-        'http://xx.com/?test=win</a>'),
+         'http://xx.com/?test=win</a>',
+         '<a rel="nofollow" href="http://xx.com/?test=win">'
+         'http://xx.com/?test=win</a>'),
         linkify('http://xx.com/?test=win'))
     in_(('<a href="http://xx.com/?test=win" rel="nofollow">'
-        'xx.com/?test=win</a>',
-        '<a rel="nofollow" href="http://xx.com/?test=win">'
-        'xx.com/?test=win</a>'),
+         'xx.com/?test=win</a>',
+         '<a rel="nofollow" href="http://xx.com/?test=win">'
+         'xx.com/?test=win</a>'),
         linkify('xx.com/?test=win'))
     in_(('<a href="http://xx.com?test=win" rel="nofollow">'
-        'xx.com?test=win</a>',
-        '<a rel="nofollow" href="http://xx.com?test=win">'
-        'xx.com?test=win</a>'),
+         'xx.com?test=win</a>',
+         '<a rel="nofollow" href="http://xx.com?test=win">'
+         'xx.com?test=win</a>'),
         linkify('xx.com?test=win'))
 
 
@@ -294,9 +294,9 @@ def test_link_fragment():
 
 def test_link_entities():
     in_(('<a href="http://xx.com/?a=1&amp;b=2" rel="nofollow">'
-        'http://xx.com/?a=1&amp;b=2</a>',
-        '<a rel="nofollow" href="http://xx.com/?a=1&amp;b=2">'
-        'http://xx.com/?a=1&amp;b=2</a>'),
+         'http://xx.com/?a=1&amp;b=2</a>',
+         '<a rel="nofollow" href="http://xx.com/?a=1&amp;b=2">'
+         'http://xx.com/?a=1&amp;b=2</a>'),
         linkify('http://xx.com/?a=1&b=2'))
 
 
@@ -308,11 +308,11 @@ def test_escaped_html():
 
 def test_link_http_complete():
     in_(('<a href="https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d'
-        '&amp;e#f" rel="nofollow">'
-        'https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f</a>',
-        '<a rel="nofollow" href="https://user:pass@ftp.mozilla.org/x/'
-        'y.exe?a=b&amp;c=d&amp;e#f">'
-        'https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f</a>'),
+         '&amp;e#f" rel="nofollow">'
+         'https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f</a>',
+         '<a rel="nofollow" href="https://user:pass@ftp.mozilla.org/x/'
+         'y.exe?a=b&amp;c=d&amp;e#f">'
+         'https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f</a>'),
         linkify('https://user:pass@ftp.mozilla.org/x/y.exe?a=b&c=d&e#f'))
 
 

@@ -30,9 +30,9 @@ def test_mixed():
 
 def test_mixed_linkify():
     in_(('Домашняя <a href="http://example.com" rel="nofollow">'
-        'http://example.com</a> ヘルプとチュートリアル',
-        'Домашняя <a rel="nofollow" href="http://example.com">'
-        'http://example.com</a> ヘルプとチュートリアル'),
+         'http://example.com</a> ヘルプとチュートリアル',
+         'Домашняя <a rel="nofollow" href="http://example.com">'
+         'http://example.com</a> ヘルプとチュートリアル'),
         linkify('Домашняя http://example.com ヘルプとチュートリアル'))
 
 
