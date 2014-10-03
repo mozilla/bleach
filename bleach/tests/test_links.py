@@ -203,13 +203,19 @@ def test_tlds():
     in_(('<a href="http://example.com" rel="nofollow">example.com</a>',
          '<a rel="nofollow" href="http://example.com">example.com</a>'),
         linkify('example.com'))
+    in_(('<a href="http://example.co" rel="nofollow">example.co</a>',
+         '<a rel="nofollow" href="http://example.co">example.co</a>'),
+        linkify('example.co'))
     in_(('<a href="http://example.co.uk" rel="nofollow">example.co.uk</a>',
          '<a rel="nofollow" href="http://example.co.uk">example.co.uk</a>'),
         linkify('example.co.uk'))
     in_(('<a href="http://example.edu" rel="nofollow">example.edu</a>',
          '<a rel="nofollow" href="http://example.edu">example.edu</a>'),
         linkify('example.edu'))
-    eq_('example.xxx', linkify('example.xxx'))
+    in_(('<a href="http://example.xxx" rel="nofollow">example.xxx</a>',
+         '<a rel="nofollow" href="http://example.xxx">example.xxx</a>'),
+        linkify('example.xxx'))
+    eq_('example.yyy', linkify('example.yyy'))
     eq_(' brie', linkify(' brie'))
     in_(('<a href="http://bit.ly/fun" rel="nofollow">bit.ly/fun</a>',
          '<a rel="nofollow" href="http://bit.ly/fun">bit.ly/fun</a>'),
