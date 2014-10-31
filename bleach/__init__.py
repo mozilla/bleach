@@ -99,7 +99,7 @@ DEFAULT_CALLBACKS = [linkify_callbacks.nofollow]
 
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
           styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
-          strip_comments=True):
+          strip_comments=True, extra_serializer_options=None):
     """Clean an HTML fragment and return it
 
     :arg text: the text to clean
@@ -113,6 +113,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
         to ``bleach.ALLOWED_PROTOCOLS``
     :arg strip: whether or not to strip disallowed elements
     :arg strip_comments: whether or not to strip HTML comments
+    :arg extra_serializer_options: extra options passed to the serializer class
 
     """
     if not text:
@@ -130,11 +131,12 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
     parser = html5lib.HTMLParser(tokenizer=s)
 
-    return _render(parser.parseFragment(text))
+    return _render(parser.parseFragment(text), extra_serializer_options)
 
 
 def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
-            parse_email=False, tokenizer=HTMLSanitizer):
+            parse_email=False, tokenizer=HTMLSanitizer,
+            extra_serializer_options=None):
     """Convert URL-like strings in an HTML fragment to links.
 
     linkify() converts strings that look like URLs or domain names in a
@@ -384,18 +386,23 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         # If we hit the max recursion depth, just return what we've got.
         log.exception('Probable recursion error: {0!r}'.format(e))
 
-    return _render(forest)
+    return _render(forest, extra_serializer_options)
 
 
-def _render(tree):
+def _render(tree, extra_serializer_options=None):
     """Try rendering as HTML, then XML, then give up."""
-    return force_unicode(_serialize(tree))
+    return force_unicode(_serialize(tree, extra_serializer_options))
 
 
-def _serialize(domtree):
+def _serialize(domtree, extra_serializer_options=None):
     walker = html5lib.treewalkers.getTreeWalker('etree')
     stream = walker(domtree)
+
+    if extra_serializer_options is None:
+        extra_serializer_options = {}
+
     serializer = HTMLSerializer(quote_attr_values=True,
                                 alphabetical_attributes=True,
-                                omit_optional_tags=False)
+                                omit_optional_tags=False,
+                                **extra_serializer_options)
     return serializer.render(stream)
