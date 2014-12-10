@@ -145,8 +145,10 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         # capture any non-tag text at the start of the fragment
         if new_tree.text:
             if index == 0:
+                tree.text = tree.text or ''
                 tree.text += new_tree.text
             else:
+                tree[index-1].tail = tree[index-1].tail or ''
                 tree[index-1].tail += new_tree.text
         # the put in the tagged elements into the old tree
         for n in new_tree:
