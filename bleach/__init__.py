@@ -373,5 +373,6 @@ def _serialize(domtree):
     walker = html5lib.treewalkers.getTreeWalker('etree')
     stream = walker(domtree)
     serializer = HTMLSerializer(quote_attr_values=True,
+                                alphabetical_attributes=True,
                                 omit_optional_tags=False)
     return serializer.render(stream)

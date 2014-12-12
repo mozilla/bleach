@@ -1,5 +1,19 @@
 from setuptools import setup, find_packages
 
+install_requires = [
+    'six',
+    'html5lib>=0.999',
+]
+
+try:
+    from collections import OrderedDict  # noqa
+except ImportError:
+    # We don't use ordereddict, but html5lib does when you request
+    # alpha-sorted attributes and on Python 2.6 and it doesn't specify it
+    # as a dependency (see
+    # https://github.com/html5lib/html5lib-python/pull/177)
+    install_requires.append('ordereddict')
+
 setup(
     name='bleach',
     version='1.4',
@@ -13,10 +27,7 @@ setup(
     include_package_data=True,
     package_data={'': ['README.rst']},
     zip_safe=False,
-    install_requires=[
-        'six',
-        'html5lib>=0.999',
-    ],
+    install_requires=install_requires,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',

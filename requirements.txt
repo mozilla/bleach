@@ -1,3 +1,4 @@
+ordereddict
 six
 html5lib>=0.999
 # Requirements to run the test suite:
