@@ -26,7 +26,9 @@ fixes. You can find full documentation on `ReadTheDocs`_.
 Basic Use
 =========
 
-The simplest way to use Bleach is::
+The simplest way to use Bleach is:
+
+.. code-block:: python
 
     >>> import bleach
 
