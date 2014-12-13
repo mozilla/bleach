@@ -5,6 +5,9 @@ Bleach
 .. image:: https://travis-ci.org/jsocol/bleach.png?branch=master
    :target: https://travis-ci.org/jsocol/bleach
 
+.. image:: https://badge.fury.io/py/Bleach.svg
+   :target: http://badge.fury.io/py/Bleach
+
 Bleach is an HTML sanitizing library that escapes or strips markup and
 attributes based on a white list. Bleach can also linkify text safely, applying
 filters that Django's ``urlize`` filter cannot, and optionally setting ``rel``
