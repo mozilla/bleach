@@ -1,6 +1,13 @@
 Bleach Changes
 ==============
 
+Version 1.4.1
+-------------
+
+- Consistent order of attributes in output.
+- Python 3.4.
+
+
 Version 1.4
 -----------
 
