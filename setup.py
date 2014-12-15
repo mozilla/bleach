@@ -28,6 +28,10 @@ setup(
     package_data={'': ['README.rst']},
     zip_safe=False,
     install_requires=install_requires,
+    tests_require=[
+        'nose>=1.3',
+    ],
+    test_suite='nose.collector',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
