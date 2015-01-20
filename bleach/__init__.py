@@ -256,6 +256,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                         # Insert the new nodes made from my tail into
                         # the tree right after me. current_child+1
                         children += adj
+                        continue
 
                 new_tail = re.sub(url_re, link_repl, new_tail)
                 if new_tail != old_tail:
