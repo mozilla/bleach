@@ -81,6 +81,10 @@ def test_email_link():
          'james@example.com</a>',
          True,
          'email to <a href="james@example.com">james@example.com</a>'),
+        ('<br><a href="mailto:jinkyun@example.com">'
+         'jinkyun@example.com</a>',
+         True,
+         '<br>jinkyun@example.com'),
     )
 
     def _check(o, p, i):
