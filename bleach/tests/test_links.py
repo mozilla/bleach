@@ -446,3 +446,10 @@ def test_elements_inside_links():
 
     eq_('<a href="#" rel="nofollow"><strong>bold</strong> hello<br></a>',
         linkify('<a href="#"><strong>bold</strong> hello<br></a>'))
+
+
+def test_remove_first_childlink():
+    expect = '<p>something</p>'
+    callbacks = [lambda *a: None]
+    eq_(expect,
+        linkify('<p><a href="/foo">something</a></p>', callbacks=callbacks))
