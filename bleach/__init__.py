@@ -149,13 +149,13 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                 tree.text = tree.text or ''
                 tree.text += new_tree.text
             else:
-                tree[index-1].tail = tree[index-1].tail or ''
-                tree[index-1].tail += new_tree.text
+                tree[index - 1].tail = tree[index - 1].tail or ''
+                tree[index - 1].tail += new_tree.text
         # the put in the tagged elements into the old tree
         for n in new_tree:
             if n.tag == ETREE_TAG('a'):
                 _seen.add(n)
-            tree.insert(index+count, n)
+            tree.insert(index + count, n)
             count += 1
         # if we got a node to remove...
         if node is not None:
@@ -255,7 +255,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                     if new_tail != node.tail:
                         node.tail = ''
                         adj = replace_nodes(tree, new_tail, None,
-                                            current_child+1)
+                                            current_child + 1)
                         # Insert the new nodes made from my tail into
                         # the tree right after me. current_child+1
                         children += adj
@@ -264,7 +264,8 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                 new_tail = re.sub(url_re, link_repl, new_tail)
                 if new_tail != old_tail:
                     node.tail = ''
-                    adj = replace_nodes(tree, new_tail, None, current_child+1)
+                    adj = replace_nodes(tree, new_tail, None,
+                                        current_child + 1)
                     children += adj
 
             if node.tag == ETREE_TAG('a') and not (node in _seen):
