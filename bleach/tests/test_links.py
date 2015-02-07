@@ -454,6 +454,6 @@ def test_elements_inside_links():
 
 def test_remove_first_childlink():
     expect = '<p>something</p>'
-    callbacks = [lambda *a: None]
+    callbacks = [lambda *a: None]  # flake8: noqa
     eq_(expect,
         linkify('<p><a href="/foo">something</a></p>', callbacks=callbacks))
