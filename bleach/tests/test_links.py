@@ -389,6 +389,11 @@ def test_wrapping_parentheses():
         yield check, test, expected_output
 
 
+def test_parentheses_with_removing():
+    expect = '(test.py)'
+    eq_(expect, linkify(expect, callbacks=[lambda *a: None]))
+
+
 def test_ports():
     """URLs can contain port numbers."""
     tests = (

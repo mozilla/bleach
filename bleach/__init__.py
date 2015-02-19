@@ -347,7 +347,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         link = apply_callbacks(link, True)
 
         if link is None:
-            return url
+            return '(' * open_brackets + url + ')' * close_brackets
 
         _text = link.pop('_text')
         _href = link.pop('href')
