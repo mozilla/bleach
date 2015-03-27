@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
+import copy
 import logging
 import re
 
@@ -43,7 +44,7 @@ ALLOWED_ATTRIBUTES = {
 
 ALLOWED_STYLES = []
 
-ALLOWED_PROTOCOLS = HTMLSanitizer.acceptable_protocols.copy()
+ALLOWED_PROTOCOLS = copy.copy(HTMLSanitizer.acceptable_protocols)
 
 TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
        ba bb bd be bf bg bh bi biz bj bm bn bo br bs bt bv bw by bz ca cat
