@@ -43,6 +43,8 @@ ALLOWED_ATTRIBUTES = {
 
 ALLOWED_STYLES = []
 
+ALLOWED_PROTOCOLS = HTMLSanitizer.acceptable_protocols.copy()
+
 TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
        ba bb bd be bf bg bh bi biz bj bm bn bo br bs bt bv bw by bz ca cat
        cc cd cf cg ch ci ck cl cm cn co com coop cr cu cv cx cy cz de dj dk
@@ -96,7 +98,8 @@ DEFAULT_CALLBACKS = [linkify_callbacks.nofollow]
 
 
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
-          styles=ALLOWED_STYLES, strip=False, strip_comments=True):
+          styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
+          strip_comments=True):
     """Clean an HTML fragment and return it"""
     if not text:
         return ''
@@ -107,6 +110,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
         allowed_elements = tags
         allowed_attributes = attributes
         allowed_css_properties = styles
+        allowed_protocols = protocols
         strip_disallowed_elements = strip
         strip_html_comments = strip_comments
 
