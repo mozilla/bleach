@@ -141,7 +141,8 @@ TLDS = """abb abbott abogado ac academy accenture accountant accountants active
        xn--vermgensberater-ctb xn--vermgensberatung-pwb xn--vhquv xn--vuq861b
        xn--wgbh1c xn--wgbl6a xn--xhq521b xn--xkc2al3hye2a xn--xkc2dl3a5ee0h
        xn--y9a3aq xn--yfro4i67o xn--ygbi2ammx xn--zfr164b xxx xyz yachts
-       yandex ye yodobashi yoga yokohama youtube yt za zip zm zone zuerich zw""".split()
+       yandex ye yodobashi yoga yokohama youtube yt za zip zm zone zuerich
+       zw""".split()
 
 # Make sure that .com doesn't get matched by .co first
 TLDS.reverse()
