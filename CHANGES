@@ -18,7 +18,7 @@ Version 1.4.1
 Version 1.4
 -----------
 
-- Update linkify to use etree type Treeewalker instead of simpletree.
+- Update linkify to use etree type Treewalker instead of simpletree.
 - Updated html5lib to version >= 0.999.
 - Update all code to be compatible with Python 3 and 2 using six.
 - Switch to Apache License.
