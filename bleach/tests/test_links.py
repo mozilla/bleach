@@ -315,6 +315,23 @@ def test_skip_pre():
     eq_(nofollowed, linkify(already_linked, skip_pre=True))
 
 
+def test_skip_code():
+    """Skip linkification in <code> tags."""
+    simple = 'http://xx.com <code>http://xx.com</code>'
+    linked = ('<a href="http://xx.com" rel="nofollow">http://xx.com</a> '
+              '<code>http://xx.com</code>')
+    all_linked = ('<a href="http://xx.com" rel="nofollow">http://xx.com</a> '
+                  '<code><a href="http://xx.com" rel="nofollow">http://xx.com'
+                  '</a></code>')
+    eq_(linked, linkify(simple, skip_code=True))
+    eq_(all_linked, linkify(simple))
+
+    already_linked = '<code><a href="http://xx.com">xx</a></code>'
+    nofollowed = '<code><a href="http://xx.com" rel="nofollow">xx</a></code>'
+    eq_(nofollowed, linkify(already_linked))
+    eq_(nofollowed, linkify(already_linked, skip_code=True))
+
+
 def test_libgl():
     """libgl.so.1 should not be linkified."""
     eq_('libgl.so.1', linkify('libgl.so.1'))

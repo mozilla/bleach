@@ -184,6 +184,13 @@ any new links within a ``<pre>`` section, pass ``skip_pre=True``.
    tags will still be passed through all the callbacks.
 
 
+``skip_code``
+============
+
+This option acts just like the ``skip_pre`` option, except it operates
+on ``<code>`` tags instead of ``<pre>`` tags.
+
+
 ``parse_email``
 ===============
 

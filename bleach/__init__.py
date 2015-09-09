@@ -116,7 +116,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
 
 def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
-            parse_email=False, tokenizer=HTMLSanitizer):
+            skip_code=False, parse_email=False, tokenizer=HTMLSanitizer):
     """Convert URL-like strings in an HTML fragment to links.
 
     linkify() converts strings that look like URLs or domain names in a
@@ -297,7 +297,8 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                         _seen.add(node)
 
             elif current_child >= 0:
-                if node.tag == ETREE_TAG('pre') and skip_pre:
+                if (node.tag == ETREE_TAG('pre') and skip_pre) or \
+                   (node.tag == ETREE_TAG('code') and skip_code):
                     linkify_nodes(node, False)
                 elif not (node in _seen):
                     linkify_nodes(node, True)
