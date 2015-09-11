@@ -4,8 +4,10 @@ Bleach Changes
 Version 1.4.2
 -------------
 
-- Fix hang in linkify with parse_email=True.
-- Fix crash in linkify when removing a link that is a first-child.
+- Fix hang in linkify with parse_email=True. #124
+- Fix crash in linkify when removing a link that is a first-child. #136
+- Updated TLDs.
+- Don't remove exterior brackets when linkifying. #146
 
 
 Version 1.4.1
