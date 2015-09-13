@@ -194,3 +194,18 @@ def test_sarcasm():
     dirty = 'Yeah right <sarcasm/>'
     clean = 'Yeah right &lt;sarcasm/&gt;'
     eq_(clean, bleach.clean(dirty))
+
+def test_img_data():
+    dirty = '<img src="data:image/png;ABCDEF==" class="data" />'
+    clean = '<img src="data:image/png;ABCDEF==">'
+    eq_(clean, bleach.clean(dirty, tags=['img'], attributes=['src'], protocols=['data']))
+
+def test_svg():
+    dirty = '''
+    <svg width="100" height="100"><circle cx="50" cy="50" r="40" style="stroke:green;stroke-width:4;fill:yellow" /></svg>
+    '''.strip()
+    clean = '''<svg><circle style="stroke: green; fill: yellow;"></circle></svg>'''
+    tags = ['svg', 'circle']
+    attributes = ['style']
+    svg_properties = ['stroke', 'fill']
+    eq_(clean, bleach.clean(dirty, tags=tags, attributes=attributes, svg_properties=svg_properties))

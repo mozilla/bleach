@@ -96,7 +96,8 @@ DEFAULT_CALLBACKS = [linkify_callbacks.nofollow]
 
 
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
-          styles=ALLOWED_STYLES, strip=False, strip_comments=True):
+          styles=ALLOWED_STYLES, strip=False, strip_comments=True, protocols=HTMLSanitizer.acceptable_protocols,
+          svg_properties=None):
     """Clean an HTML fragment and return it"""
     if not text:
         return ''
@@ -109,6 +110,8 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
         allowed_css_properties = styles
         strip_disallowed_elements = strip
         strip_html_comments = strip_comments
+        allowed_protocols = protocols
+        allowed_svg_properties = svg_properties or []
 
     parser = html5lib.HTMLParser(tokenizer=s)
 
