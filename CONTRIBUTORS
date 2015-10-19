@@ -1,28 +1,44 @@
-Bleach is written and maintained by James Socol and various contributors
-within and without the Mozilla Corporation and Foundation.
+Bleach was originally written and maintained by James Socol and various
+contributors within and without the Mozilla Corporation and Foundation.
+It is currently maintained by Jannis Leidel and Will Kahn-Greene.
 
-Lead Developer:
+Maintainers:
+
+- Jannis Leidel <jleidel@mozilla.com>
+- Will Kahn-Greene <willkg@mozilla.com>
+
+Maintainer emeritus:
 
 - James Socol <me@jamessocol.com>
 
 Contributors:
 
-- Jeff Balogh
-- Ricky Rosario
-- Chris Beaven
-- Luis Nell
-
-Patches:
-
-- Les Orchard
-- Paul Craciunoiu
-- Sébastien Fievet
-- TimothyFitz
-- Adrian "ThiefMaster"
 - Adam Lofts
-- Anton Kovalyov
-- Mark Paschal
+- Adrian "ThiefMaster"
+- Alek
 - Alex Ehlke
-- Marc DM
-- mdxs
+- Alireza Savand
+- Andy Freeland
+- Anton Kovalyov
+- Chris Beaven
+- Erik Rose
+- Gaurav Dadhania
+- Jaime Irurzun
+- Jeff Balogh
+- Lee, Cheon-il
+- Les Orchard
+- Luis Nell
 - Marc Abramowitz
+- Marc DM
+- Mark Lee
+- Mark Paschal
+- Oh Jinkyun
+- Paul Craciunoiu
+- Ricky Rosario
+- Ryan Niemeyer
+- Sébastien Fievet
+- Timothy Fitz
+- Vitaly Volkov
+- mdxs
+- nikolas
+- zyegfryed
