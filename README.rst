@@ -25,6 +25,12 @@ unbalanced or mis-nested tags.
 The version on GitHub_ is the most up-to-date and contains the latest bug
 fixes. You can find full documentation on `ReadTheDocs`_.
 
+:Code:           https://github.com/mozilla/bleach
+:Documentation:  https://bleach.readthedocs.org/
+:Issue tracker:  https://github.com/mozilla/bleach/issues
+:IRC:            ``#bleach`` on irc.mozilla.org
+:License:        Apache License v2; see LICENSE file
+
 
 Reporting Security Issues
 =========================
@@ -50,6 +56,7 @@ The simplest way to use Bleach is:
     >>> bleach.linkify('an http://example.com url')
     u'an <a href="http://example.com" rel="nofollow">http://example.com</a> url
 
+
 *NB*: Bleach always returns a ``unicode`` object, whether you give it a
 bytestring or a ``unicode`` object, but Bleach does not attempt to detect
 incoming character encodings, and will assume UTF-8. If you are using a
@@ -70,7 +77,7 @@ Or with ``easy_install``::
 
 Or by cloning the repo from GitHub_::
 
-    $ git clone git://github.com/jsocol/bleach.git
+    $ git clone git://github.com/mozilla/bleach.git
 
 Then install it by running::
 
@@ -78,6 +85,6 @@ Then install it by running::
 
 
 .. _html5lib: https://github.com/html5lib/html5lib-python
-.. _GitHub: https://github.com/jsocol/bleach
+.. _GitHub: https://github.com/mozilla/bleach
 .. _ReadTheDocs: http://bleach.readthedocs.org/
 .. _PyPI: http://pypi.python.org/pypi/bleach

@@ -1,8 +1,3 @@
-.. Bleach documentation master file, created by
-   sphinx-quickstart on Fri May 11 21:11:39 2012.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to Bleach's documentation!
 ==================================
 
@@ -19,6 +14,12 @@ edit, and filter links most other auto-linkers can't.
 The version of bleach on GitHub_ is always the most up-to-date and the
 ``master`` branch should always work.
 
+:Code:           https://github.com/mozilla/bleach
+:Documentation:  https://bleach.readthedocs.org/
+:Issue tracker:  https://github.com/mozilla/bleach/issues
+:IRC:            ``#bleach`` on irc.mozilla.org
+:License:        Apache License v2; see LICENSE file
+
 
 Installing Bleach
 =================
@@ -33,7 +34,7 @@ Or with ``easy_install``::
 
 Or by cloning the repo from GitHub_::
 
-    $ git clone git://github.com/jsocol/bleach.git
+    $ git clone git://github.com/mozilla/bleach.git
 
 Then install it by running::
 
@@ -59,5 +60,5 @@ Indices and tables
 * :ref:`search`
 
 .. _html5lib: https://github.com/html5lib/html5lib-python
-.. _GitHub: https://github.com/jsocol/bleach
+.. _GitHub: https://github.com/mozilla/bleach
 .. _PyPI: https://pypi.python.org/pypi/bleach

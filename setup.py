@@ -21,7 +21,7 @@ setup(
     long_description=open('README.rst').read(),
     author='James Socol',
     author_email='me@jamessocol.com',
-    url='http://github.com/jsocol/bleach',
+    url='http://github.com/mozilla/bleach',
     license='Apache Software License',
     packages=find_packages(),
     include_package_data=True,
