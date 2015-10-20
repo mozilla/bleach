@@ -2,8 +2,8 @@
 Bleach
 ======
 
-.. image:: https://travis-ci.org/jsocol/bleach.png?branch=master
-   :target: https://travis-ci.org/jsocol/bleach
+.. image:: https://travis-ci.org/mozilla/bleach.png?branch=master
+   :target: https://travis-ci.org/mozilla/bleach
 
 .. image:: https://badge.fury.io/py/Bleach.svg
    :target: http://badge.fury.io/py/Bleach
