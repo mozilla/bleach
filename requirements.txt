@@ -4,3 +4,4 @@ html5lib>=0.999
 # Requirements to run the test suite:
 nose
 flake8
+tox
