@@ -195,7 +195,7 @@ callbacks that may need to behave differently if the protocol is ``mailto:``.
 
 
 ``tokenizer``
-============
+=============
 
 ``linkify()`` uses the ``html5lib.sanitizer.HTMLSanitizer`` tokenizer by
 default. This has the effect of scrubbing some tags and attributes. To use a
