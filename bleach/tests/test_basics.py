@@ -1,4 +1,3 @@
-import six
 import html5lib
 from nose.tools import eq_
 
@@ -11,11 +10,7 @@ def test_empty():
 
 
 def test_nbsp():
-    if six.PY3:
-        expected = '\xa0test string\xa0'
-    else:
-        expected = six.u('\\xa0test string\\xa0')
-
+    expected = b'\xc2\xa0test string\xc2\xa0'.decode('utf-8')
     eq_(expected, bleach.clean('&nbsp;test string&nbsp;'))
 
 
