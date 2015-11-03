@@ -4,9 +4,12 @@ import types
 import sys
 from collections import namedtuple
 if sys.version_info.major == 2:
-    six = namedtuple('Six', 'integer_types string_types text_type PY3')((int, long), (basestring,), unicode, False)
+    six = namedtuple('Six', 'integer_types string_types text_type PY3')(
+        (int, long), (basestring,), unicode, False)
 else:
-    six = namedtuple('Six', 'integer_types string_types text_type PY3')((int,), (str,), str, True)
+    six = namedtuple('Six', 'integer_types string_types text_type PY3')(
+        (int,), (str,), str, True)
+
 
 def is_protected_type(obj):
     """Determine if the object instance is of a protected type.
