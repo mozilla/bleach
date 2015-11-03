@@ -3,9 +3,9 @@ from decimal import Decimal
 import types
 import sys
 from collections import namedtuple
-if sys.version_info.major == 2:
+if sys.version_info[0] == 2:
     six = namedtuple('Six', 'integer_types string_types text_type PY3')(
-        (int, long), (basestring,), unicode, False)
+        (int, long), (basestring,), unicode, False)  # noqa
 else:
     six = namedtuple('Six', 'integer_types string_types text_type PY3')(
         (int,), (str,), str, True)
