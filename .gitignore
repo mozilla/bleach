@@ -7,3 +7,4 @@ dist
 .noseids
 build
 .tox
+docs/_build/
