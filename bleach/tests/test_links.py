@@ -97,7 +97,7 @@ def test_email_link():
 def test_hashtag_link():
     tests = (
         ('a #example hashtag', False, 'a #example hashtag'),
-        ('a <a href="?tag=mytag" rel="nofollow">mytag</a> hashtag', True,
+        ('a <a href="?tag=mytag" rel="nofollow">#mytag</a> hashtag', True,
          'a #mytag hashtag'),
         ('my <a href="/path#hotatag" rel="nofollow">mylink</a>', True,
          'my <a href="/path#hotatag" rel="nofollow">mylink</a>'),

@@ -338,7 +338,8 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
     def hashtag_repl(match):
         tag = match.group(1)
         link = {
-            '_text': tag,
+            '_tag': tag,
+            '_text': '#{}'.format(tag),
             'href': '?tag={}'.format(tag),
         }
         link = apply_callbacks(link, True)
