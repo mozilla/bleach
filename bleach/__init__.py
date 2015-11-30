@@ -339,8 +339,8 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         tag = match.group(1)
         link = {
             '_tag': tag,
-            '_text': '#{}'.format(tag),
-            'href': '?tag={}'.format(tag),
+            '_text': '#{0!s}'.format(tag),
+            'href': '?tag={0!s}'.format(tag),
         }
         link = apply_callbacks(link, True)
 
