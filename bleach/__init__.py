@@ -86,6 +86,8 @@ email_re = re.compile(
     """,
     re.IGNORECASE | re.MULTILINE | re.VERBOSE)
 
+hashtag_re = re.compile(r'#([\w\-_]+)', re.IGNORECASE | re.MULTILINE)
+
 NODE_TEXT = 4  # The numeric ID of a text node in simpletree.
 
 ETREE_TAG = lambda x: "".join(['{http://www.w3.org/1999/xhtml}', x])
@@ -116,7 +118,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
 
 def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
-            parse_email=False, tokenizer=HTMLSanitizer):
+            parse_email=False, parse_hashtags=False, tokenizer=HTMLSanitizer):
     """Convert URL-like strings in an HTML fragment to links.
 
     linkify() converts strings that look like URLs or domain names in a
@@ -238,6 +240,16 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                             linkify_nodes(tree, True)
                             continue
 
+                    if parse_hashtags:
+                        new_txt = re.sub(hashtag_re, hashtag_repl, node.text)
+                        if new_txt and new_txt != node.text:
+                            node.text = ''
+                            adj = replace_nodes(tree, new_txt, None, 0)
+                            children += adj
+                            current_child += adj
+                            linkify_nodes(tree, True)
+                            continue
+
                     new_txt = re.sub(url_re, link_repl, new_txt)
                     if new_txt != old_txt:
                         node.text = ''
@@ -314,6 +326,25 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
 
         if link is None:
             return addr
+
+        _href = link.pop('href')
+        _text = link.pop('_text')
+
+        repl = '<a href="{0!s}" {1!s}>{2!s}</a>'
+        attr = '{0!s}="{1!s}"'
+        attribs = ' '.join(attr.format(k, v) for k, v in link.items())
+        return repl.format(_href, attribs, _text)
+
+    def hashtag_repl(match):
+        tag = match.group(1)
+        link = {
+            '_text': tag,
+            'href': '?tag={}'.format(tag),
+        }
+        link = apply_callbacks(link, True)
+
+        if link is None:
+            return '#{}'.format(tag)
 
         _href = link.pop('href')
         _text = link.pop('_text')
