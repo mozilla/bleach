@@ -94,6 +94,22 @@ def test_email_link():
         yield _check, o, p, i
 
 
+def test_hashtag_link():
+    tests = (
+        ('a #example hashtag', False, 'a #example hashtag'),
+        ('a <a href="?tag=mytag" rel="nofollow">#mytag</a> hashtag', True,
+         'a #mytag hashtag'),
+        ('my <a href="/path#hotatag" rel="nofollow">mylink</a>', True,
+         'my <a href="/path#hotatag" rel="nofollow">mylink</a>'),
+    )
+
+    def _check(o, p, i):
+        eq_(o, linkify(i, parse_hashtags=p))
+
+    for (o, p, i) in tests:
+        yield _check, o, p, i
+
+
 def test_email_link_escaping():
     tests = (
         ('''<a href='mailto:"james"@example.com'>'''
