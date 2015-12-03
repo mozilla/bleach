@@ -2,6 +2,12 @@
 
 from __future__ import unicode_literals
 import logging
+try:  # Python 2.7+
+    from logging import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
 import re
 
 import html5lib
@@ -15,7 +21,7 @@ from .version import __version__, VERSION # flake8: noqa
 
 __all__ = ['clean', 'linkify']
 
-log = logging.getLogger('bleach')
+log = logging.getLogger(__name__).addHandler(NullHandler())
 
 ALLOWED_TAGS = [
     'a',
