@@ -1,6 +1,23 @@
 Bleach Changes
 ==============
 
+Version 1.5? (in progress)
+--------------------------
+
+**Backwards incompatible changes**
+
+- For ``clean``, the list of ``ALLOWED_PROTOCOLS`` now defaults to http,
+  https and mailto. Previously it was a long list of protocols something
+  like ed2k, ftp, http, https, irc, mailto, news, gopher, nntp, telnet,
+  webcal, xmpp, callto, feed, urn, aim, rsync, tag, ssh, sftp, rtsp,
+  afs, data. #149
+
+**Changes**
+
+- Added ``protocols`` to arguments list for ``clean`` to let you override
+  the list of allowed protocols. #149
+
+
 Version 1.4.2
 -------------
 
