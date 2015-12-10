@@ -92,6 +92,21 @@ For example, to allow users to set the color and font-weight of text::
     cleaned_text = bleach.clean(text, tags, attrs, styles)
 
 
+Protocol Whitelist
+==================
+
+If you allow tags that have attributes containing a URI value (like the ``href``
+attribute of an anchor tag, you may want to adapt the accepted protocols. The
+default list only allows ``http``, ``https`` and ``mailto``.
+
+For example, to allow the smb protocol as well::
+
+    >>> html = '<a href="smb://more_text">allowed protocol</a>'
+
+    >>> bleach.clean(html, protocols=['http', 'https', 'mailto', 'smb'])
+    u'<a href="smb://more_text">allowed protocol</a>'
+
+
 Stripping Markup
 ================
 
