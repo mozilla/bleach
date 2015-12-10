@@ -194,3 +194,14 @@ def test_sarcasm():
     dirty = 'Yeah right <sarcasm/>'
     clean = 'Yeah right &lt;sarcasm/&gt;'
     eq_(clean, bleach.clean(dirty))
+
+
+def test_user_defined_protocols_valid():
+    valid_href = '<a href="my_protocol://more_text">allowed href</a>'
+    eq_(valid_href, bleach.clean(valid_href, protocols=['my_protocol']))
+
+
+def test_user_defined_protocols_invalid():
+    invalid_href = '<a href="http://xx.com">invalid href</a>'
+    cleaned_href = '<a>invalid href</a>'
+    eq_(cleaned_href, bleach.clean(invalid_href, protocols=['my_protocol']))
