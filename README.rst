@@ -76,8 +76,9 @@ Upgrading Bleach
 
 .. warning::
 
-   Before doing any upgrades, check the :ref:`changes-chapter` for backwards
-   incompatible changes.
+   Before doing any upgrades, read through `Bleach Changes
+   <https://bleach.readthedocs.org/en/latest/changes.html>`_ for backwards
+   incompatible changes, newer versions, etc.
 
 
 Basic use
