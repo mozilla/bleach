@@ -1,4 +1,5 @@
-from httplib import HTTPSConnection
+import sys
+is_py_2 = sys.version_info[0] == 2
 
 
 def read_suffix_list(content):
@@ -6,7 +7,7 @@ def read_suffix_list(content):
     Read and parse suffix list.
     '''
     # remove comment & blank line
-    suffix_list = [line.lower().strip().decode('utf-8')
+    suffix_list = [line.lower().strip()
                    for line in contents
                    if not line.startswith('//') and line.strip()]
 
@@ -14,7 +15,7 @@ def read_suffix_list(content):
     idna_encoded_suffix_list = []
     for suffix in suffix_list:
         try:
-            encoded = suffix.encode('idna')
+            encoded = suffix.encode('idna').decode('ascii')
             if suffix != encoded:
                 idna_encoded_suffix_list.append(encoded)
         except Exception:
@@ -33,7 +34,8 @@ def write_suffix_py(o, suffix_list):
     '''
     Write suffix list as python source.
     '''
-    o.write('# -*- coding: utf-8 -*-\n\n')
+    o.write("# -*- coding: utf-8 -*-\n"
+            "from __future__ import unicode_literals\n\n")
 
     def write(var_begin, suffix_lst, end, line_acc, process, process_elem):
         first_line_max_length = 79 - len(var_begin)
@@ -45,34 +47,32 @@ def write_suffix_py(o, suffix_list):
             processed_elem, length = process_elem(suffix)
             length += len(processed_elem)
             if count + len(processed_elem) + line_acc >= line_max_length:
-                o.write((' ' * indent + process(tmp, indent == 0))
-                        .encode('utf-8'))
+                o.write((' ' * indent + process(tmp, indent == 0)))
                 o.write('\n')
                 tmp, count, indent = [], 0, len(var_begin)
                 line_max_length = one_line_max_length
             tmp.append(processed_elem)
             count += length
         if tmp:
-            o.write((' ' * indent +
-                     process(tmp, indent == 0)).encode('utf-8'))
+            o.write(' ' * indent + process(tmp, indent == 0))
         o.write(end)
 
     # Write suffixes list.
     #
     # write('SUFFIXES = [', suffix_list, ' ]', 1,
-    #       lambda x, f: u', '.join(x) + u',',
-    #       lambda x: (u'u"%s"' % x, 2))
+    #       lambda x, f: ', '.join(x) + ',',
+    #       lambda x: ('"%s"' % x, 2))
 
     # o.write('\n\n')
 
     # write public suffixes Regular Expression.
-    suffix_list = map(lambda x: x.replace('.', '\\.')
-                      .replace('*', '[^.]+').replace('!', ''),
-                      suffix_list)
+    suffix_list = list(map(lambda x: x.replace('.', '\\.')
+                           .replace('*', '[^.]+').replace('!', ''),
+                           suffix_list))
     suffix_list.sort()
     suffix_list.reverse()
     write('SUFFIXES_RE = (', suffix_list, ')', 3,
-          lambda x, f: (u'u"%s"' if f else u'u"|%s"') % u'|'.join(x),
+          lambda x, f: ('"%s"' if f else '"|%s"') % '|'.join(x),
           lambda x: (x, 1))
     o.write('\n')
 
@@ -90,17 +90,30 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    if is_py_2:
+        from codecs import open as open_c
+        from codecs import getwriter
+    else:
+        open_c = open
+
     if not args.filename:
         # get suffix list from
         # https://publicsuffix.org/list/public_suffix_list.dat
+        if is_py_2:
+            # for python 2.x
+            from httplib import HTTPSConnection
+            from StringIO import StringIO
+        else:
+            # for python 3.x
+            from http.client import HTTPSConnection
+            from io import StringIO
         connection = HTTPSConnection('publicsuffix.org')
         connection.request('GET', '/list/public_suffix_list.dat')
         response = connection.getresponse()
 
-        import StringIO
-        contents = StringIO.StringIO(response.read())
+        contents = StringIO(response.read().decode('utf-8'))
     else:
-        contents = open(args.filename, 'r')
+        contents = open_c(args.filename, "r", encoding="utf-8")
 
     suffix_list = read_suffix_list(contents)
     contents.close()
@@ -108,9 +121,12 @@ if __name__ == "__main__":
     if args.output == '-':
         # use stdout
         from sys import stdout
-        o = stdout
+        if is_py_2:
+            o = getwriter('utf-8')(stdout)
+        else:
+            o = stdout
     else:
-        o = open(args.output, 'w')
+        o = open_c(args.output, "w", encoding="utf-8")
 
     write_suffix_py(o, suffix_list)
     o.close()
