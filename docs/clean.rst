@@ -5,11 +5,10 @@
 ``bleach.clean()``
 ==================
 
-``clean()`` is Bleach's HTML sanitization method::
+``clean()`` is Bleach's HTML sanitization method.
 
-    def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
-              styles=ALLOWED_STYLES, strip=False, strip_comments=True):
-        """Clean an HTML fragment and return it."""
+.. autofunction:: bleach.clean
+
 
 Given a fragment of HTML, Bleach will parse it according to the HTML5 parsing
 algorithm and sanitize any disallowed tags or attributes. This algorithm also
@@ -25,7 +24,22 @@ Tag Whitelist
 
 The ``tags`` kwarg is a whitelist of allowed HTML tags. It should be a list,
 tuple, or other iterable. Any other HTML tags will be escaped or stripped from
-the text.  Its default value is a relatively conservative list found in
+the text.
+
+For example:
+
+.. doctest::
+
+   >>> import bleach
+
+   >>> bleach.clean(
+   ...     u'<b><i>an example</i></b>',
+   ...     tags=['b'],
+   ... )
+   u'<b>&lt;i&gt;an example&lt;/i&gt;</b>'
+
+
+The default value is a relatively conservative list found in
 ``bleach.ALLOWED_TAGS``.
 
 
@@ -37,13 +51,25 @@ which case the attributes are allowed for any tag, or a dictionary, in which
 case the keys are tag names (or a wildcard: ``*`` for all tags) and the values
 are lists of allowed attributes.
 
-For example::
+For example:
 
-    attrs = {
-        '*': ['class'],
-        'a': ['href', 'rel'],
-        'img': ['src', 'alt'],
-    }
+.. doctest::
+
+   >>> import bleach
+
+   >>> attrs = {
+   ...     '*': ['class'],
+   ...     'a': ['href', 'rel'],
+   ...     'img': ['alt'],
+   ... }
+
+   >>> bleach.clean(
+   ...    u'<img alt="an example" width=500>',
+   ...    tags=['img'],
+   ...    attributes=attrs
+   ... )
+   u'<img alt="an example">'
+
 
 In this case, ``class`` is allowed on any allowed element (from the ``tags``
 argument), ``<a>`` tags are allowed to have ``href`` and ``rel`` attributes,
@@ -58,19 +84,29 @@ Callable Filters
 
 You can also use a callable (instead of a list) in the ``attributes`` kwarg. If
 the callable returns ``True``, the attribute is allowed. Otherwise, it is
-stripped. For example::
+stripped. For example:
 
-    def filter_src(name, value):
-        if name in ('alt', 'height', 'width'):
-            return True
-        if name == 'src':
-            p = urlparse(value)
-            return (not p.netloc) or p.netloc == 'mydomain.com'
-        return False
+.. doctest::
 
-    attrs = {
-        'img': filter_src,
-    }
+    >>> from urlparse import urlparse
+    >>> import bleach
+
+    >>> def filter_src(name, value):
+    ...     if name in ('alt', 'height', 'width'):
+    ...         return True
+    ...     if name == 'src':
+    ...         p = urlparse(value)
+    ...         return (not p.netloc) or p.netloc == 'mydomain.com'
+    ...     return False
+
+    >>> bleach.clean(
+    ...    u'<img src="http://example.com" alt="an example">',
+    ...    tags=['img'],
+    ...    attributes={
+    ...        'img': filter_src
+    ...    }
+    ... )
+    u'<img alt="an example">'
 
 
 Styles Whitelist
@@ -82,14 +118,28 @@ users are allowed to set, for example ``color`` and ``background-color``.
 The default value is an empty list, i.e., the ``style`` attribute will be
 allowed but no values will be.
 
-For example, to allow users to set the color and font-weight of text::
+For example, to allow users to set the color and font-weight of text:
 
-    attrs = {
-        '*': ['style']
-    }
-    tags = ['p', 'em', 'strong']
-    styles = ['color', 'font-weight']
-    cleaned_text = bleach.clean(text, tags, attrs, styles)
+.. doctest::
+
+   >>> import bleach
+
+   >>> tags = ['p', 'em', 'strong']
+   >>> attrs = {
+   ...     '*': ['style']
+   ... }
+   >>> styles = ['color', 'font-weight']
+
+   >>> bleach.clean(
+   ...     u'<p style="font-weight: heavy;">my html</p>',
+   ...     tags=tags,
+   ...     attributes=attrs,
+   ...     styles=styles
+   ... )
+   u'<p style="font-weight: heavy;">my html</p>'
+
+
+Default styles are stored in ``bleach.ALLOWED_STYLES``.
 
 
 Protocol Whitelist
@@ -99,39 +149,72 @@ If you allow tags that have attributes containing a URI value (like the ``href``
 attribute of an anchor tag, you may want to adapt the accepted protocols. The
 default list only allows ``http``, ``https`` and ``mailto``.
 
-For example, to allow the smb protocol as well::
+For example, this sets allowed protocols to http, https and smb:
 
-    >>> html = '<a href="smb://more_text">allowed protocol</a>'
+.. doctest::
 
-    >>> bleach.clean(html, protocols=['http', 'https', 'mailto', 'smb'])
-    u'<a href="smb://more_text">allowed protocol</a>'
+   >>> import bleach
+
+   >>> bleach.clean(
+   ...     '<a href="smb://more_text">allowed protocol</a>',
+   ...     protocols=['http', 'https', 'smb']
+   ... )
+   u'<a href="smb://more_text">allowed protocol</a>'
+
+
+This adds smb to the bleach-specified set of allowed protocols:
+
+.. doctest::
+
+   >>> import bleach
+
+   >>> bleach.clean(
+   ...     '<a href="smb://more_text">allowed protocol</a>',
+   ...     protocols=bleach.ALLOWED_PROTOCOLS + ['smb']
+   ... )
+   u'<a href="smb://more_text">allowed protocol</a>'
+
+
+Default protocols are in ``bleach.ALLOWED_PROTOCOLS``.
 
 
 Stripping Markup
 ================
 
-By default, Bleach *escapes* disallowed or invalid markup. For example::
+By default, Bleach *escapes* disallowed or invalid markup. For example:
 
-    >>> bleach.clean('<span>is not allowed</span>')
-    u'&lt;span&gt;is not allowed&lt;/span&gt;
+.. doctest::
+
+   >>> import bleach
+
+   >>> bleach.clean('<span>is not allowed</span>')
+   u'&lt;span&gt;is not allowed&lt;/span&gt;'
+
 
 If you would rather Bleach stripped this markup entirely, you can pass
-``strip=True``::
+``strip=True``:
 
-    >>> bleach.clean('<span>is not allowed</span>', strip=True)
-    u'is not allowed'
+.. doctest::
+
+   >>> import bleach
+
+   >>> bleach.clean('<span>is not allowed</span>', strip=True)
+   u'is not allowed'
 
 
 Stripping Comments
 ==================
 
 By default, Bleach will strip out HTML comments. To disable this behavior, set
-``strip_comments=False``::
+``strip_comments=False``:
 
-    >>> html = 'my<!-- commented --> html'
+.. doctest::
 
-    >>> bleach.clean(html)
-    u'my html'
+   >>> import bleach
+   >>> html = 'my<!-- commented --> html'
 
-    >>> bleach.clean(html, strip_comments=False)
-    u'my<!-- commented --> html'
+   >>> bleach.clean(html)
+   u'my html'
+
+   >>> bleach.clean(html, strip_comments=False)
+   u'my<!-- commented --> html'

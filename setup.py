@@ -14,11 +14,18 @@ except ImportError:
     # https://github.com/html5lib/html5lib-python/pull/177)
     install_requires.append('ordereddict')
 
+
+def get_long_desc():
+    desc = open('README.rst').read()
+    desc += open('CHANGES').read()
+    return desc
+
+
 setup(
     name='bleach',
     version='1.4.2',
     description='An easy whitelist-based HTML-sanitizing tool.',
-    long_description=open('README.rst').read(),
+    long_description=get_long_desc(),
     maintainer='Jannis Leidel, Will Kahn-Greene',
     url='http://github.com/mozilla/bleach',
     license='Apache Software License',

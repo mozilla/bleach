@@ -100,7 +100,21 @@ DEFAULT_CALLBACKS = [linkify_callbacks.nofollow]
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
           styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
           strip_comments=True):
-    """Clean an HTML fragment and return it"""
+    """Clean an HTML fragment and return it
+
+    :arg text: the text to clean
+    :arg tags: whitelist of allowed tags; defaults to
+        ``bleach.ALLOWED_TAGS``
+    :arg attributes: whitelist of allowed attributes; defaults to
+        ``bleach.ALLOWED_ATTRIBUTES``
+    :arg styles: whitelist of allowed css; defaults to
+        ``bleach.ALLOWED_STYLES``
+    :arg protocols: whitelist of allowed protocols for links; defaults
+        to ``bleach.ALLOWED_PROTOCOLS``
+    :arg strip: whether or not to strip disallowed elements
+    :arg strip_comments: whether or not to strip HTML comments
+
+    """
     if not text:
         return ''
 
