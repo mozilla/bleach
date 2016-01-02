@@ -93,10 +93,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if is_py_2:
-        from codecs import open as open_c
+        from codecs import open as open_with_codec
         from codecs import getwriter
     else:
-        open_c = open
+        open_with_codec = open
 
     if not args.filename:
         # get suffix list from
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
         contents = StringIO(response.read().decode('utf-8'))
     else:
-        contents = open_c(args.filename, "r", encoding="utf-8")
+        contents = open_with_codec(args.filename, "r", encoding="utf-8")
 
     suffix_list = read_suffix_list(contents)
     contents.close()
@@ -128,7 +128,7 @@ if __name__ == "__main__":
         else:
             out = stdout
     else:
-        out = open_c(args.output, "w", encoding="utf-8")
+        out = open_with_codec(args.output, "w", encoding="utf-8")
 
     write_suffix_py(out, suffix_list)
     out.close()
