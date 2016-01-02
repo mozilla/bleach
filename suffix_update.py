@@ -1,3 +1,17 @@
+'''
+Parse public suffix list and generate suffix regular expression
+
+Usage: python suffix_update.py bleach/suffix.py
+
+It will fetch public suffix list from
+"https://publicsuffix.org/list/public_suffix_list.dat" and
+generate python script contains suffix regular expression into
+"bleach/sffix.py"
+
+To see detail usage, please run "python suffix_update.py --help".
+
+This script use `argparse`. To run this script need python > 2.6.
+'''
 import sys
 is_py_2 = sys.version_info[0] == 2
 
