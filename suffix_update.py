@@ -18,7 +18,9 @@ def read_suffix_list(content):
             encoded = suffix.encode('idna').decode('ascii')
             if suffix != encoded:
                 idna_encoded_suffix_list.append(encoded)
-        except Exception:
+        except UnicodeDecodeError:
+            # When unicode decode error occured...
+            # ignore it.
             pass
 
     idna_encoded_suffix_list.sort()
