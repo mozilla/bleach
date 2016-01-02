@@ -32,32 +32,32 @@ def read_suffix_list(content):
     return suffix_list
 
 
-def write_suffix_py(o, suffix_list):
+def write_suffix_py(out, suffix_list):
     '''
     Write suffix list as python source.
     '''
-    o.write("# -*- coding: utf-8 -*-\n"
-            "from __future__ import unicode_literals\n\n")
+    out.write("# -*- coding: utf-8 -*-\n"
+              "from __future__ import unicode_literals\n\n")
 
     def write(var_begin, suffix_lst, end, line_acc, process, process_elem):
         first_line_max_length = 79 - len(var_begin)
         line_max_length = first_line_max_length
         one_line_max_length = first_line_max_length
         count, tmp, indent = 0, [], 0
-        o.write(var_begin)
+        out.write(var_begin)
         for suffix in suffix_lst:
             processed_elem, length = process_elem(suffix)
             length += len(processed_elem)
             if count + len(processed_elem) + line_acc >= line_max_length:
-                o.write((' ' * indent + process(tmp, indent == 0)))
-                o.write('\n')
+                out.write((' ' * indent + process(tmp, indent == 0)))
+                out.write('\n')
                 tmp, count, indent = [], 0, len(var_begin)
                 line_max_length = one_line_max_length
             tmp.append(processed_elem)
             count += length
         if tmp:
-            o.write(' ' * indent + process(tmp, indent == 0))
-        o.write(end)
+            out.write(' ' * indent + process(tmp, indent == 0))
+        out.write(end)
 
     # Write suffixes list.
     #
@@ -65,7 +65,7 @@ def write_suffix_py(o, suffix_list):
     #       lambda x, f: ', '.join(x) + ',',
     #       lambda x: ('"%s"' % x, 2))
 
-    # o.write('\n\n')
+    # out.write('\n\n')
 
     # write public suffixes Regular Expression.
     suffix_list = list(map(lambda x: x.replace('.', '\\.')
@@ -76,7 +76,7 @@ def write_suffix_py(o, suffix_list):
     write('SUFFIXES_RE = (', suffix_list, ')', 3,
           lambda x, f: ('"%s"' if f else '"|%s"') % '|'.join(x),
           lambda x: (x, 1))
-    o.write('\n')
+    out.write('\n')
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
@@ -124,11 +124,11 @@ if __name__ == "__main__":
         # use stdout
         from sys import stdout
         if is_py_2:
-            o = getwriter('utf-8')(stdout)
+            out = getwriter('utf-8')(stdout)
         else:
-            o = stdout
+            out = stdout
     else:
-        o = open_c(args.output, "w", encoding="utf-8")
+        out = open_c(args.output, "w", encoding="utf-8")
 
-    write_suffix_py(o, suffix_list)
-    o.close()
+    write_suffix_py(out, suffix_list)
+    out.close()
