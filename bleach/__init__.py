@@ -11,7 +11,7 @@ from html5lib.serializer.htmlserializer import HTMLSerializer
 from . import callbacks as linkify_callbacks
 from .encoding import force_unicode
 from .sanitizer import BleachSanitizer
-from .suffix import SUFFIXES_RE
+from .suffix import SUFFIXES_RE, EXCEPTIONAL_DOMAIN_RE
 
 
 VERSION = (1, 4, 2)
@@ -51,11 +51,12 @@ PROTOCOLS = HTMLSanitizer.acceptable_protocols
 url_re = re.compile(
     r"""\(*  # Match any opening parentheses.
     \b(?<![@.])(?:(?:{0}):/{{0,3}}(?:(?:\w+:)?\w+@)?)?  # http://
-    ([\w-]+\.)+(?:{1})(?:\:\d+)?(?!\.\w)\b   # xx.yy.tld(:##)?
+    ([\w-]+\.)*(?:([\w-]+\.)(?:{1})|(?:{2}))(?:\:\d+)?(?!\.\w)\b
+        # xx.yy.tld(:##)?
     (?:[/?][^\s\{{\}}\|\\\^\[\]`<>"]*)?
         # /path/zz (excluding "unsafe" chars from RFC 1738,
         # except for # and ~, which happen in practice)
-    """.format('|'.join(PROTOCOLS), SUFFIXES_RE),
+    """.format('|'.join(PROTOCOLS), SUFFIXES_RE, EXCEPTIONAL_DOMAIN_RE),
     re.IGNORECASE | re.VERBOSE | re.UNICODE)
 
 proto_re = re.compile(r'^[\w-]+:/{0,3}', re.IGNORECASE)
