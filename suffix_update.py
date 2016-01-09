@@ -64,18 +64,22 @@ def write_suffix_py(out, suffix_list):
         one_line_max_length = first_line_max_length
         count, tmp, indent = 0, [], 0
         out.write(var_begin)
-        for suffix in suffix_lst:
-            processed_elem, length = process_elem(suffix)
-            length += len(processed_elem)
-            if count + len(processed_elem) + line_acc >= line_max_length:
-                out.write((' ' * indent + process(tmp, indent == 0)))
-                out.write('\n')
-                tmp, count, indent = [], 0, len(var_begin)
-                line_max_length = one_line_max_length
-            tmp.append(processed_elem)
-            count += length
-        if tmp:
-            out.write(' ' * indent + process(tmp, indent == 0))
+        if suffix_lst:
+            for suffix in suffix_lst:
+                processed_elem, length = process_elem(suffix)
+                length += len(processed_elem)
+                if count + len(processed_elem) + line_acc >= line_max_length:
+                    out.write((' ' * indent + process(tmp, indent == 0)))
+                    out.write('\n')
+                    tmp, count, indent = [], 0, len(var_begin)
+                    line_max_length = one_line_max_length
+                tmp.append(processed_elem)
+                count += length
+            if tmp:
+                out.write(' ' * indent + process(tmp, indent == 0))
+        else:
+            # write empty string
+            out.write("''")
         out.write(end)
 
     import re
