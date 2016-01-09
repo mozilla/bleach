@@ -16,7 +16,7 @@ import sys
 is_py_2 = sys.version_info[0] == 2
 
 
-def read_suffix_list(content):
+def read_suffix_list(contents):
     '''
     Read and parse suffix list.
     '''
