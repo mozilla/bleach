@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Parse public suffix list and generate suffix regular expression
 
@@ -12,8 +13,18 @@ To see detail usage, please run "python suffix_update.py --help".
 
 This script use `argparse`. To run this script need python > 2.6.
 '''
+from __future__ import unicode_literals
 import sys
 is_py_2 = sys.version_info[0] == 2
+if is_py_2:
+    # for python 2.x
+    from StringIO import StringIO
+    from codecs import open as open_with_codec
+    from codecs import getwriter
+else:
+    # for python 3.x
+    from io import StringIO
+    open_with_codec = open
 
 
 def read_suffix_list(contents):
@@ -139,23 +150,15 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if is_py_2:
-        from codecs import open as open_with_codec
-        from codecs import getwriter
-    else:
-        open_with_codec = open
-
     if not args.filename:
         # get suffix list from
         # https://publicsuffix.org/list/public_suffix_list.dat
         if is_py_2:
             # for python 2.x
             from httplib import HTTPSConnection
-            from StringIO import StringIO
         else:
             # for python 3.x
             from http.client import HTTPSConnection
-            from io import StringIO
         connection = HTTPSConnection('publicsuffix.org')
         connection.request('GET', '/list/public_suffix_list.dat')
         response = connection.getresponse()
@@ -179,3 +182,88 @@ if __name__ == "__main__":
 
     write_suffix_py(out, suffix_list)
     out.close()
+
+# tests...
+from nose.tools import eq_
+
+
+def test_read_list():
+    '''
+    test for read_suffix_list function.
+    '''
+
+    # input, expected result
+    cases = (
+        ('', []),  # empty
+        ('com', sorted(['com'])),  # basic single
+        ('com' '\n'
+         'net', sorted(['com', 'net'])),  # basic multiple
+        ('*.com' '\n'
+         '!example.com', sorted(['*.com', '!example.com'])),  # special case
+        ('// this is comment', []),  # comment only
+        ('com' '\n'
+         '// bd : http://en.wikipedia.org/wiki/.bd' '\n'
+         '*.bd', sorted(['com', '*.bd'])),  # comment with others
+        ('\n'
+         '\n'
+         'com' '\n'
+         'net' '\n', sorted(['com', 'net'])),  # empty lines
+        ('   ', sorted([])),  # whitespaces
+        ('한국', sorted(['한국', 'xn--3e0b707e'])),  # unicode
+    )
+
+    for case in cases:
+        out = read_suffix_list(StringIO(case[0]))
+        eq_(out, case[1])
+
+
+def test_re_gen():
+    '''
+    test for function write_suffix_py
+    '''
+    from tempfile import mkstemp
+    from imp import load_module, find_module
+    from flake8.engine import get_style_guide
+    from os.path import split as path_split, splitext
+
+    def check_file(path, ignore=(), complexity=-1):
+        ''' From flake8.main
+        flake8.main needs setuptools which not required for here
+        and it occurs error on python 2.7, OSX'''
+        ignore = set(ignore)
+        flake8_style = get_style_guide(ignore=ignore,
+                                       max_complexity=complexity)
+        return flake8_style.input_file(path)
+
+    # input, expected SUFFIX_RE, expected EXCEPTIONAL_DOMAIN_RE
+    cases = (
+        (['com'], 'com', ''),  # basic case
+        (['com', 'net'], 'net|com', ''),  # basic case 2 - order
+        (['ac.cr'], 'ac\\.cr', ''),  # escape '.'
+        (['*.com', '!example.com'], 'com', 'example\\.com'),  # special case
+        (['الجزائر', 'الاردن', 'ارامكو', 'اتصالات', 'ابوظبي', 'קום',
+          'ירושלים\.museum', 'հայ', 'қаз', 'упр\.срб', 'укр'],
+         'الجزائر|الاردن|ارامكو|اتصالات|ابوظبي|קום|ירושלים\.museum|հայ|қаз'
+         '|упр\.срб|укр', ''),
+        # long input with unicode- flake8 check
+    )
+
+    for case in cases:
+        temp_file_path = mkstemp('.py')[1]
+        with open_with_codec(temp_file_path, "w", encoding="utf-8") as out:
+            # save generated source file and load it.
+            write_suffix_py(out, case[0])
+            # flush file to load as module
+            out.flush()
+
+            # check flake8 rule
+            check_file(out.name)
+
+            file_dir, file_name = path_split(temp_file_path)
+            file_name, ext = splitext(file_name)
+
+            # test generated regular expression
+            fp, path, desc = find_module(file_name, [file_dir])
+            re_module = load_module(file_name, fp, path, desc)
+            eq_(re_module.SUFFIXES_RE, case[1])
+            eq_(re_module.EXCEPTIONAL_DOMAIN_RE, case[2])

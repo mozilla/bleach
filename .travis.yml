@@ -11,4 +11,5 @@ install:
   - "pip install -r requirements.txt"
 script:
  - nosetests
+ - nosetests suffix_update.py
  - flake8 bleach/ suffix_update.py
