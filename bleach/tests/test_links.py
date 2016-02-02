@@ -470,3 +470,4 @@ def test_skip_pre_child():
     expect = '<pre><code>http://foo.com</code></pre>'
     output = linkify(intext, skip_pre=True)
     eq_(expect, output)
+
