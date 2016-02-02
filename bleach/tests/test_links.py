@@ -462,3 +462,11 @@ def test_remove_first_childlink():
     callbacks = [lambda *a: None]
     eq_(expect,
         linkify('<p><a href="/foo">something</a></p>', callbacks=callbacks))
+
+
+def test_skip_pre_child():
+    """Don't linkify the children of pre tags"""
+    intext = '<pre><code>http://foo.com</code></pre>'
+    expect = '<pre><code>http://foo.com</code></pre>'
+    output = linkify(intext, skip_pre=True)
+    eq_(expect, output)
