@@ -14,6 +14,7 @@ def test_url_re():
         match = url_re.search(s)
         if match:
             assert not match, 'matched {0!s}'.format(s[slice(*match.span())])
+
     yield no_match, 'just what i am looking for...it'
 
 
@@ -45,6 +46,7 @@ def test_trailing_slash():
 
 def test_mangle_link():
     """We can muck with the href attribute of the link."""
+
     def filter_url(attrs, new=False):
         quoted = quote_plus(attrs['href'])
         attrs['href'] = 'http://bouncer/?u={0!s}'.format(quoted)
@@ -70,12 +72,12 @@ def test_email_link():
     tests = (
         ('a james@example.com mailto', False, 'a james@example.com mailto'),
         ('a james@example.com.au mailto', False,
-            'a james@example.com.au mailto'),
+         'a james@example.com.au mailto'),
         ('a <a href="mailto:james@example.com">james@example.com</a> mailto',
-            True, 'a james@example.com mailto'),
+         True, 'a james@example.com mailto'),
         ('aussie <a href="mailto:james@example.com.au">'
-            'james@example.com.au</a> mailto', True,
-            'aussie james@example.com.au mailto'),
+         'james@example.com.au</a> mailto', True,
+         'aussie james@example.com.au mailto'),
         # This is kind of a pathological case. I guess we do our best here.
         ('email to <a href="james@example.com" rel="nofollow">'
          'james@example.com</a>',
@@ -97,14 +99,14 @@ def test_email_link():
 def test_email_link_escaping():
     tests = (
         ('''<a href='mailto:"james"@example.com'>'''
-            '''"james"@example.com</a>''',
-            '"james"@example.com'),
+         '''"james"@example.com</a>''',
+         '"james"@example.com'),
         ('''<a href="mailto:&quot;j'ames&quot;@example.com">'''
-            '''"j'ames"@example.com</a>''',
-            '"j\'ames"@example.com'),
+         '''"j'ames"@example.com</a>''',
+         '"j\'ames"@example.com'),
         ('''<a href='mailto:"ja>mes"@example.com'>'''
-            '''"ja&gt;mes"@example.com</a>''',
-            '"ja>mes"@example.com'),
+         '''"ja&gt;mes"@example.com</a>''',
+         '"ja>mes"@example.com'),
     )
 
     def _check(o, i):
@@ -163,6 +165,7 @@ def test_set_attrs():
 
 def test_only_proto_links():
     """Only create links if there's a protocol."""
+
     def only_proto(attrs, new=False):
         if new and not attrs['_text'].startswith(('http:', 'https:')):
             return None
@@ -176,10 +179,12 @@ def test_only_proto_links():
 
 def test_stop_email():
     """Returning None should prevent a link from being created."""
+
     def no_email(attrs, new=False):
         if attrs['href'].startswith('mailto:'):
             return None
         return attrs
+
     text = 'do not link james@example.com'
     eq_(text, linkify(text, parse_email=True, callbacks=[no_email]))
 
@@ -361,9 +366,9 @@ def test_wrapping_parentheses():
         ('(example.com)', ('(', 'example.com', 'example.com', ')')),
         ('(example.com/)', ('(', 'example.com/', 'example.com/', ')')),
         ('(example.com/foo)', ('(', 'example.com/foo',
-         'example.com/foo', ')')),
+                               'example.com/foo', ')')),
         ('(((example.com/))))', ('(((', 'example.com/)',
-         'example.com/)', ')))')),
+                                 'example.com/)', ')))')),
         ('example.com/))', ('', 'example.com/))', 'example.com/))', '')),
         ('http://en.wikipedia.org/wiki/Test_(assessment)',
          ('', 'en.wikipedia.org/wiki/Test_(assessment)',
@@ -470,3 +475,16 @@ def test_skip_pre_child():
     expect = '<pre><code>http://foo.com</code></pre>'
     output = linkify(intext, skip_pre=True)
     eq_(expect, output)
+
+
+def test_linkify_ignore_more_path():
+    """Ignored closing parentheses if first in the path"""
+    inp1 = '(foo http://bar.com/)'
+    exp1 = '(foo <a href="http://bar.com/" rel="nofollow">http://bar.com/</a>)'
+    out1 = linkify(inp1)
+    eq_(exp1, out1)
+
+    inp2 = '(foo http://bar.com)'
+    exp2 = '(foo <a href="http://bar.com" rel="nofollow">http://bar.com</a>)'
+    out2 = linkify(inp2)
+    eq_(exp2, out2)

@@ -347,6 +347,13 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         if url.startswith('('):
             _wrapping = strip_wrapping_parentheses(url)
             url, open_brackets, close_brackets = _wrapping
+        elif url.endswith('/)'):
+            # This is a very common corner case where the URL is listed
+            # last within a longer text within parentheses.
+            # Example: (check my site at http://foo.bar/)
+            # Do not consider the closing ) as part of the URL.
+            url, open_brackets, close_brackets = url[:-1], 0, 1
+
         end = ''
         m = re.search(punct_re, url)
         if m:
