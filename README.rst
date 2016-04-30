@@ -28,7 +28,7 @@ The version on GitHub_ is the most up-to-date and contains the latest bug
 fixes. You can find full documentation on `ReadTheDocs`_.
 
 :Code:           https://github.com/mozilla/bleach
-:Documentation:  https://bleach.readthedocs.org/
+:Documentation:  https://bleach.readthedocs.io/
 :Issue tracker:  https://github.com/mozilla/bleach/issues
 :IRC:            ``#bleach`` on irc.mozilla.org
 :License:        Apache License v2; see LICENSE file
@@ -77,7 +77,7 @@ Upgrading Bleach
 .. warning::
 
    Before doing any upgrades, read through `Bleach Changes
-   <https://bleach.readthedocs.org/en/latest/changes.html>`_ for backwards
+   <https://bleach.readthedocs.io/en/latest/changes.html>`_ for backwards
    incompatible changes, newer versions, etc.
 
 
@@ -99,7 +99,7 @@ The simplest way to use Bleach is:
 
 .. _html5lib: https://github.com/html5lib/html5lib-python
 .. _GitHub: https://github.com/mozilla/bleach
-.. _ReadTheDocs: http://bleach.readthedocs.org/
+.. _ReadTheDocs: https://bleach.readthedocs.io/
 .. _PyPI: http://pypi.python.org/pypi/bleach
 
 
