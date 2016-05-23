@@ -1,6 +1,12 @@
 Bleach Changes
 ==============
 
+Version 1.4.3
+-------------
+
+- Limit to html5lib >=0.999<0.99999999 because of impending change to
+  sanitizer api. #195
+
 Version 1.4.2
 -------------
 
