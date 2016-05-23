@@ -23,7 +23,7 @@ def get_long_desc():
 
 setup(
     name='bleach',
-    version='1.4.2',
+    version='1.4.3',
     description='An easy whitelist-based HTML-sanitizing tool.',
     long_description=get_long_desc(),
     maintainer='Jannis Leidel, Will Kahn-Greene',

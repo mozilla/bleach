@@ -13,7 +13,7 @@ from .encoding import force_unicode
 from .sanitizer import BleachSanitizer
 
 
-VERSION = (1, 4, 2)
+VERSION = (1, 4, 3)
 __version__ = '.'.join([str(n) for n in VERSION])
 
 __all__ = ['clean', 'linkify']
