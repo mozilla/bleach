@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 install_requires = [
     'six',
-    'html5lib>=0.999',
+    'html5lib>=0.999,<0.99999999',
 ]
 
 try:
