@@ -10,6 +10,7 @@ Contents
    clean
    linkify
    goals
+   dev
    changes
 
 
