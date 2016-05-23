@@ -9,3 +9,6 @@ tox
 
 # Requirements for building docs
 Sphinx
+
+# Requirements for updating package
+twine
