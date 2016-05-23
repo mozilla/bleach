@@ -17,6 +17,15 @@ Version 1.5? (in progress)
   allowed protocols. Thank you, Andreas Malecki! #149
 
 
+Version 1.4.3 (May 23rd, 2016)
+------------------------------
+
+**Changes**
+
+- Limit to html5lib >=0.999<0.99999999 because of impending change to
+  sanitizer api. #195
+
+
 Version 1.4.2 (September 11, 2015)
 ----------------------------------
 
