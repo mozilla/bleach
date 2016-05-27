@@ -1,4 +1,7 @@
+import re
+
 from setuptools import setup, find_packages
+from distutils.util import convert_path
 
 install_requires = [
     'six',
@@ -20,10 +23,26 @@ def get_long_desc():
     desc += open('CHANGES').read()
     return desc
 
+# foolproof way of single-sourcing version as per
+# http://stackoverflow.com/a/24517154/112943
+# Here we use re.search instead of exec to avoid any
+# possibility of side effects in version.py
+version_path = convert_path('bleach/version.py')
+with open(version_path) as version_file:
+    for line in version_file:
+        if line.startswith('VERSION = '):
+            match = re.search(r'[(](\d+), (\d+), (\d+)[)]$', line)
+            __version__ = '{0!s}.{1!s}.{2!s}'.format(
+                match.group(1),
+                match.group(2),
+                match.group(3)
+            )
+            break
+
 
 setup(
     name='bleach',
-    version='1.4.3',
+    version=__version__,
     description='An easy whitelist-based HTML-sanitizing tool.',
     long_description=get_long_desc(),
     maintainer='Jannis Leidel, Will Kahn-Greene',
