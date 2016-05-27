@@ -16,6 +16,9 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
 
     allowed_svg_properties = []
 
+    def _has_unmatched_tag(self):
+        return self.strip_disallowed_element_contents and len(self.unmatched_tags) > 0
+
     def sanitize_token(self, token):
         """Sanitize a token either by HTML-encoding or dropping.
 
@@ -75,7 +78,13 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                                      attrs.items()]
                 return token
             elif self.strip_disallowed_elements:
-                pass
+                if self.strip_disallowed_element_contents:
+                    if token['type'] == tokenTypes['StartTag']:
+                        self.unmatched_tags.append(token['name'])
+                    elif token['type'] == tokenTypes['EndTag']:
+                        if len(self.unmatched_tags) > 0:
+                            if self.unmatched_tags[-1] == token['name']:
+                                del self.unmatched_tags[-1]
             else:
                 if token['type'] == tokenTypes['EndTag']:
                     token['data'] = '</{0!s}>'.format(token['name'])
@@ -92,10 +101,11 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                 del token["name"]
                 return token
         elif token['type'] == tokenTypes['Comment']:
-            if not self.strip_html_comments:
+            if not self.strip_html_comments and not self._has_unmatched_tag():
                 return token
         else:
-            return token
+            if not self._has_unmatched_tag():
+                return token
 
     def sanitize_css(self, style):
         """HTMLSanitizerMixin.sanitize_css replacement.
@@ -139,6 +149,7 @@ class BleachSanitizer(HTMLTokenizer, BleachSanitizerMixin):
         HTMLTokenizer.__init__(self, stream, encoding, parseMeta, useChardet,
                                lowercaseElementName, lowercaseAttrName,
                                **kwargs)
+        self.unmatched_tags = []
 
     def __iter__(self):
         for token in HTMLTokenizer.__iter__(self):
