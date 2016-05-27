@@ -134,6 +134,15 @@ def test_stripping():
         bleach.clean(s, tags=['p', 'a'], strip=True))
 
 
+def test_strip_contents():
+    s = 'a test with scripts<script>console.log("hello")</script>'
+    eq_('a test with scriptsconsole.log("hello")', bleach.clean(s, strip=True))
+    eq_('a test with scripts', bleach.clean(s, strip=True, strip_contents=True))
+
+    s = 'a script inside a div<div>Hello<script>console.log("hello")</script></div>'
+    eq_('a script inside a div', bleach.clean(s, strip=True, strip_contents=True))
+
+
 def test_allowed_styles():
     ATTR = ['style']
     STYLE = ['color']
