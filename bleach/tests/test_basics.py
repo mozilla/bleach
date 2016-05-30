@@ -142,6 +142,13 @@ def test_strip_contents():
     s = 'a script inside a div<div>Hello<script>console.log("hello")</script></div>'
     eq_('a script inside a div', bleach.clean(s, strip=True, strip_contents=True))
 
+    s = '''
+<script type="text/javascript">// <![CDATA[
+console.log('<a class="" href="" target=""><i class=""></i></a><a class=""><i class=""></i></a>');
+// ]]></script>
+'''
+    eq_('\n\n', bleach.clean(s, strip=True, strip_contents=True))
+
 
 def test_allowed_styles():
     ATTR = ['style']

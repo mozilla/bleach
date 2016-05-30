@@ -37,7 +37,7 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
 
         if token['type'] in (tokenTypes['StartTag'], tokenTypes['EndTag'],
                              tokenTypes['EmptyTag']):
-            if token['name'] in self.allowed_elements:
+            if token['name'] in self.allowed_elements and not self._has_unmatched_tag():
                 if 'data' in token:
                     if isinstance(self.allowed_attributes, dict):
                         allowed_attributes = self.allowed_attributes.get(
