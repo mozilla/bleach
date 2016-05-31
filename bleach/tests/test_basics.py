@@ -137,14 +137,18 @@ def test_stripping():
 def test_strip_contents():
     s = 'a test with scripts<script>console.log("hello")</script>'
     eq_('a test with scriptsconsole.log("hello")', bleach.clean(s, strip=True))
-    eq_('a test with scripts', bleach.clean(s, strip=True, strip_contents=True))
+    eq_('a test with scripts', bleach.clean(s, strip=True,
+                                            strip_contents=True))
 
-    s = 'a script inside a div<div>Hello<script>console.log("hello")</script></div>'
-    eq_('a script inside a div', bleach.clean(s, strip=True, strip_contents=True))
+    s = ('a script inside a div<div>Hello<script>console.log("hello")'
+         '</script></div>')
+    eq_('a script inside a div', bleach.clean(s, strip=True,
+                                              strip_contents=True))
 
     s = '''
 <script type="text/javascript">// <![CDATA[
-console.log('<a class="" href="" target=""><i class=""></i></a><a class=""><i class=""></i></a>');
+console.log('<a class="" href="" target=""><i class=""></i></a><a class="">
+<i class=""></i></a>');
 // ]]></script>
 '''
     eq_('\n\n', bleach.clean(s, strip=True, strip_contents=True))

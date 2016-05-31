@@ -17,7 +17,8 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
     allowed_svg_properties = []
 
     def _has_unmatched_tag(self):
-        return self.strip_disallowed_element_contents and len(self.unmatched_tags) > 0
+        return (self.strip_disallowed_element_contents
+                and len(self.unmatched_tags) > 0)
 
     def sanitize_token(self, token):
         """Sanitize a token either by HTML-encoding or dropping.
@@ -37,7 +38,8 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
 
         if token['type'] in (tokenTypes['StartTag'], tokenTypes['EndTag'],
                              tokenTypes['EmptyTag']):
-            if token['name'] in self.allowed_elements and not self._has_unmatched_tag():
+            if (token['name'] in self.allowed_elements and
+                    not self._has_unmatched_tag()):
                 if 'data' in token:
                     if isinstance(self.allowed_attributes, dict):
                         allowed_attributes = self.allowed_attributes.get(
