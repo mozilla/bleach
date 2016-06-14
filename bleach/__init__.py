@@ -21,7 +21,8 @@ from .version import __version__, VERSION # flake8: noqa
 
 __all__ = ['clean', 'linkify']
 
-log = logging.getLogger(__name__).addHandler(NullHandler())
+log = logging.getLogger(__name__)
+log.addHandler(NullHandler())
 
 ALLOWED_TAGS = [
     'a',
