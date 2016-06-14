@@ -344,6 +344,14 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         if url.startswith('('):
             _wrapping = strip_wrapping_parentheses(url)
             url, open_brackets, close_brackets = _wrapping
+        if url.endswith(')') and '(' not in url:
+            # This is a clumsy handling for the case where we have something
+            # like (foo http://example.com) and the ) gets picked up by the
+            # url_re but we don't want it part of the link.
+            new_url = url.rstrip(')')
+            close_brackets += len(url) - len(new_url)
+            url = new_url
+
         end = ''
         m = re.search(punct_re, url)
         if m:
