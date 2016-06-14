@@ -315,7 +315,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                 if node.tag == ETREE_TAG('pre') and skip_pre:
                     linkify_nodes(node, False)
                 elif not (node in _seen):
-                    linkify_nodes(node, True)
+                    linkify_nodes(node, parse_text)
 
             current_child += 1
 
