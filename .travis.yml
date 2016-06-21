@@ -1,15 +1,28 @@
 sudo: false
 language: python
+cache:
+  directories:
+  - "~/.cache/pip"
 python:
- - "2.6"
- - "2.7"
- - "3.2"
- - "3.3"
- - "3.4"
- - "3.5"
- - "pypy"
-install: 
-  - "pip install -r requirements.txt"
+- "2.6"
+- "2.7"
+- "3.2"
+- "3.3"
+- "3.4"
+- "3.5"
+- "pypy"
+install:
+- pip install -r requirements.txt
 script:
- - nosetests
- - flake8 bleach/
+- nosetests
+- flake8 bleach/
+deploy:
+  provider: pypi
+  user: jezdez
+  distributions: sdist bdist_wheel
+  password:
+    secure: TTLpnNBAmRBPe4qITwtM6MRXw3CvGpflnkG6V97oKYL1RJhDXmxIxxImkGyVoT2IR4Oy/jqEikWUCCC3aDoqDnIkkDVriTPmo5PGnS2WgvEmYdcaTIp+RXdKwKhpCVX8ITEuye0iCXYu28vDaySGjnxjlYAP4S0PGPUzh/tn4DY=
+  on:
+    tags: true
+    repo: mozilla/bleach
+    python: "2.7"
