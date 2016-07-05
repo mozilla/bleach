@@ -414,6 +414,10 @@ def test_ports():
         ('http://bar.com:xkcd', ('http://bar.com', ':xkcd')),
         ('http://foo.com:81/bar', ('http://foo.com:81/bar', '')),
         ('http://foo.com:', ('http://foo.com', ':')),
+        ('http://foo.com:\u0663\u0669/', ('http://foo.com',
+                                          ':\u0663\u0669/')),
+        ('http://foo.com:\U0001d7e0\U0001d7d8/', ('http://foo.com',
+                                                  ':\U0001d7e0\U0001d7d8/')),
     )
 
     def check(test, output):
