@@ -11,6 +11,8 @@ Version 1.5? (in progress)
   http, https, irc, mailto, news, gopher, nntp, telnet, webcal, xmpp, callto,
   feed, urn, aim, rsync, tag, ssh, sftp, rtsp, afs, data. #149
 
+- Support for Python 2.6 has been been removed. #206
+
 **Changes**
 
 - clean: Added ``protocols`` to arguments list to let you override the list of
