@@ -1,4 +1,3 @@
-ordereddict
 six
 html5lib>=0.999,<0.99999999
 

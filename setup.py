@@ -3,20 +3,6 @@ import re
 from setuptools import setup, find_packages
 from distutils.util import convert_path
 
-install_requires = [
-    'six',
-    'html5lib>=0.999,<0.99999999',
-]
-
-try:
-    from collections import OrderedDict  # noqa
-except ImportError:
-    # We don't use ordereddict, but html5lib does when you request
-    # alpha-sorted attributes and on Python 2.6 and it doesn't specify it
-    # as a dependency (see
-    # https://github.com/html5lib/html5lib-python/pull/177)
-    install_requires.append('ordereddict')
-
 
 def get_long_desc():
     desc = open('README.rst').read()
@@ -49,7 +35,10 @@ setup(
     include_package_data=True,
     package_data={'': ['README.rst']},
     zip_safe=False,
-    install_requires=install_requires,
+    install_requires=[
+        'six',
+        'html5lib>=0.999,<0.99999999',
+    ],
     tests_require=[
         'nose>=1.3',
     ],
@@ -62,7 +51,6 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.2',
