@@ -85,6 +85,10 @@ def test_email_link():
          'jinkyun@example.com</a>',
          True,
          '<br>jinkyun@example.com'),
+        # Mailto links at the end of a sentence.
+        ('mailto <a href="mailto:james@example.com.au">'
+            'james@example.com.au</a>.', True,
+            'mailto james@example.com.au.'),
     )
 
     def _check(o, p, i):
