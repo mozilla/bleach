@@ -3,7 +3,7 @@ six
 html5lib>=0.999,<0.99999999
 
 # Requirements to run the test suite:
-nose
+pytest>=3.0.3,<4.0
 flake8
 tox
 

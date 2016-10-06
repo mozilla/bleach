@@ -1,31 +1,30 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from nose.tools import eq_
 
 from bleach import clean, linkify
 from bleach.tests.tools import in_
 
 
 def test_japanese_safe_simple():
-    eq_('ヘルプとチュートリアル', clean('ヘルプとチュートリアル'))
-    eq_('ヘルプとチュートリアル', linkify('ヘルプとチュートリアル'))
+    assert 'ヘルプとチュートリアル' == clean('ヘルプとチュートリアル')
+    assert 'ヘルプとチュートリアル' == linkify('ヘルプとチュートリアル')
 
 
 def test_japanese_strip():
-    eq_('<em>ヘルプとチュートリアル</em>',
-        clean('<em>ヘルプとチュートリアル</em>'))
-    eq_('&lt;span&gt;ヘルプとチュートリアル&lt;/span&gt;',
-        clean('<span>ヘルプとチュートリアル</span>'))
+    assert '<em>ヘルプとチュートリアル</em>' == \
+        clean('<em>ヘルプとチュートリアル</em>')
+    assert '&lt;span&gt;ヘルプとチュートリアル&lt;/span&gt;' == \
+        clean('<span>ヘルプとチュートリアル</span>')
 
 
 def test_russian_simple():
-    eq_('Домашняя', clean('Домашняя'))
-    eq_('Домашняя', linkify('Домашняя'))
+    assert 'Домашняя' == clean('Домашняя')
+    assert 'Домашняя' == linkify('Домашняя')
 
 
 def test_mixed():
-    eq_('Домашняяヘルプとチュートリアル',
-        clean('Домашняяヘルプとチュートリアル'))
+    assert 'Домашняяヘルプとチュートリアル' == \
+        clean('Домашняяヘルプとチュートリアル')
 
 
 def test_mixed_linkify():

@@ -1,7 +1,5 @@
 from functools import partial
 
-from nose.tools import eq_
-
 from bleach import clean
 
 
@@ -34,9 +32,9 @@ def test_allowed_css():
 
     def check(i, o, s):
         if '"' in i:
-            eq_(p_double.format(o), clean(p_double.format(i), styles=s))
+            assert p_double.format(o) == clean(p_double.format(i), styles=s)
         else:
-            eq_(p_single.format(o), clean(p_single.format(i), styles=s))
+            assert p_single.format(o) == clean(p_single.format(i), styles=s)
 
     for i, o, s in tests:
         yield check, i, o, s
@@ -45,10 +43,10 @@ def test_allowed_css():
 def test_valid_css():
     """The sanitizer should fix missing CSS values."""
     styles = ['color', 'float']
-    eq_('<p style="float: left;">foo</p>',
-        clean('<p style="float: left; color: ">foo</p>', styles=styles))
-    eq_('<p style="">foo</p>',
-        clean('<p style="color: float: left;">foo</p>', styles=styles))
+    assert '<p style="float: left;">foo</p>' == \
+        clean('<p style="float: left; color: ">foo</p>', styles=styles)
+    assert '<p style="">foo</p>' == \
+        clean('<p style="color: float: left;">foo</p>', styles=styles)
 
 
 def test_style_hang():
@@ -91,4 +89,4 @@ def test_style_hang():
                 """Hello world</p>""")
 
     result = clean(html, styles=styles)
-    eq_(expected, result)
+    assert expected == result
