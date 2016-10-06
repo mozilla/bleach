@@ -51,9 +51,8 @@ setup(
     zip_safe=False,
     install_requires=install_requires,
     tests_require=[
-        'nose>=1.3',
+        'pytest>=3.0.3,<4.0',
     ],
-    test_suite='nose.collector',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
