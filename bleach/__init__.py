@@ -246,6 +246,8 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
         current_child = -1
         # start at -1 to process the parent first
         while current_child < len(tree):
+            if not tree.text:
+                return
             if current_child < 0:
                 node = tree
                 if parse_text and node.text:
