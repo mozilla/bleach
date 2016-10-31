@@ -473,11 +473,18 @@ def test_parentheses_with_removing():
 
 
 @pytest.mark.parametrize('data,expected_data', [
+    # Test valid ports
     ('http://foo.com:8000', ('http://foo.com:8000', '')),
     ('http://foo.com:8000/', ('http://foo.com:8000/', '')),
+
+    # Test non ports
     ('http://bar.com:xkcd', ('http://bar.com', ':xkcd')),
     ('http://foo.com:81/bar', ('http://foo.com:81/bar', '')),
     ('http://foo.com:', ('http://foo.com', ':')),
+
+    # Test non-ascii ports
+    ('http://foo.com:\u0663\u0669/', ('http://foo.com', ':\u0663\u0669/')),
+    ('http://foo.com:\U0001d7e0\U0001d7d8/', ('http://foo.com', ':\U0001d7e0\U0001d7d8/')),
 ])
 def test_ports(data, expected_data):
     """URLs can contain port numbers."""
