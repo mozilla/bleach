@@ -15,6 +15,12 @@ Version 1.5? (in progress)
 
 - clean: Added ``protocols`` to arguments list to let you override the list of
   allowed protocols. Thank you, Andreas Malecki! #149
+- linkify: Fix a bug involving periods at the end of an email address. Thank you,
+  Lorenz Schori! #219
+- linkify: Fix linkification of non-ascii ports. Thank you Alexandre, Macabies!
+  #207
+- Fixed a test that failed periodically. #161
+- Switched from nose to py.test.
 
 
 Version 1.4.3 (May 23rd, 2016)

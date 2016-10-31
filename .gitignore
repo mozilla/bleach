@@ -8,3 +8,4 @@ dist
 build
 .tox
 docs/_build/
+.cache
