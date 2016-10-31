@@ -106,7 +106,13 @@ def test_mangle_text():
         '<br>jinkyun@example.com',
         True,
         '<br><a href="mailto:jinkyun@example.com">jinkyun@example.com</a>'
-    )
+    ),
+    # Mailto links at the end of a sentence.
+    (
+        'mailto james@example.com.au.',
+        True,
+        'mailto <a href="mailto:james@example.com.au">james@example.com.au</a>.'
+    ),
 ])
 def test_email_link(data, parse_email, expected):
     assert linkify(data, parse_email=parse_email) == expected
