@@ -193,8 +193,12 @@ def test_idempotent():
     clean = bleach.clean(dirty)
     assert bleach.clean(clean) == clean
 
+    possible_outs = (
+        '<span>invalid &amp; </span> &lt; extra <a rel="nofollow" href="http://link.com">http://link.com</a><em></em>',
+        '<span>invalid &amp; </span> &lt; extra <a href="http://link.com" rel="nofollow">http://link.com</a><em></em>'
+    )
     linked = bleach.linkify(dirty)
-    assert bleach.linkify(linked) == linked
+    assert bleach.linkify(linked) in possible_outs
 
 
 def test_rel_already_there():
