@@ -5,12 +5,12 @@ six==1.10.0
 html5lib>=0.999,<0.99999999
  
 # Requirements to run the test suite:
-pytest==2.9.2
-flake8==2.6.0
-tox==2.3.1
+pytest==3.0.3
+flake8==3.0.4
+tox==2.4.1
  
 # Requirements for building docs
-Sphinx==1.4.4
+Sphinx==1.4.8
  
 # Requirements for updating package
-twine==1.6.5
+twine==1.8.1
