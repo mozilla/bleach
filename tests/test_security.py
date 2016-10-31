@@ -1,90 +1,118 @@
 """More advanced security tests"""
 
-from nose.tools import eq_
-
 from bleach import clean
 
 
 def test_nested_script_tag():
-    eq_('&lt;&lt;script&gt;script&gt;evil()&lt;&lt;/script&gt;/script&gt;',
-        clean('<<script>script>evil()<</script>/script>'))
-    eq_('&lt;&lt;x&gt;script&gt;evil()&lt;&lt;/x&gt;/script&gt;',
-        clean('<<x>script>evil()<</x>/script>'))
+    assert (
+        clean('<<script>script>evil()<</script>/script>') ==
+        '&lt;&lt;script&gt;script&gt;evil()&lt;&lt;/script&gt;/script&gt;'
+    )
+    assert (
+        clean('<<x>script>evil()<</x>/script>') ==
+        '&lt;&lt;x&gt;script&gt;evil()&lt;&lt;/x&gt;/script&gt;'
+    )
 
 
 def test_nested_script_tag_r():
-    eq_('&lt;script&lt;script&gt;&gt;evil()&lt;/script&lt;&gt;&gt;',
-        clean('<script<script>>evil()</script</script>>'))
+    assert (
+        clean('<script<script>>evil()</script</script>>') ==
+        '&lt;script&lt;script&gt;&gt;evil()&lt;/script&lt;&gt;&gt;'
+    )
 
 
 def test_invalid_attr():
     IMG = ['img', ]
     IMG_ATTR = ['src']
 
-    eq_('<a href="test">test</a>',
-        clean('<a onclick="evil" href="test">test</a>'))
-    eq_('<img src="test">',
-        clean('<img onclick="evil" src="test" />',
-              tags=IMG, attributes=IMG_ATTR))
-    eq_('<img src="test">',
-        clean('<img href="invalid" src="test" />',
-              tags=IMG, attributes=IMG_ATTR))
+    assert (
+        clean('<a onclick="evil" href="test">test</a>') ==
+        '<a href="test">test</a>'
+    )
+    assert (
+        clean('<img onclick="evil" src="test" />', tags=IMG, attributes=IMG_ATTR) ==
+        '<img src="test">'
+    )
+    assert (
+        clean('<img href="invalid" src="test" />', tags=IMG, attributes=IMG_ATTR) ==
+        '<img src="test">'
+    )
 
 
 def test_unquoted_attr():
-    eq_('<abbr title="mytitle">myabbr</abbr>',
-        clean('<abbr title=mytitle>myabbr</abbr>'))
+    assert (
+        clean('<abbr title=mytitle>myabbr</abbr>') ==
+        '<abbr title="mytitle">myabbr</abbr>'
+    )
 
 
 def test_unquoted_event_handler():
-    eq_('<a href="http://xx.com">xx.com</a>',
-        clean('<a href="http://xx.com" onclick=foo()>xx.com</a>'))
+    assert (
+        clean('<a href="http://xx.com" onclick=foo()>xx.com</a>') ==
+        '<a href="http://xx.com">xx.com</a>'
+    )
 
 
 def test_invalid_attr_value():
-    eq_('&lt;img src="javascript:alert(\'XSS\');"&gt;',
-        clean('<img src="javascript:alert(\'XSS\');">'))
+    assert (
+        clean('<img src="javascript:alert(\'XSS\');">') ==
+        '&lt;img src="javascript:alert(\'XSS\');"&gt;'
+    )
 
 
 def test_invalid_href_attr():
-    eq_('<a>xss</a>',
-        clean('<a href="javascript:alert(\'XSS\')">xss</a>'))
+    assert (
+        clean('<a href="javascript:alert(\'XSS\')">xss</a>') ==
+        '<a>xss</a>'
+    )
 
 
 def test_invalid_filter_attr():
     IMG = ['img', ]
     IMG_ATTR = {'img': lambda n, v: n == 'src' and v == "http://example.com/"}
 
-    eq_('<img src="http://example.com/">',
-        clean('<img onclick="evil" src="http://example.com/" />',
-              tags=IMG, attributes=IMG_ATTR))
-
-    eq_('<img>', clean('<img onclick="evil" src="http://badhost.com/" />',
-                       tags=IMG, attributes=IMG_ATTR))
+    assert (
+        clean('<img onclick="evil" src="http://example.com/" />', tags=IMG, attributes=IMG_ATTR) ==
+        '<img src="http://example.com/">'
+    )
+    assert (
+        clean('<img onclick="evil" src="http://badhost.com/" />', tags=IMG, attributes=IMG_ATTR) ==
+        '<img>'
+    )
 
 
 def test_invalid_tag_char():
-    eq_('&lt;script xss="" src="http://xx.com/xss.js"&gt;&lt;/script&gt;',
-        clean('<script/xss src="http://xx.com/xss.js"></script>'))
-    eq_('&lt;script src="http://xx.com/xss.js"&gt;&lt;/script&gt;',
-        clean('<script/src="http://xx.com/xss.js"></script>'))
+    assert (
+        clean('<script/xss src="http://xx.com/xss.js"></script>') ==
+        '&lt;script xss="" src="http://xx.com/xss.js"&gt;&lt;/script&gt;'
+    )
+    assert (
+        clean('<script/src="http://xx.com/xss.js"></script>') ==
+        '&lt;script src="http://xx.com/xss.js"&gt;&lt;/script&gt;'
+    )
 
 
 def test_unclosed_tag():
-    eq_('&lt;script src="http://xx.com/xss.js&amp;lt;b"&gt;',
-        clean('<script src=http://xx.com/xss.js<b>'))
-    eq_('&lt;script src="http://xx.com/xss.js" &lt;b=""&gt;',
-        clean('<script src="http://xx.com/xss.js"<b>'))
-    eq_('&lt;script src="http://xx.com/xss.js" &lt;b=""&gt;',
-        clean('<script src="http://xx.com/xss.js" <b>'))
+    assert (
+        clean('<script src=http://xx.com/xss.js<b>') ==
+        '&lt;script src="http://xx.com/xss.js&amp;lt;b"&gt;'
+    )
+    assert (
+        clean('<script src="http://xx.com/xss.js"<b>') ==
+        '&lt;script src="http://xx.com/xss.js" &lt;b=""&gt;'
+    )
+    assert (
+        clean('<script src="http://xx.com/xss.js" <b>') ==
+        '&lt;script src="http://xx.com/xss.js" &lt;b=""&gt;'
+    )
 
 
 def test_strip():
     """Using strip=True shouldn't result in malicious content."""
     s = '<scri<script>pt>alert(1)</scr</script>ipt>'
-    eq_('pt&gt;alert(1)ipt&gt;', clean(s, strip=True))
+    assert clean(s, strip=True) == 'pt&gt;alert(1)ipt&gt;'
     s = '<scri<scri<script>pt>pt>alert(1)</script>'
-    eq_('pt&gt;pt&gt;alert(1)', clean(s, strip=True))
+    assert clean(s, strip=True) == 'pt&gt;pt&gt;alert(1)'
 
 
 def test_nasty():
@@ -94,7 +122,7 @@ def test_nasty():
     expect = ('&lt;scr&lt;script&gt;&lt;/script&gt;ipt type="text/javascript"'
               '&gt;alert("foo");&lt;/script&gt;script&lt;del&gt;&lt;/del&gt;'
               '&gt;')
-    eq_(expect, clean(test))
+    assert clean(test) == expect
 
 
 def test_poster_attribute():
@@ -102,11 +130,10 @@ def test_poster_attribute():
     tags = ['video']
     attrs = {'video': ['poster']}
     test = '<video poster="javascript:alert(1)"></video>'
-    expect = '<video></video>'
-    eq_(expect, clean(test, tags=tags, attributes=attrs))
+    assert clean(test, tags=tags, attributes=attrs) == '<video></video>'
     ok = '<video poster="/foo.png"></video>'
-    eq_(ok, clean(ok, tags=tags, attributes=attrs))
+    assert clean(ok, tags=tags, attributes=attrs) == ok
 
 
 def test_feed_protocol():
-    eq_('<a>foo</a>', clean('<a href="feed:file:///tmp/foo">foo</a>'))
+    assert clean('<a href="feed:file:///tmp/foo">foo</a>') == '<a>foo</a>'
