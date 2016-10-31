@@ -1,14 +1,16 @@
-ordereddict
-six
+-e .
+
+ordereddict==1.1
+six==1.10.0
 html5lib>=0.999,<0.99999999
-
+ 
 # Requirements to run the test suite:
-nose
-flake8
-tox
-
+pytest==3.0.3
+flake8==3.0.4
+tox==2.4.1
+ 
 # Requirements for building docs
-Sphinx
-
+Sphinx==1.4.8
+ 
 # Requirements for updating package
-twine
+twine==1.8.1
