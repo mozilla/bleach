@@ -1,6 +1,6 @@
 from functools import partial
 
-from nose.tools import eq_
+import pytest
 
 from bleach import clean
 
@@ -8,47 +8,85 @@ from bleach import clean
 clean = partial(clean, tags=['p'], attributes=['style'])
 
 
-def test_allowed_css():
-    tests = (
-        ('font-family: Arial; color: red; float: left; '
-         'background-color: red;', 'color: red;', ['color']),
-        ('border: 1px solid blue; color: red; float: left;', 'color: red;',
-         ['color']),
-        ('border: 1px solid blue; color: red; float: left;',
-         'color: red; float: left;', ['color', 'float']),
-        ('color: red; float: left; padding: 1em;', 'color: red; float: left;',
-         ['color', 'float']),
-        ('color: red; float: left; padding: 1em;', 'color: red;', ['color']),
-        ('cursor: -moz-grab;', 'cursor: -moz-grab;', ['cursor']),
-        ('color: hsl(30,100%,50%);', 'color: hsl(30,100%,50%);', ['color']),
-        ('color: rgba(255,0,0,0.4);', 'color: rgba(255,0,0,0.4);', ['color']),
-        ("text-overflow: ',' ellipsis;", "text-overflow: ',' ellipsis;",
-         ['text-overflow']),
-        ('text-overflow: "," ellipsis;', 'text-overflow: "," ellipsis;',
-         ['text-overflow']),
-        ('font-family: "Arial";', 'font-family: "Arial";', ['font-family']),
-    )
+@pytest.mark.parametrize('data,styles,expected', [
+    (
+        'font-family: Arial; color: red; float: left; background-color: red;',
+        ['color'],
+        'color: red;'
+    ),
+    (
+        'border: 1px solid blue; color: red; float: left;',
+        ['color'],
+        'color: red;'
+    ),
+    (
+        'border: 1px solid blue; color: red; float: left;',
+        ['color', 'float'],
+        'color: red; float: left;'
+    ),
+    (
+        'color: red; float: left; padding: 1em;',
+        ['color', 'float'],
+        'color: red; float: left;'
+    ),
+    (
+        'color: red; float: left; padding: 1em;',
+        ['color'],
+        'color: red;'
+    ),
+    (
+        'cursor: -moz-grab;',
+        ['cursor'],
+        'cursor: -moz-grab;'
+    ),
+    (
+        'color: hsl(30,100%,50%);',
+        ['color'],
+        'color: hsl(30,100%,50%);'
+    ),
+    (
+        'color: rgba(255,0,0,0.4);',
+        ['color'],
+        'color: rgba(255,0,0,0.4);'
+    ),
+    (
+        "text-overflow: ',' ellipsis;",
+        ['text-overflow'],
+        "text-overflow: ',' ellipsis;"
+    ),
+    (
+        'text-overflow: "," ellipsis;',
+        ['text-overflow'],
+        'text-overflow: "," ellipsis;'
+    ),
+    (
+        'font-family: "Arial";',
+        ['font-family'],
+        'font-family: "Arial";'
+    ),
+])
+def test_allowed_css(data, styles, expected):
 
     p_single = '<p style="{0!s}">bar</p>'
     p_double = "<p style='{0!s}'>bar</p>"
 
-    def check(i, o, s):
-        if '"' in i:
-            eq_(p_double.format(o), clean(p_double.format(i), styles=s))
-        else:
-            eq_(p_single.format(o), clean(p_single.format(i), styles=s))
-
-    for i, o, s in tests:
-        yield check, i, o, s
+    if '"' in data:
+        assert clean(p_double.format(data), styles=styles) == p_double.format(expected)
+    else:
+        assert clean(p_single.format(data), styles=styles) == p_single.format(expected)
 
 
 def test_valid_css():
     """The sanitizer should fix missing CSS values."""
     styles = ['color', 'float']
-    eq_('<p style="float: left;">foo</p>',
-        clean('<p style="float: left; color: ">foo</p>', styles=styles))
-    eq_('<p style="">foo</p>',
-        clean('<p style="color: float: left;">foo</p>', styles=styles))
+    assert (
+        clean('<p style="float: left; color: ">foo</p>', styles=styles) ==
+        '<p style="float: left;">foo</p>'
+    )
+    assert (
+        clean('<p style="color: float: left;">foo</p>', styles=styles) ==
+        '<p style="">foo</p>'
+    )
 
 
 def test_style_hang():
@@ -90,5 +128,4 @@ def test_style_hang():
                 """100%/normal 'Courier New', 'Andale Mono', monospace;">"""
                 """Hello world</p>""")
 
-    result = clean(html, styles=styles)
-    eq_(expected, result)
+    assert clean(html, styles=styles) == expected
