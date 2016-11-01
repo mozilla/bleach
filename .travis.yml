@@ -13,8 +13,6 @@ python:
 - "pypy"
 env:
 - HTML5LIB=0.999       # 3
-- HTML5LIB=0.9999      # 4
-- HTML5LIB=0.99999     # 5
 - HTML5LIB=0.999999    # 6
 - HTML5LIB=0.9999999   # 7
 matrix:

@@ -20,7 +20,10 @@ Version 1.5? (in progress)
 - linkify: Fix linkification of non-ascii ports. Thank you Alexandre, Macabies!
   #207
 - Fixed a test that failed periodically. #161
-- Switched from nose to py.test.
+- Switched from nose to py.test. #204
+- Add test matrix for all supported Python and html5lib versions. #230
+- Limit to html5lib ``>=0.999,!=0.9999,!=0.99999,<0.99999999`` because 0.9999
+  and 0.99999 are busted.
 
 
 Version 1.4.3 (May 23rd, 2016)
@@ -28,7 +31,7 @@ Version 1.4.3 (May 23rd, 2016)
 
 **Changes**
 
-- Limit to html5lib >=0.999<0.99999999 because of impending change to
+- Limit to html5lib ``>=0.999,<0.99999999`` because of impending change to
   sanitizer api. #195
 
 
@@ -37,7 +40,7 @@ Version 1.4.2 (September 11, 2015)
 
 **Changes**
 
-- linkify: Fix hang in linkify with parse_email=True. #124
+- linkify: Fix hang in linkify with ``parse_email=True``. #124
 - linkify: Fix crash in linkify when removing a link that is a first-child. #136
 - Updated TLDs.
 - linkify: Don't remove exterior brackets when linkifying. #146
@@ -58,7 +61,7 @@ Version 1.4 (January 12, 2014)
 **Changes**
 
 - linkify: Update linkify to use etree type Treewalker instead of simpletree.
-- Updated html5lib to version >= 0.999.
+- Updated html5lib to version ``>=0.999``.
 - Update all code to be compatible with Python 3 and 2 using six.
 - Switch to Apache License.
 
@@ -77,7 +80,7 @@ Version 1.2.2 (May 18, 2013)
 Version 1.2.1 (February 19, 2013)
 ---------------------------------
 
-- clean() no longer considers "feed:" an acceptable protocol due to
+- clean() no longer considers ``feed:`` an acceptable protocol due to
   inconsistencies in browser behavior.
 
 

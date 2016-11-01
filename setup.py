@@ -5,7 +5,9 @@ from distutils.util import convert_path
 
 install_requires = [
     'six',
-    'html5lib>=0.999,<0.99999999',  # 3 9s to 8 9s
+    # 3 9s up to but not including 8 9s, but not 4 9s or 5 9s because they're
+    # busted
+    'html5lib>=0.999,!=0.9999,!=0.99999,<0.99999999',
 ]
 
 try:
