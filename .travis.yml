@@ -11,12 +11,19 @@ python:
 - "3.4"
 - "3.5"
 - "pypy"
+env:
+- HTML5LIB=0.999       # 3
+- HTML5LIB=0.9999      # 4
+- HTML5LIB=0.99999     # 5
+- HTML5LIB=0.999999    # 6
+- HTML5LIB=0.9999999   # 7
 matrix:
   allow_failures:
   - python: "2.6"
   - python: "3.2"
 install:
 - pip install -r requirements.txt
+- pip install html5lib==$HTML5LIB
 script:
 - py.test
 - flake8 bleach/
