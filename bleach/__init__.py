@@ -148,8 +148,8 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
             parse_email=False, tokenizer=HTMLSanitizer):
     """Convert URL-like strings in an HTML fragment to links
 
-    ``linkify()`` converts strings that look like URLs or domain names in a
-    blob of text that may be an HTML fragment to links, while preserving:
+    ``linkify()`` converts strings that look like URLs, domain names and email
+    addresses in text that may be an HTML fragment to links, while preserving:
 
     1. links already in the string
     2. urls found in attributes

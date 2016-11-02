@@ -45,7 +45,7 @@ content, and will use the HTML5 parsing algorithm to handle invalid markup.
 See the :ref:`chapter on clean() <clean-chapter>` for more info.
 
 
-Safely create cinks
+Safely create links
 -------------------
 
 The secondary goal of Bleach is to provide a mechanism for finding or altering
