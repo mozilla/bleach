@@ -24,6 +24,7 @@ Version 1.5? (in progress)
 - Add test matrix for all supported Python and html5lib versions. #230
 - Limit to html5lib ``>=0.999,!=0.9999,!=0.99999,<0.99999999`` because 0.9999
   and 0.99999 are busted.
+- Add support for ``python setup.py test``. #97
 
 
 Version 1.4.3 (May 23rd, 2016)
