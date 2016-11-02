@@ -1,8 +1,18 @@
 import re
+import sys
 
 from setuptools import setup, find_packages
 from distutils.util import convert_path
 
+setup_requires = []
+if 'test' in sys.argv:
+    # Only add pytest-runner to setup_requires if running tests
+    setup_requires.append('pytest-runner>=2.0,<3dev')
+
+tests_require = [
+    'pytest==3.0.3',
+]
+    
 install_requires = [
     'six',
     # 3 9s up to but not including 8 9s, but not 4 9s or 5 9s because they're
@@ -52,6 +62,8 @@ setup(
     package_data={'': ['README.rst']},
     zip_safe=False,
     install_requires=install_requires,
+    setup_requires=setup_requires,
+    tests_require=tests_require,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',

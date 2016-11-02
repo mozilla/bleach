@@ -8,4 +8,5 @@ dist
 build
 .tox
 docs/_build/
-.cache
+.cache/
+.eggs/
