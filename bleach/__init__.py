@@ -104,7 +104,14 @@ DEFAULT_CALLBACKS = [linkify_callbacks.nofollow]
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
           styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
           strip_comments=True):
-    """Clean an HTML fragment and return it
+    """Clean an HTML fragment of malicious content and return it
+
+    This function is a security-focused function whose sole purpose is to
+    remove malicious content from a string such that it can be displayed as
+    content in a web page.
+
+    This function is not designed to use to transform content to be used in
+    non-web-page contexts.
 
     :arg text: the text to clean
     :arg tags: whitelist of allowed tags; defaults to
@@ -139,12 +146,18 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
 def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
             parse_email=False, tokenizer=HTMLSanitizer):
-    """Convert URL-like strings in an HTML fragment to links.
+    """Convert URL-like strings in an HTML fragment to links
 
-    linkify() converts strings that look like URLs or domain names in a
-    blob of text that may be an HTML fragment to links, while preserving
-    (a) links already in the string, (b) urls found in attributes, and
-    (c) email addresses.
+    ``linkify()`` converts strings that look like URLs or domain names in a
+    blob of text that may be an HTML fragment to links, while preserving:
+
+    1. links already in the string
+    2. urls found in attributes
+    3. email addresses
+
+    ``linkify()`` does a best-effort approach and tries to recover from bad
+    situations due to crazy text.
+
     """
     text = force_unicode(text)
 
