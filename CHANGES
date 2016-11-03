@@ -19,6 +19,8 @@ Version 1.5? (in progress)
   Lorenz Schori! #219
 - linkify: Fix linkification of non-ascii ports. Thank you Alexandre, Macabies!
   #207
+- linkify: Fix linkify inappropriately removing node tails when dropping nodes.
+  #132
 - Fixed a test that failed periodically. #161
 - Switched from nose to py.test. #204
 - Add test matrix for all supported Python and html5lib versions. #230
