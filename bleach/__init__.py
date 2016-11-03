@@ -170,30 +170,44 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
     _seen = set([])
 
     def replace_nodes(tree, new_frag, node, index=0):
-        """
-        Doesn't really replace nodes, but inserts the nodes contained in
-        new_frag into the treee at position index and returns the number
+        """Doesn't really replace nodes, but inserts the nodes contained in
+        ``new_frag`` into ``tree`` at position ``index`` and returns the number
         of nodes inserted.
-        If node is passed in, it is removed from the tree
+
+        If ``node`` is passed in, it is removed from the resulting tree.
+
+        :arg tree: tree
+        :arg new_frag: fragment of html text to insert
+        :arg node: the node to "replace"
+        :arg index: the index position to focus on
+
+        :returns: number of nodes inserted so that you can skip ahead
+
         """
         count = 0
         new_tree = parser.parseFragment(new_frag)
         # capture any non-tag text at the start of the fragment
         if new_tree.text:
             if index == 0:
-                tree.text = tree.text or ''
-                tree.text += new_tree.text
+                tree.text = (tree.text or '') + new_tree.text
             else:
-                tree[index - 1].tail = tree[index - 1].tail or ''
-                tree[index - 1].tail += new_tree.text
-        # the put in the tagged elements into the old tree
+                tree[index-1].tail = (tree[index-1].tail or '') + new_tree.text
+
+        # then put in the tagged elements into the old tree
         for n in new_tree:
             if n.tag == ETREE_TAG('a'):
                 _seen.add(n)
             tree.insert(index + count, n)
             count += 1
+
         # if we got a node to remove...
         if node is not None:
+            # first, grab the node tail so we don't lose text
+            if node.tail:
+                if index + count == 0:
+                    tree.text = (tree.text or '') + node.tail
+                else:
+                    tree[index+count-1].tail = (tree[index+count-1].tail or '') + node.tail
             tree.remove(node)
         return count
 
@@ -312,12 +326,11 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                     attrs = apply_callbacks(attrs, False)
 
                     if attrs is None:
-                        # <a> tag replaced by the text within it
-                        adj = replace_nodes(tree, _text, node,
-                                            current_child)
+                        # # <a> tag replaced by the text within it
+                        adj = replace_nodes(tree, _text, node, current_child)
+                        # pull back current_child by 1 to scan the new nodes
+                        # again.
                         current_child -= 1
-                        # pull back current_child by 1 to scan the
-                        # new nodes again.
                     else:
                         text = force_unicode(attrs.pop('_text'))
                         for attr_key, attr_val in attrs.items():

@@ -559,3 +559,12 @@ def test_remove_first_childlink():
         linkify('<p><a href="/foo">something</a></p>', callbacks=callbacks) ==
         '<p>something</p>'
     )
+
+
+def test_drop_link_tags():
+    """Verify that dropping link tags *just* drops the tag and not the content"""
+    html = """first <a href="http://example.com/1/">second</a> third <a href="http://example.com/2/">fourth</a> fifth"""
+    assert (
+        linkify(html, callbacks=[lambda attrs, new: None]) ==
+        'first second third fourth fifth'
+    )
