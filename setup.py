@@ -54,7 +54,7 @@ setup(
     version=get_version(),
     description='An easy whitelist-based HTML-sanitizing tool.',
     long_description=get_long_desc(),
-    maintainer='Jannis Leidel, Will Kahn-Greene',
+    maintainer='Will Kahn-Greene',
     url='http://github.com/mozilla/bleach',
     license='Apache Software License',
     packages=find_packages(),

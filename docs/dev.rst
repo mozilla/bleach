@@ -27,15 +27,14 @@ Release process
 
 1. Checkout master tip.
 
-2. Check to make sure ``setup.py`` and ``requirements.txt``.
+2. Check to make sure ``setup.py`` and ``requirements.txt`` are
+   correct and match requirements-wise.
 
-3. Update version numbers in:
+3. Update version number in:
 
-   * ``setup.py``
-   * ``bleach/__init__.py``
-   * ``docs/confg.py``
+   * ``bleach/version.py``
 
-   Set the version to something like ``0.4``.
+   Set the version to something like ``VERSION = (1, 4, 3)``.
 
 4. Update ``CONTRIBUTORS``, ``CHANGES`` and ``MANIFEST.in``.
 
@@ -57,10 +56,6 @@ Release process
 
      $ git push --tags official master
 
-9. Update PyPI::
+   That will push the release to PyPI.
 
-     $ rm -rf dist
-     $ python setup.py sdist bdist_wheel
-     $ twine upload sdist/*
-
-10. Blog posts, twitter, update topic in ``#bleach``, etc.
+9. Blog posts, twitter, update topic in ``#bleach``, etc.
