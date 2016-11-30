@@ -181,14 +181,16 @@ Default protocols are in ``bleach.ALLOWED_PROTOCOLS``.
 Stripping Markup
 ================
 
-By default, Bleach *escapes* disallowed or invalid markup. For example:
+By default, Bleach *escapes* tags that aren't specified in the tags
+whitelist and invalid markup. For example:
 
 .. doctest::
 
    >>> import bleach
-
    >>> bleach.clean('<span>is not allowed</span>')
    u'&lt;span&gt;is not allowed&lt;/span&gt;'
+   >>> bleach.clean('<b><span>is not allowed</span></b>', tags=['b'])
+   u'<b>&lt;span&gt;is not allowed&lt;/span&gt;</b>'
 
 
 If you would rather Bleach stripped this markup entirely, you can pass
@@ -197,9 +199,10 @@ If you would rather Bleach stripped this markup entirely, you can pass
 .. doctest::
 
    >>> import bleach
-
    >>> bleach.clean('<span>is not allowed</span>', strip=True)
    u'is not allowed'
+   >>> bleach.clean('<b><span>is not allowed</span></b>', tags=['b'], strip=True)
+   u'<b>is not allowed</b>'
 
 
 Stripping Comments
