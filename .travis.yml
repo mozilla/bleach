@@ -4,9 +4,7 @@ cache:
   directories:
   - "~/.cache/pip"
 python:
-- "2.6"
 - "2.7"
-- "3.2"
 - "3.3"
 - "3.4"
 - "3.5"
@@ -15,10 +13,6 @@ env:
 - HTML5LIB=0.999       # 3
 - HTML5LIB=0.999999    # 6
 - HTML5LIB=0.9999999   # 7
-matrix:
-  allow_failures:
-  - python: "2.6"
-  - python: "3.2"
 install:
 - pip install -r requirements.txt
 - pip install html5lib==$HTML5LIB

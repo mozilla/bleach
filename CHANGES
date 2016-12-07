@@ -1,6 +1,15 @@
 Bleach Changes
 ==============
 
+Version 2.0 (in development)
+----------------------------
+
+**Backwards incompatible changes**
+
+- Removed support for Python 2.6. #206
+- Removed support for Python 3.2. #224
+
+
 Version 1.5 (November 4th, 2016)
 --------------------------------
 
