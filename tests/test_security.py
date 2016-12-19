@@ -1,5 +1,10 @@
 """More advanced security tests"""
 
+import os
+
+import pytest
+import six
+
 from bleach import clean
 
 
@@ -137,3 +142,36 @@ def test_poster_attribute():
 
 def test_feed_protocol():
     assert clean('<a href="feed:file:///tmp/foo">foo</a>') == '<a>foo</a>'
+
+
+def get_tests():
+    """Retrieves regression tests from data/ directory"""
+    datadir = os.path.join(os.path.dirname(__file__), 'data')
+    tests = [
+        os.path.join(datadir, fn) for fn in os.listdir(datadir)
+        if fn.endswith('.test')
+    ]
+    # Sort numerically which makes it easier to iterate through them
+    tests.sort(key=lambda x: int(os.path.basename(x).split('.', 1)[0]))
+    return tests
+
+
+@pytest.mark.parametrize('fn', get_tests())
+def test_regressions(fn):
+    """Regression tests for clean so we can see if there are issues"""
+    s = open(fn, 'r').read()
+    expected = six.text_type(open(fn + '.out', 'r').read())
+
+    # NOTE(willkg): This strips input and expected which makes it easier to
+    # maintain the files. If there comes a time when the input needs whitespace
+    # at the beginning or end, then we'll have to figure out something else.
+    assert clean(s.strip()) == expected.strip()
+
+
+def test_regression_manually():
+    """Regression tests for clean so we can see if there are issues"""
+    # NOTE(willkg): Have to do this one by hand because of the \r
+    s = """<IMG SRC="jav&#x0D;ascript:alert(<WBR>'XSS');">"""
+    expected = """&lt;img src="jav\rascript:alert(&amp;lt;WBR&amp;gt;'XSS');"&gt;"""
+
+    assert clean(s) == expected
