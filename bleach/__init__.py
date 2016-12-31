@@ -139,7 +139,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
 
 def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
-            parse_email=False, tokenizer=HTMLSanitizer):
+            parse_email=False, tokenizer=HTMLSanitizer, tag_callbacks={}):
     """Convert URL-like strings in an HTML fragment to links
 
     ``linkify()`` converts strings that look like URLs, domain names and email
@@ -162,6 +162,12 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
 
     forest = parser.parseFragment(text)
     _seen = set([])
+
+    tag_callbacks = {
+        ETREE_TAG(tag): callbacks
+        for tag, callbacks in tag_callbacks.items()
+    }
+
 
     def replace_nodes(tree, new_frag, node, index=0):
         """Doesn't really replace nodes, but inserts the nodes contained in
@@ -254,6 +260,13 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                 return None
         return attrs
 
+    def apply_callbacks_list(attrs, callbacks_lst):
+        for cb in callbacks_lst:
+            attrs = cb(attrs)
+            if attrs is None:
+                return None
+        return attrs
+
     def _render_inner(node):
         out = ['' if node.text is None else node.text]
         for subnode in node:
@@ -337,6 +350,18 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
                         for n in text:
                             node.append(n)
                         _seen.add(node)
+
+            elif node.tag in tag_callbacks and (node not in _seen):
+                attrs = dict(node.items())
+                attrs = apply_callbacks_list(attrs, tag_callbacks[node.tag])
+
+                for attr_key, attr_val in attrs.items():
+                    node.set(attr_key, attr_val)
+
+                for n in reversed(list(node)):
+                    node.remove(n)
+
+                _seen.add(node)
 
             elif current_child >= 0:
                 if node.tag == ETREE_TAG('pre') and skip_pre:
