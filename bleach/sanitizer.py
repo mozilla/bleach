@@ -57,8 +57,9 @@ class BleachSanitizerMixin(HTMLSanitizerMixin):
                         # characters.
                         val_unescaped = val_unescaped.replace("\ufffd", "")
                         if (re.match(r'^[a-z0-9][-+.a-z0-9]*:', val_unescaped)
-                            and (val_unescaped.split(':')[0] not in
-                                 self.allowed_protocols)):
+                                and (val_unescaped.split(':')[0] not in
+                                     self.allowed_protocols)
+                                and val_unescaped.split(':')[0] != 'data'):
                             del attrs[attr]
                     for attr in self.svg_attr_val_allows_ref:
                         if attr in attrs:
