@@ -9,6 +9,10 @@ Version 2.0 (in development)
 - Removed support for Python 2.6. #206
 - Removed support for Python 3.2. #224
 
+**Changes**
+
+- Added testing for Python 3.6.
+
 
 Version 1.5 (November 4th, 2016)
 --------------------------------
