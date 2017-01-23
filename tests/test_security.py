@@ -74,7 +74,9 @@ def test_invalid_href_attr():
 
 def test_invalid_filter_attr():
     IMG = ['img', ]
-    IMG_ATTR = {'img': lambda n, v: n == 'src' and v == "http://example.com/"}
+    IMG_ATTR = {
+        'img': lambda n, v: n == 'src' and v == "http://example.com/"
+    }
 
     assert (
         clean('<img onclick="evil" src="http://example.com/" />', tags=IMG, attributes=IMG_ATTR) ==
@@ -145,7 +147,11 @@ def test_feed_protocol():
 
 
 def get_tests():
-    """Retrieves regression tests from data/ directory"""
+    """Retrieves regression tests from data/ directory
+
+    :returns: list of ``(filename, filedata)`` tuples
+
+    """
     datadir = os.path.join(os.path.dirname(__file__), 'data')
     tests = [
         os.path.join(datadir, fn) for fn in os.listdir(datadir)
@@ -153,19 +159,23 @@ def get_tests():
     ]
     # Sort numerically which makes it easier to iterate through them
     tests.sort(key=lambda x: int(os.path.basename(x).split('.', 1)[0]))
-    return tests
+
+    testcases = [
+        (fn, open(fn, 'r').read()) for fn in tests
+    ]
+
+    return testcases
 
 
-@pytest.mark.parametrize('fn', get_tests())
-def test_regressions(fn):
+@pytest.mark.parametrize('fn, text', get_tests())
+def test_regressions(fn, text):
     """Regression tests for clean so we can see if there are issues"""
-    s = open(fn, 'r').read()
     expected = six.text_type(open(fn + '.out', 'r').read())
 
     # NOTE(willkg): This strips input and expected which makes it easier to
     # maintain the files. If there comes a time when the input needs whitespace
     # at the beginning or end, then we'll have to figure out something else.
-    assert clean(s.strip()) == expected.strip()
+    assert clean(text.strip()) == expected.strip()
 
 
 def test_regression_manually():

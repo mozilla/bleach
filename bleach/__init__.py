@@ -5,13 +5,14 @@ import logging
 import re
 
 import html5lib
-from html5lib.sanitizer import HTMLSanitizer
-from html5lib.serializer.htmlserializer import HTMLSerializer
+from html5lib.filters import sanitizer
+from html5lib.filters.sanitizer import allowed_protocols
+from html5lib.serializer import HTMLSerializer
 
-from . import callbacks as linkify_callbacks
-from .encoding import force_unicode
-from .sanitizer import BleachSanitizer
-from .version import __version__, VERSION # flake8: noqa
+from bleach import callbacks as linkify_callbacks
+from bleach.encoding import force_unicode
+from bleach.sanitizer import BleachSanitizerFilter
+from bleach.version import __version__, VERSION # flake8: noqa
 
 __all__ = ['clean', 'linkify']
 
@@ -60,7 +61,7 @@ TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
 # Make sure that .com doesn't get matched by .co first
 TLDS.reverse()
 
-PROTOCOLS = HTMLSanitizer.acceptable_protocols
+PROTOCOLS = allowed_protocols
 
 url_re = re.compile(
     r"""\(*  # Match any opening parentheses.
@@ -125,21 +126,34 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
     text = force_unicode(text)
 
-    class s(BleachSanitizer):
-        allowed_elements = tags
-        allowed_attributes = attributes
-        allowed_css_properties = styles
-        allowed_protocols = protocols
-        strip_disallowed_elements = strip
-        strip_html_comments = strip_comments
+    parser = html5lib.HTMLParser(namespaceHTMLElements=False)
+    dom = parser.parseFragment(text)
 
-    parser = html5lib.HTMLParser(tokenizer=s)
+    walker = html5lib.getTreeWalker('etree')
+    filtered = BleachSanitizerFilter(
+        source=walker(dom),
+        allowed_attributes_map=attributes,
 
-    return _render(parser.parseFragment(text))
+        allowed_elements=tags,
+        allowed_css_properties=styles,
+        allowed_protocols=protocols,
+
+        allowed_svg_properties=[],
+
+        strip_disallowed_elements=strip,
+        strip_html_comments=strip_comments
+    )
+    s = HTMLSerializer(
+        quote_attr_values='always',
+        alphabetical_attributes=True,
+        omit_optional_tags=False
+    )
+    return s.render(filtered)
 
 
 def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
-            parse_email=False, tokenizer=HTMLSanitizer):
+            # FIXME(willkg): parse_email=False, tokenizer=HTMLSanitizer):
+            parse_email=False):
     """Convert URL-like strings in an HTML fragment to links
 
     ``linkify()`` converts strings that look like URLs, domain names and email
@@ -158,7 +172,8 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
     if not text:
         return ''
 
-    parser = html5lib.HTMLParser(tokenizer=tokenizer)
+    # FIXME(willkg): parser = html5lib.HTMLParser(tokenizer=tokenizer)
+    parser = html5lib.HTMLParser()
 
     forest = parser.parseFragment(text)
     _seen = set([])
@@ -427,7 +442,7 @@ def _render(tree):
 def _serialize(domtree):
     walker = html5lib.treewalkers.getTreeWalker('etree')
     stream = walker(domtree)
-    serializer = HTMLSerializer(quote_attr_values=True,
+    serializer = HTMLSerializer(quote_attr_values='always',
                                 alphabetical_attributes=True,
                                 omit_optional_tags=False)
     return serializer.render(stream)
