@@ -568,3 +568,14 @@ def test_drop_link_tags():
         linkify(html, callbacks=[lambda attrs, new: None]) ==
         'first second third fourth fifth'
     )
+
+
+def test_linkify_replace_img_src():
+    html = '<img src="https://example.com/img.jpg">'
+
+    def replace_img_src(attrs):
+        attrs['src'] = 'https://proxy.example.com?url={}'.format(attrs['src'])
+        return attrs
+
+    replaced = linkify(html, tag_callbacks={'img': [replace_img_src]})
+    assert replaced == '<img src="https://proxy.example.com?url=https://example.com/img.jpg">'
