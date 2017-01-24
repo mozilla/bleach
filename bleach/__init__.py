@@ -5,7 +5,10 @@ import logging
 import re
 
 import html5lib
-from html5lib.sanitizer import HTMLSanitizer
+try:
+    from html5lib.filters.sanitizer import HTMLSanitizer
+except ImportError:
+    from html5lib.sanitizer import HTMLSanitizer
 from html5lib.serializer.htmlserializer import HTMLSerializer
 
 from . import callbacks as linkify_callbacks
