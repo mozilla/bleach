@@ -10,7 +10,7 @@ if 'test' in sys.argv:
     setup_requires.append('pytest-runner>=2.0,<3dev')
 
 tests_require = [
-    'pytest==3.0.3',
+    'pytest>=3.0.0',
 ]
     
 install_requires = [
