@@ -63,9 +63,7 @@ class BleachSanitizerFilter(sanitizer.Filter):
             attrs = {}
             for namespaced_name, val in token['data'].items():
                 namespace, name = namespaced_name
-                # FIXME(willkg): "name" used to be something like "xlink:href"
-                # but it's now (namespace['xlink'], 'href'). we should fix the
-                # name here so it's what the callable would expect.
+
                 if callable(allowed_attributes):
                     if allowed_attributes(name, val):
                         attrs[namespaced_name] = val
@@ -73,12 +71,14 @@ class BleachSanitizerFilter(sanitizer.Filter):
                 elif name in allowed_attributes:
                     attrs[namespaced_name] = val
 
-            # Go through all the uri-type attributes
+            # Handle attributes that have uri values
             for attr in self.attr_val_is_uri:
                 if attr not in attrs:
                     continue
+
                 val_unescaped = re.sub("[`\000-\040\177-\240\s]+", '',
                                        unescape(attrs[attr])).lower()
+
                 # Remove replacement characters from unescaped characters.
                 val_unescaped = val_unescaped.replace("\ufffd", "")
 
@@ -87,17 +87,15 @@ class BleachSanitizerFilter(sanitizer.Filter):
                     # It has a protocol, but it's not allowed--so drop it
                     del attrs[attr]
 
-            # FIXME(willkg): is this right?
             for attr in self.svg_attr_val_allows_ref:
                 if attr in attrs:
                     attrs[attr] = re.sub(r'url\s*\(\s*[^#\s][^)]+?\)',
                                          ' ',
                                          unescape(attrs[attr]))
 
-            # FIXME(willkg): is this right?
             if (token['name'] in self.svg_allow_local_href and
-                    (namespace['xlink'], 'href') in attrs and
-                    re.search(r'^\s*[^#\s].*', attrs[(namespace['xlink'], 'href')])):
+                    (namespaces['xlink'], 'href') in attrs and
+                    re.search(r'^\s*[^#\s].*', attrs[(namespaces['xlink'], 'href')])):
                 del attrs[(namespace['xlink'], 'href')]
 
             # Sanitize css in style attribute

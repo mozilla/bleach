@@ -119,8 +119,7 @@ def test_style_hang():
         'background-color: rgb(246, 246, 242);',
         'overflow-x: auto;',
         'overflow-y: auto;',
-        # FIXME(willkg): This fails the first regxp gauntlet in sanitize_css.
-        # 'font: italic small-caps bolder condensed 16px/3 cursive;',
+        'font: italic small-caps bolder condensed 16px/3 cursive;',
         'background-position: initial initial;',
         'background-repeat: initial initial;'
     ]
@@ -146,7 +145,8 @@ def test_style_hang():
         'padding-right: 15px; '
         'padding-bottom: 15px; '
         'padding-left: 15px; '
-        'background-color: rgb(246, 246, 242);'
+        'background-color: rgb(246, 246, 242); '
+        'font: italic small-caps bolder condensed 16px/3 cursive;'
         '">Hello world</p>'
     )
 

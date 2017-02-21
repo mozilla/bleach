@@ -3,7 +3,6 @@ try:
 except ImportError:
     from urllib import quote_plus
 
-# FIXME(willkg): from html5lib.tokenizer import HTMLTokenizer
 import pytest
 
 from bleach import linkify, url_re, DEFAULT_CALLBACKS as DC
@@ -497,14 +496,6 @@ def test_ports(data, expected_data):
     """URLs can contain port numbers."""
     out = '<a href="{0}" rel="nofollow">{0}</a>{1}'
     assert linkify(data) == out.format(*expected_data)
-
-
-@pytest.mark.xfail(reason='html5lib >= 0.99999999: no access to tokenizer')
-def test_tokenizer():
-    """Linkify doesn't always have to sanitize."""
-    raw = '<em>test<x></x></em>'
-    assert linkify(raw) == '<em>test&lt;x&gt;&lt;/x&gt;</em>'
-    assert linkify(raw, tokenizer=HTMLTokenizer) == raw
 
 
 def test_ignore_bad_protocols():

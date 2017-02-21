@@ -71,12 +71,17 @@ def test_function_arguments():
 
 def test_named_arguments():
     ATTRS = {'a': ['rel', 'href']}
-    s = ('<a href="http://xx.com" rel="alternate">xx.com</a>',
-         '<a rel="alternate" href="http://xx.com">xx.com</a>')
 
-    assert bleach.clean(s[0]) == '<a href="http://xx.com">xx.com</a>'
-    # FIXME: This might not be needed if attribute order is stable now.
-    assert bleach.clean(s[0], attributes=ATTRS) in s
+    text = '<a href="http://xx.com" rel="alternate">xx.com</a>'
+
+    assert bleach.clean(text) == '<a href="http://xx.com">xx.com</a>'
+    assert (
+        bleach.clean(text, attributes=ATTRS) in
+        [
+            '<a href="http://xx.com" rel="alternate">xx.com</a>',
+            '<a rel="alternate" href="http://xx.com">xx.com</a>'
+        ]
+    )
 
 
 def test_disallowed_html():

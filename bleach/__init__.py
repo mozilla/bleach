@@ -120,9 +120,11 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
     :arg strip: whether or not to strip disallowed elements
     :arg strip_comments: whether or not to strip HTML comments
 
+    :returns: cleaned text as unicode
+
     """
     if not text:
-        return ''
+        return u''
 
     text = force_unicode(text)
 
@@ -152,7 +154,6 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
 
 def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
-            # FIXME(willkg): parse_email=False, tokenizer=HTMLSanitizer):
             parse_email=False):
     """Convert URL-like strings in an HTML fragment to links
 
@@ -170,9 +171,8 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
     text = force_unicode(text)
 
     if not text:
-        return ''
+        return u''
 
-    # FIXME(willkg): parser = html5lib.HTMLParser(tokenizer=tokenizer)
     parser = html5lib.HTMLParser()
 
     forest = parser.parseFragment(text)
