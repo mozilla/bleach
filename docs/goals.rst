@@ -91,10 +91,10 @@ Make malicious content look pretty or sane
 ------------------------------------------
 
 Malicious content is designed to be malicious. Making it safe is a design goal
-of bleach. Making it pretty or sane-looking is not.
+of Bleach. Making it pretty or sane-looking is not.
 
 If you want your malicious content to look pretty, you should pass it through
-bleach to make it safe and then do your own transform afterwards.
+Bleach to make it safe and then do your own transform afterwards.
 
 
 Allow arbitrary styling
