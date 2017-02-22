@@ -109,6 +109,13 @@ def test_mangle_text():
         True,
         'mailto <a href="mailto:james@example.com.au">james@example.com.au</a>.'
     ),
+    # Incorrect email
+    (
+        '"\\\n"@opa.ru',
+        True,
+        '"\\\n"@opa.ru'
+    ),
+
 ])
 def test_email_link(data, parse_email, expected):
     assert linkify(data, parse_email=parse_email) == expected
