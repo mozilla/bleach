@@ -11,9 +11,8 @@ python:
 - "3.6"
 - "pypy"
 env:
-- HTML5LIB=0.999       # 3
-- HTML5LIB=0.999999    # 6
-- HTML5LIB=0.9999999   # 7
+- HTML5LIB=0.99999999   # 8
+- HTML5LIB=0.999999999  # 9
 install:
 - pip install -r requirements.txt
 - pip install html5lib==$HTML5LIB
