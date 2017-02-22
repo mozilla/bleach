@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 import re
-from xml.sax.saxutils import escape, unescape
+from xml.sax.saxutils import unescape
 
 from html5lib.constants import namespaces
 from html5lib.filters import sanitizer
@@ -83,7 +83,7 @@ class BleachSanitizerFilter(sanitizer.Filter):
                 val_unescaped = val_unescaped.replace("\ufffd", "")
 
                 if (re.match(r'^[a-z0-9][-+.a-z0-9]*:', val_unescaped) and
-                    (val_unescaped.split(':')[0] not in self.allowed_protocols)):
+                        (val_unescaped.split(':')[0] not in self.allowed_protocols)):
                     # It has a protocol, but it's not allowed--so drop it
                     del attrs[attr]
 
