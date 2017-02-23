@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Python Bleach 2.0.0</title>
+    </head>
+    <body>
+        <h4>Python Bleach 2.0.0</h4>
+        <p>
+            <a href="http://badge.fury.io/py/bleach"><img style="max-width:100%;" alt="pypi version" src="https://badge.fury.io/py/bleach.svg"></a>
+            <a href="https://travis-ci.org/mozilla/bleach"><img style="max-width:100%;" alt="Build Status" src="https://travis-ci.org/mozilla/bleach.svg?branch=master"></a>
+        </p>
+        <p>
+        This is the demo for <a href="https://bleach.readthedocs.io/en/latest/index.html">Bleach</a>, a whitelist-based HTML sanitizing library that escapes or strips markup and attributes.
+        The textarea below contains sample-payload - you can also add your own. Watch it sanitize in the textarea and iframe below.
+        </p>
+        <hr>
+        <p><button onclick="sanitize();">bleach.clean textarea value then write result to DOM</button></p>
+        <p><input id="autoclean" type="checkbox" /> clean on change</p>
+        <hr>
+        <p><label for="dirty">Dirty HTML</label></p>
+        <textarea placeholder="Payload goes here, test me, test me hard!" id="dirty" style="width:95%;height:100px"><!-- Loading Test-Vectors ... --></textarea>
+        <p><label for="clean">Clean HTML</label></p>
+        <textarea placeholder="Here be the sanitized markup to inspect!" id="clean" style="width:95%;height:100px" disabled></textarea>
+        <p><label for="ifr">Clean DOM</label></p>
+        <iframe src="about:blank" id="ifr" style="width:95%;height:100px"></iframe>
+
+        <script>
+         if(typeof console === 'undefined') {
+             console = {};
+             console.log = function() {}
+         }
+         var sanitize = function() {
+             var ifr = document.getElementById('ifr');
+             var xhr = new XMLHttpRequest();
+             xhr.open('POST', '/sanitize');
+             xhr.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
+             xhr.onload = function() {
+                 var sanitized = xhr.responseText;
+                 ifr.contentDocument.open();
+                 ifr.contentDocument.write(sanitized);
+                 clean.value = sanitized;
+                 ifr.contentDocument.close();
+             }
+             xhr.send(dirty.value);
+         };
+
+         document.getElementById('dirty')
+                 .addEventListener('input', function () {
+                     var autocleanEl = document.getElementById('autoclean');
+                     if (autocleanEl.checked) {
+                         sanitize();
+                     }
+         });
+
+         document.addEventListener('DOMContentLoaded', function() {
+             var xhr = new XMLHttpRequest();
+             xhr.open('GET', '/testcases.json');
+             xhr.onload = function() {
+                 data=JSON.parse(xhr.responseText);
+                 dirty.value = '<!-- I am ready now, click one of the buttons! -->\r\n';
+                 for(i in data) {
+                     dirty.value += data[i].payload+"\r\n\r\n";
+                 }
+                 sanitize();
+             }
+             xhr.onerror = function() {
+                 console.error(arguments)
+             }
+             xhr.send(null);
+         }, false);
+        </script>
+    </body>
+</html>
