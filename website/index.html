@@ -3,6 +3,17 @@
     <head>
         <meta charset="UTF-8">
         <title>Python Bleach 2.0.0</title>
+        <style>
+         textarea, iframe {
+             width: 95%;
+         }
+         #clean, #dirty, #ifr {
+             height: 100px;
+         }
+         .test-case > .ifr {
+             height: 50px;
+         }
+        </style>
     </head>
     <body>
         <h4>Python Bleach 2.0.0</h4>
@@ -12,37 +23,89 @@
         </p>
         <p>
         This is the demo for <a href="https://bleach.readthedocs.io/en/latest/index.html">Bleach</a>, a whitelist-based HTML sanitizing library that escapes or strips markup and attributes.
-        The textarea below contains sample-payload - you can also add your own. Watch it sanitize in the textarea and iframe below.
+        Enter a sample payload in the textarea below and watch it sanitize in the textarea and iframe below.
         </p>
         <hr>
-        <p><button onclick="sanitize();">bleach.clean textarea value then write result to DOM</button></p>
-        <p><input id="autoclean" type="checkbox" /> clean on change</p>
+        <p><button id="unsafe-write">write <strong>unsanitized</strong> textarea value to DOM</button></p>
+        <p><button id="clean-and-write">bleach.clean textarea value then write result to DOM</button></p>
+        <p><input id="autoclean" type="checkbox" checked /> clean when dirty HTML changes</p>
         <hr>
-        <p><label for="dirty">Dirty HTML</label></p>
-        <textarea placeholder="Payload goes here, test me, test me hard!" id="dirty" style="width:95%;height:100px"><!-- Loading Test-Vectors ... --></textarea>
-        <p><label for="clean">Clean HTML</label></p>
-        <textarea placeholder="Here be the sanitized markup to inspect!" id="clean" style="width:95%;height:100px" disabled></textarea>
-        <p><label for="ifr">Clean DOM</label></p>
-        <iframe src="about:blank" id="ifr" style="width:95%;height:100px"></iframe>
+
+        <div>
+            <h4>Demo</h4>
+
+            <p><label for="dirty">Dirty HTML</label></p>
+            <textarea placeholder="Payload goes here." id="dirty"><!-- Loading Test-Vectors ... --></textarea>
+            <p><label for="clean">Clean HTML</label></p>
+            <textarea placeholder="Here be the sanitized markup to inspect!" id="clean"></textarea>
+            <p><label for="ifr">Clean DOM</label></p>
+            <iframe src="about:blank" id="ifr"></iframe>
+        </div>
+
+        <div id="test-template" class="test-case" style="display:none">
+            <a class="test-name-link" href="#"><h4 class="test-name"></h4></a>
+
+            <p><label for="dirty">Dirty HTML</label></p>
+            <textarea placeholder="Payload goes here." class="dirty" readonly rows="2"></textarea>
+            <p><label for="clean">Clean HTML</label></p>
+            <textarea placeholder="Here be the sanitized markup to inspect!" class="clean" readonly rows="2"></textarea>
+            <p><label for="ifr">Clean DOM</label></p>
+            <iframe src="about:blank" class="ifr"></iframe>
+        </div>
 
         <script>
-         if(typeof console === 'undefined') {
-             console = {};
-             console.log = function() {}
-         }
+         var writeToIframe = function(ifr, value) {
+             ifr.contentDocument.open();
+             ifr.contentDocument.write(value);
+             ifr.contentDocument.close();
+         };
+
          var sanitize = function() {
-             var ifr = document.getElementById('ifr');
              var xhr = new XMLHttpRequest();
              xhr.open('POST', '/sanitize');
              xhr.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
              xhr.onload = function() {
                  var sanitized = xhr.responseText;
-                 ifr.contentDocument.open();
-                 ifr.contentDocument.write(sanitized);
+                 document.querySelector('label[for=ifr]').textContent = "Clean DOM";
+                 writeToIframe(document.getElementById('ifr'), sanitized);
                  clean.value = sanitized;
-                 ifr.contentDocument.close();
              }
              xhr.send(dirty.value);
+         };
+
+         var unsafeWrite = function() {
+             clean.value = "N/A";
+             document.querySelector('label[for=ifr]').textContent = "Dirty DOM";
+             writeToIframe(document.getElementById('ifr'), dirty.value);
+         };
+
+         var addTest = function (test, index) {
+             var testTemplate = document.getElementById('test-template');
+             var template = testTemplate.cloneNode(true);
+             var testId = 'test-' + index;
+             template.setAttribute('id', testId);
+             template.getElementsByClassName('test-name-link')[0].setAttribute('href', '#' + testId);
+             template.getElementsByClassName('test-name')[0].textContent = test.title;
+             template.getElementsByClassName('dirty')[0].value = test.payload;
+             template.getElementsByClassName('clean')[0].value = test.actual;
+             template.style.display = "block";
+
+             // iframe must be in DOM before we can write to it.
+             document.getElementsByTagName('body')[0].appendChild(template);
+
+             writeToIframe(template.getElementsByClassName('ifr')[0], test.actual);
+         };
+
+         var loadTests = function(url, onSuccess) {
+             var xhr = new XMLHttpRequest();
+             xhr.open('GET', url);
+             xhr.onload = function () {
+                 return onSuccess(xhr.responseText);
+             };
+             xhr.onerror = function() {
+                 console.error(arguments)
+             }
+             xhr.send(null);
          };
 
          document.getElementById('dirty')
@@ -53,21 +116,15 @@
                      }
          });
 
+         document.getElementById('unsafe-write').addEventListener('click', unsafeWrite, false);
+         document.getElementById('clean-and-write').addEventListener('click', sanitize, false);
+
          document.addEventListener('DOMContentLoaded', function() {
-             var xhr = new XMLHttpRequest();
-             xhr.open('GET', '/testcases.json');
-             xhr.onload = function() {
-                 data=JSON.parse(xhr.responseText);
+             loadTests('/testcases.json', function (responseText) {
                  dirty.value = '<!-- I am ready now, click one of the buttons! -->\r\n';
-                 for(i in data) {
-                     dirty.value += data[i].payload+"\r\n\r\n";
-                 }
-                 sanitize();
-             }
-             xhr.onerror = function() {
-                 console.error(arguments)
-             }
-             xhr.send(null);
+
+                 JSON.parse(responseText).forEach(addTest)
+             });
          }, false);
         </script>
     </body>
