@@ -130,16 +130,18 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
     walker = html5lib.getTreeWalker('etree')
     filtered = BleachSanitizerFilter(
         source=walker(dom),
-        allowed_attributes_map=attributes,
 
+        # Bleach-sanitizer-specific things
+        allowed_attributes_map=attributes,
+        strip_disallowed_elements=strip,
+        strip_html_comments=strip_comments,
+
+        # html5lib-sanitizer things
         allowed_elements=tags,
         allowed_css_properties=styles,
         allowed_protocols=protocols,
-
         allowed_svg_properties=[],
 
-        strip_disallowed_elements=strip,
-        strip_html_comments=strip_comments
     )
     s = HTMLSerializer(
         quote_attr_values='always',
