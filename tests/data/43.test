@@ -1,0 +1,1 @@
+<form onsubmit=alert(1)><input onfocus=alert(2) name=removeAttributeNode>123</form>

@@ -1,0 +1,10 @@
+<div id="91">[A]
+<? foo="><script>alert(91)</script>">
+<! foo="><script>alert(91)</script>">
+</ foo="><script>alert(91)</script>">
+[B]
+<? foo="><x foo='?><script>alert(91)</script>'>">
+[C]
+<! foo="[[[x]]"><x foo="]foo><script>alert(91)</script>">
+[D]
+<% foo><x foo="%><script>alert(91)</script>">//["'`-->]]>]</div>

@@ -1,0 +1,2 @@
+<div id="96"><iframe src=mhtml:http://html5sec.org/test.html!xss.html></iframe>
+<iframe src=mhtml:http://html5sec.org/test.gif!xss.html></iframe>//["'`-->]]>]</div>

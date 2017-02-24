@@ -1,0 +1,4 @@
+<div id="123"><span class="foo">Some text</span>
+<a href="http://www.example.org" class="bar">www.example.org</a>
+
+//["'`--&gt;]]&gt;]</div>

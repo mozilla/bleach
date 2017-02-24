@@ -1,0 +1,9 @@
+<div id="120"><script>
+function makePopups(){
+    for (i=1;i<6;i++) {
+        window.open('popup.html','spam'+i,'width=50,height=50');
+    }
+}
+</script>
+<body>
+<a href="#" onclick="makePopups()">Spam</a>//["'`-->]]>]</div>

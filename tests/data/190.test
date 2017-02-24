@@ -1,0 +1,13 @@
+<div id="123"><span class=foo>Some text</span>
+<a class=bar href="http://www.example.org">www.example.org</a>
+<script src="http://code.jquery.com/jquery-1.4.4.js"></script>
+<script>
+$("span.foo").click(function() {
+alert('foo');
+$("a.bar").click();
+});
+$("a.bar").click(function() {
+alert('bar');
+location="http://html5sec.org";
+});
+</script>//["'`-->]]>]</div>
