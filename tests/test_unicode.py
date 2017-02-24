@@ -27,11 +27,8 @@ def test_mixed():
 
 def test_mixed_linkify():
     assert (
-        linkify('Домашняя http://example.com ヘルプとチュートリアル') in
-        (
-            'Домашняя <a href="http://example.com" rel="nofollow">http://example.com</a> ヘルプとチュートリアル',
-            'Домашняя <a rel="nofollow" href="http://example.com">http://example.com</a> ヘルプとチュートリアル'
-        )
+        linkify('Домашняя http://example.com ヘルプとチュートリアル') ==
+        'Домашняя <a href="http://example.com" rel="nofollow">http://example.com</a> ヘルプとチュートリアル'
     )
 
 

@@ -5,13 +5,14 @@ import logging
 import re
 
 import html5lib
-from html5lib.sanitizer import HTMLSanitizer
-from html5lib.serializer.htmlserializer import HTMLSerializer
+from html5lib.filters import sanitizer
+from html5lib.filters.sanitizer import allowed_protocols
+from html5lib.serializer import HTMLSerializer
 
-from . import callbacks as linkify_callbacks
-from .encoding import force_unicode
-from .sanitizer import BleachSanitizer
-from .version import __version__, VERSION # flake8: noqa
+from bleach import callbacks as linkify_callbacks
+from bleach.encoding import force_unicode
+from bleach.sanitizer import BleachSanitizerFilter
+from bleach.version import __version__, VERSION # flake8: noqa
 
 __all__ = ['clean', 'linkify']
 
@@ -60,8 +61,6 @@ TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
 # Make sure that .com doesn't get matched by .co first
 TLDS.reverse()
 
-PROTOCOLS = HTMLSanitizer.acceptable_protocols
-
 url_re = re.compile(
     r"""\(*  # Match any opening parentheses.
     \b(?<![@.])(?:(?:{0}):/{{0,3}}(?:(?:\w+:)?\w+@)?)?  # http://
@@ -69,7 +68,7 @@ url_re = re.compile(
     (?:[/?][^\s\{{\}}\|\\\^\[\]`<>"]*)?
         # /path/zz (excluding "unsafe" chars from RFC 1738,
         # except for # and ~, which happen in practice)
-    """.format('|'.join(PROTOCOLS), '|'.join(TLDS)),
+    """.format('|'.join(allowed_protocols), '|'.join(TLDS)),
     re.IGNORECASE | re.VERBOSE | re.UNICODE)
 
 proto_re = re.compile(r'^[\w-]+:/{0,3}', re.IGNORECASE)
@@ -85,8 +84,6 @@ email_re = re.compile(
     )@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6})  # domain
     """,
     re.IGNORECASE | re.MULTILINE | re.VERBOSE)
-
-NODE_TEXT = 4  # The numeric ID of a text node in simpletree.
 
 ETREE_TAG = lambda x: "".join(['{http://www.w3.org/1999/xhtml}', x])
 # a simple routine that returns the tag name with the namespace prefix
@@ -119,27 +116,48 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
     :arg strip: whether or not to strip disallowed elements
     :arg strip_comments: whether or not to strip HTML comments
 
+    :returns: cleaned text as unicode
+
     """
     if not text:
-        return ''
+        return u''
 
     text = force_unicode(text)
 
-    class s(BleachSanitizer):
-        allowed_elements = tags
-        allowed_attributes = attributes
-        allowed_css_properties = styles
-        allowed_protocols = protocols
-        strip_disallowed_elements = strip
-        strip_html_comments = strip_comments
+    parser = html5lib.HTMLParser(namespaceHTMLElements=False)
+    dom = parser.parseFragment(text)
 
-    parser = html5lib.HTMLParser(tokenizer=s)
+    walker = html5lib.getTreeWalker('etree')
+    filtered = BleachSanitizerFilter(
+        source=walker(dom),
 
-    return _render(parser.parseFragment(text))
+        # Bleach-sanitizer-specific things
+        allowed_attributes_map=attributes,
+        strip_disallowed_elements=strip,
+        strip_html_comments=strip_comments,
+
+        # html5lib-sanitizer things
+        allowed_elements=tags,
+        allowed_css_properties=styles,
+        allowed_protocols=protocols,
+        allowed_svg_properties=[],
+
+    )
+    s = HTMLSerializer(
+        quote_attr_values='always',
+        omit_optional_tags=False,
+
+        # Bleach has its own sanitizer, so don't use the html5lib one
+        sanitize=False,
+
+        # Bleach sanitizer alphabetizes already, so don't use the html5lib one
+        alphabetical_attributes=False,
+    )
+    return s.render(filtered)
 
 
 def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
-            parse_email=False, tokenizer=HTMLSanitizer):
+            parse_email=False):
     """Convert URL-like strings in an HTML fragment to links
 
     ``linkify()`` converts strings that look like URLs, domain names and email
@@ -156,12 +174,12 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
     text = force_unicode(text)
 
     if not text:
-        return ''
+        return u''
 
-    parser = html5lib.HTMLParser(tokenizer=tokenizer)
+    parser = html5lib.HTMLParser()
 
     forest = parser.parseFragment(text)
-    _seen = set([])
+    _seen = set()
 
     def replace_nodes(tree, new_frag, node, index=0):
         """Doesn't really replace nodes, but inserts the nodes contained in
@@ -427,7 +445,7 @@ def _render(tree):
 def _serialize(domtree):
     walker = html5lib.treewalkers.getTreeWalker('etree')
     stream = walker(domtree)
-    serializer = HTMLSerializer(quote_attr_values=True,
+    serializer = HTMLSerializer(quote_attr_values='always',
                                 alphabetical_attributes=True,
                                 omit_optional_tags=False)
     return serializer.render(stream)

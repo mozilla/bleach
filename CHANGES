@@ -8,10 +8,19 @@ Version 2.0 (in development)
 
 - Removed support for Python 2.6. #206
 - Removed support for Python 3.2. #224
+- Bleach no longer supports html5lib < 0.99999999 (8 9s).
+
+  This version represents a rewrite to use the new sanitizing API since
+  the old one was dropped in html5lib 0.99999999 (8 9s).
+
+- linkify no longer accepts a tokenizer argument.
+- clean output is different than in previous versions; particularly this version
+  will add end tags even if the tag will be escaped.
 
 **Changes**
 
-- Added testing for Python 3.6.
+- Supports Python 3.6.
+- Supports html5lib >= 0.99999999 (8 9s).
 
 
 Version 1.5 (November 4th, 2016)
@@ -20,9 +29,11 @@ Version 1.5 (November 4th, 2016)
 **Backwards incompatible changes**
 
 - clean: The list of ``ALLOWED_PROTOCOLS`` now defaults to http, https and
-  mailto. Previously it was a long list of protocols something like ed2k, ftp,
-  http, https, irc, mailto, news, gopher, nntp, telnet, webcal, xmpp, callto,
-  feed, urn, aim, rsync, tag, ssh, sftp, rtsp, afs, data. #149
+  mailto.
+
+  Previously it was a long list of protocols something like ed2k, ftp, http,
+  https, irc, mailto, news, gopher, nntp, telnet, webcal, xmpp, callto, feed,
+  urn, aim, rsync, tag, ssh, sftp, rtsp, afs, data. #149
 
 **Changes**
 

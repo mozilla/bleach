@@ -1,12 +1,13 @@
 -e .
 
 # Requirements to run the test suite:
-pytest==3.0.3
-flake8==3.0.4
+pytest==3.0.6
+pytest-wholenodeid
+flake8==3.3.0
 tox==2.4.1
  
 # Requirements for building docs
-Sphinx==1.4.8
+Sphinx==1.5.2
  
 # Requirements for updating package
 twine==1.8.1

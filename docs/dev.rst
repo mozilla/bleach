@@ -5,7 +5,7 @@ Bleach development
 Docs
 ====
 
-Docs are in ``docs/``. We use Sphinx. Docs are pushed to readthedocs
+Docs are in ``docs/``. We use Sphinx. Docs are pushed to ReadTheDocs
 via a GitHub webhook.
 
 
@@ -16,7 +16,7 @@ Run::
 
     $ tox
 
-That'll run bleach tests in all the supported Python environments. Note
+That'll run Bleach tests in all the supported Python environments. Note
 that you need the necessary Python binaries for them all to be tested.
 
 Tests are run in Travis CI via a GitHub webhook.

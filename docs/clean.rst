@@ -162,7 +162,7 @@ For example, this sets allowed protocols to http, https and smb:
    u'<a href="smb://more_text">allowed protocol</a>'
 
 
-This adds smb to the bleach-specified set of allowed protocols:
+This adds smb to the Bleach-specified set of allowed protocols:
 
 .. doctest::
 
@@ -187,6 +187,7 @@ whitelist and invalid markup. For example:
 .. doctest::
 
    >>> import bleach
+
    >>> bleach.clean('<span>is not allowed</span>')
    u'&lt;span&gt;is not allowed&lt;/span&gt;'
    >>> bleach.clean('<b><span>is not allowed</span></b>', tags=['b'])
@@ -199,6 +200,7 @@ If you would rather Bleach stripped this markup entirely, you can pass
 .. doctest::
 
    >>> import bleach
+
    >>> bleach.clean('<span>is not allowed</span>', strip=True)
    u'is not allowed'
    >>> bleach.clean('<b><span>is not allowed</span></b>', tags=['b'], strip=True)
@@ -214,6 +216,7 @@ By default, Bleach will strip out HTML comments. To disable this behavior, set
 .. doctest::
 
    >>> import bleach
+
    >>> html = 'my<!-- commented --> html'
 
    >>> bleach.clean(html)

@@ -10,14 +10,13 @@ if 'test' in sys.argv:
     setup_requires.append('pytest-runner>=2.0,<3dev')
 
 tests_require = [
-    'pytest==3.0.3',
+    'pytest>=3.0.0',
 ]
     
 install_requires = [
     'six',
-    # 3 9s up to but not including 8 9s, but not 4 9s or 5 9s because they're
-    # busted
-    'html5lib>=0.999,!=0.9999,!=0.99999,<0.99999999',
+    # >= 8 9s because of breaking API change
+    'html5lib>=0.99999999',
 ]
 
 

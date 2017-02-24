@@ -1,5 +1,6 @@
-import six
 import html5lib
+import pytest
+import six
 
 import bleach
 
@@ -70,12 +71,14 @@ def test_function_arguments():
 
 def test_named_arguments():
     ATTRS = {'a': ['rel', 'href']}
-    s = ('<a href="http://xx.com" rel="alternate">xx.com</a>',
-         '<a rel="alternate" href="http://xx.com">xx.com</a>')
 
-    assert bleach.clean(s[0]) == '<a href="http://xx.com">xx.com</a>'
-    # FIXME: This might not be needed if attribute order is stable now.
-    assert bleach.clean(s[0], attributes=ATTRS) in s
+    text = '<a href="http://xx.com" rel="alternate">xx.com</a>'
+
+    assert bleach.clean(text) == '<a href="http://xx.com">xx.com</a>'
+    assert (
+        bleach.clean(text, attributes=ATTRS) ==
+        '<a href="http://xx.com" rel="alternate">xx.com</a>'
+    )
 
 
 def test_disallowed_html():
@@ -193,25 +196,22 @@ def test_idempotent():
     clean = bleach.clean(dirty)
     assert bleach.clean(clean) == clean
 
-    possible_outs = (
-        '<span>invalid &amp; </span> &lt; extra <a rel="nofollow" href="http://link.com">http://link.com</a><em></em>',
+    linked = bleach.linkify(dirty)
+    assert (
+        bleach.linkify(linked) ==
         '<span>invalid &amp; </span> &lt; extra <a href="http://link.com" rel="nofollow">http://link.com</a><em></em>'
     )
-    linked = bleach.linkify(dirty)
-    assert bleach.linkify(linked) in possible_outs
 
 
 def test_rel_already_there():
     """Make sure rel attribute is updated not replaced"""
     linked = ('Click <a href="http://example.com" rel="tooltip">'
               'here</a>.')
-    link_good = (('Click <a href="http://example.com" rel="tooltip nofollow">'
-                  'here</a>.'),
-                 ('Click <a rel="tooltip nofollow" href="http://example.com">'
-                  'here</a>.'))
 
-    assert bleach.linkify(linked) in link_good
-    assert bleach.linkify(link_good[0]) in link_good
+    link_good = 'Click <a href="http://example.com" rel="tooltip nofollow">here</a>.'
+
+    assert bleach.linkify(linked) == link_good
+    assert bleach.linkify(link_good) == link_good
 
 
 def test_lowercase_html():
@@ -229,11 +229,99 @@ def test_wildcard_attributes():
     TAG = ['img', 'em']
     dirty = ('both <em id="foo" style="color: black">can</em> have '
              '<img id="bar" src="foo"/>')
-    clean = ('both <em id="foo">can</em> have <img src="foo" id="bar">',
-             'both <em id="foo">can</em> have <img id="bar" src="foo">')
-    assert bleach.clean(dirty, tags=TAG, attributes=ATTR) in clean
+    assert (
+        bleach.clean(dirty, tags=TAG, attributes=ATTR) ==
+        'both <em id="foo">can</em> have <img id="bar" src="foo">'
+    )
 
 
+def test_callable_attributes():
+    """Verify callable attributes work and get correct arg values"""
+    def img_test(attr, val):
+        return attr == 'src' and val.startswith('https')
+
+    ATTR = {
+        'img': img_test,
+    }
+    TAGS = ['img']
+
+    assert (
+        bleach.clean('foo <img src="http://example.com" alt="blah"> baz', tags=TAGS, attributes=ATTR) ==
+        u'foo <img> baz'
+    )
+    assert (
+        bleach.clean('foo <img src="https://example.com" alt="blah"> baz', tags=TAGS, attributes=ATTR) ==
+        u'foo <img src="https://example.com"> baz'
+    )
+
+
+def test_svg_attr_val_allows_ref():
+    """Unescape values in svg attrs that allow url references"""
+    # Local IRI, so keep it
+    text = '<svg><rect fill="url(#foo)" /></svg>'
+    TAGS = ['svg', 'rect']
+    ATTRS = {
+        'rect': ['fill'],
+    }
+    assert (
+        bleach.clean(text, tags=TAGS, attributes=ATTRS) ==
+        '<svg><rect fill="url(#foo)"></rect></svg>'
+    )
+
+    # Non-local IRI, so drop it
+    text = '<svg><rect fill="url(http://example.com#foo)" /></svg>'
+    TAGS = ['svg', 'rect']
+    ATTRS = {
+        'rect': ['fill'],
+    }
+    assert (
+        bleach.clean(text, tags=TAGS, attributes=ATTRS) ==
+        '<svg><rect></rect></svg>'
+    )
+
+
+@pytest.mark.parametrize('text, expected', [
+    (
+        '<svg><pattern id="patt1" href="#patt2"></pattern></svg>',
+        '<svg><pattern href="#patt2" id="patt1"></pattern></svg>'
+    ),
+    (
+        '<svg><pattern id="patt1" xlink:href="#patt2"></pattern></svg>',
+        # NOTE(willkg): Bug in html5lib serializer drops the xlink part
+        '<svg><pattern id="patt1" href="#patt2"></pattern></svg>'
+    ),
+])
+def test_svg_allow_local_href(text, expected):
+    """Keep local hrefs for svg elements"""
+    TAGS = ['svg', 'pattern']
+    ATTRS = {
+        'pattern': ['id', 'href'],
+    }
+    assert bleach.clean(text, tags=TAGS, attributes=ATTRS) == expected
+
+
+@pytest.mark.parametrize('text, expected', [
+    (
+        '<svg><pattern id="patt1" href="https://example.com/patt"></pattern></svg>',
+        '<svg><pattern id="patt1"></pattern></svg>'
+    ),
+    (
+        '<svg><pattern id="patt1" xlink:href="https://example.com/patt"></pattern></svg>',
+        '<svg><pattern id="patt1"></pattern></svg>'
+    ),
+])
+def test_svg_allow_local_href_nonlocal(text, expected):
+    """Drop non-local hrefs for svg elements"""
+    TAGS = ['svg', 'pattern']
+    ATTRS = {
+        'pattern': ['id', 'href'],
+    }
+    assert bleach.clean(text, tags=TAGS, attributes=ATTRS) == expected
+
+
+
+
+@pytest.mark.xfail(reason='html5lib >= 0.99999999: changed API')
 def test_sarcasm():
     """Jokes should crash.<sarcasm/>"""
     dirty = 'Yeah right <sarcasm/>'
@@ -242,8 +330,8 @@ def test_sarcasm():
 
 
 def test_user_defined_protocols_valid():
-    valid_href = '<a href="my_protocol://more_text">allowed href</a>'
-    assert bleach.clean(valid_href, protocols=['my_protocol']) == valid_href
+    valid_href = '<a href="myprotocol://more_text">allowed href</a>'
+    assert bleach.clean(valid_href, protocols=['myprotocol']) == valid_href
 
 
 def test_user_defined_protocols_invalid():

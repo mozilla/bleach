@@ -9,7 +9,7 @@
 control how and when those links are rendered::
 
     def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
-                parse_email=False, tokenizer=HTMLSanitizer):
+                parse_email=False):
         """Convert URL-like strings in an HTML fragment to links.
 
 ``linkify()`` works by building a document tree, so it's guaranteed never to do
@@ -192,21 +192,6 @@ addresses, but if you pass ``parse_email=True``, it will. ``mailto:`` links
 will go through exactly the same set of callbacks as all other links, whether
 they are newly created or already in the text, so be careful when writing
 callbacks that may need to behave differently if the protocol is ``mailto:``.
-
-
-``tokenizer``
-=============
-
-``linkify()`` uses the ``html5lib.sanitizer.HTMLSanitizer`` tokenizer by
-default. This has the effect of scrubbing some tags and attributes. To use a
-more lenient, or totally different, tokenizer, you can specify the tokenizer
-class here. (See the implementation of :ref:`clean() <clean-chapter>` for an
-example of building a custom tokenizer.)
-
-::
-
-    from html5lib.tokenizer import HTMLTokenizer
-    linked_text = linkify(text, tokenizer=HTMLTokenizer)
 
 
 .. _Crate: https://crate.io/
