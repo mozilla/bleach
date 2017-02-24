@@ -58,6 +58,12 @@ class BleachSanitizerFilter(sanitizer.Filter):
                 pass
 
             else:
+                if 'data' in token:
+                    # Alphabetize the attributes before calling .disallowed_token()
+                    # so that the resulting string is stable
+                    token['data'] = OrderedDict(
+                        [(key, val) for key, val in sorted(token['data'].items(), key=_attr_key)]
+                    )
                 return self.disallowed_token(token)
 
         elif token_type == 'Comment':

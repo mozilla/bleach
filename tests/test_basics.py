@@ -76,11 +76,8 @@ def test_named_arguments():
 
     assert bleach.clean(text) == '<a href="http://xx.com">xx.com</a>'
     assert (
-        bleach.clean(text, attributes=ATTRS) in
-        [
-            '<a href="http://xx.com" rel="alternate">xx.com</a>',
-            '<a rel="alternate" href="http://xx.com">xx.com</a>'
-        ]
+        bleach.clean(text, attributes=ATTRS) ==
+        '<a href="http://xx.com" rel="alternate">xx.com</a>'
     )
 
 
@@ -199,25 +196,22 @@ def test_idempotent():
     clean = bleach.clean(dirty)
     assert bleach.clean(clean) == clean
 
-    possible_outs = (
-        '<span>invalid &amp; </span> &lt; extra <a rel="nofollow" href="http://link.com">http://link.com</a><em></em>',
+    linked = bleach.linkify(dirty)
+    assert (
+        bleach.linkify(linked) ==
         '<span>invalid &amp; </span> &lt; extra <a href="http://link.com" rel="nofollow">http://link.com</a><em></em>'
     )
-    linked = bleach.linkify(dirty)
-    assert bleach.linkify(linked) in possible_outs
 
 
 def test_rel_already_there():
     """Make sure rel attribute is updated not replaced"""
     linked = ('Click <a href="http://example.com" rel="tooltip">'
               'here</a>.')
-    link_good = (('Click <a href="http://example.com" rel="tooltip nofollow">'
-                  'here</a>.'),
-                 ('Click <a rel="tooltip nofollow" href="http://example.com">'
-                  'here</a>.'))
 
-    assert bleach.linkify(linked) in link_good
-    assert bleach.linkify(link_good[0]) in link_good
+    link_good = 'Click <a href="http://example.com" rel="tooltip nofollow">here</a>.'
+
+    assert bleach.linkify(linked) == link_good
+    assert bleach.linkify(link_good) == link_good
 
 
 def test_lowercase_html():
@@ -235,9 +229,10 @@ def test_wildcard_attributes():
     TAG = ['img', 'em']
     dirty = ('both <em id="foo" style="color: black">can</em> have '
              '<img id="bar" src="foo"/>')
-    clean = ('both <em id="foo">can</em> have <img src="foo" id="bar">',
-             'both <em id="foo">can</em> have <img id="bar" src="foo">')
-    assert bleach.clean(dirty, tags=TAG, attributes=ATTR) in clean
+    assert (
+        bleach.clean(dirty, tags=TAG, attributes=ATTR) ==
+        'both <em id="foo">can</em> have <img id="bar" src="foo">'
+    )
 
 
 def test_callable_attributes():
