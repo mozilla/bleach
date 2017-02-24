@@ -1,9 +1,23 @@
 from __future__ import unicode_literals
+from collections import OrderedDict
 import re
 from xml.sax.saxutils import unescape
 
 from html5lib.constants import namespaces
 from html5lib.filters import sanitizer
+
+
+def _attr_key(attr):
+    """Returns appropriate key for sorting attribute names
+
+    Attribute names are a tuple of ``(namespace, name)`` where namespace can be
+    ``None`` or a string. These can't be compared in Python 3, so we conver the
+    ``None`` to an empty string.
+
+    """
+    key = (attr[0][0] or ''), attr[0][1]
+    print(key)
+    return key
 
 
 class BleachSanitizerFilter(sanitizer.Filter):
@@ -87,22 +101,33 @@ class BleachSanitizerFilter(sanitizer.Filter):
                     # It has a protocol, but it's not allowed--so drop it
                     del attrs[attr]
 
+            # Drop values in svg attrs with non-local IRIs
             for attr in self.svg_attr_val_allows_ref:
                 if attr in attrs:
-                    attrs[attr] = re.sub(r'url\s*\(\s*[^#\s][^)]+?\)',
-                                         ' ',
-                                         unescape(attrs[attr]))
+                    new_val = re.sub(r'url\s*\(\s*[^#\s][^)]+?\)',
+                                     ' ',
+                                     unescape(attrs[attr]))
+                    new_val = new_val.strip()
+                    if not new_val:
+                        del attrs[attr]
+                    else:
+                        attrs[attr] = new_val
 
-            if (token['name'] in self.svg_allow_local_href and
-                    (namespaces['xlink'], 'href') in attrs and
-                    re.search(r'^\s*[^#\s].*', attrs[(namespaces['xlink'], 'href')])):
-                del attrs[(namespace['xlink'], 'href')]
+            # Drop href and xlink:href attr for svg elements with non-local IRIs
+            if (None, token['name']) in self.svg_allow_local_href:
+                for href_attr in [(None, 'href'), (namespaces['xlink'], 'href')]:
+                    if href_attr in attrs:
+                        if re.search(r'^\s*[^#\s]', attrs[href_attr]):
+                            del attrs[href_attr]
 
             # Sanitize css in style attribute
             if (None, u'style') in attrs:
                 attrs[(None, u'style')] = self.sanitize_css(attrs[(None, u'style')])
 
-            token['data'] = attrs
+            # Alphabetize attributes
+            token['data'] = OrderedDict(
+                [(key, val) for key, val in sorted(attrs.items(), key=_attr_key)]
+            )
         return token
 
     def sanitize_css(self, style):

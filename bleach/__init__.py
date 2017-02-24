@@ -61,8 +61,6 @@ TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
 # Make sure that .com doesn't get matched by .co first
 TLDS.reverse()
 
-PROTOCOLS = allowed_protocols
-
 url_re = re.compile(
     r"""\(*  # Match any opening parentheses.
     \b(?<![@.])(?:(?:{0}):/{{0,3}}(?:(?:\w+:)?\w+@)?)?  # http://
@@ -70,7 +68,7 @@ url_re = re.compile(
     (?:[/?][^\s\{{\}}\|\\\^\[\]`<>"]*)?
         # /path/zz (excluding "unsafe" chars from RFC 1738,
         # except for # and ~, which happen in practice)
-    """.format('|'.join(PROTOCOLS), '|'.join(TLDS)),
+    """.format('|'.join(allowed_protocols), '|'.join(TLDS)),
     re.IGNORECASE | re.VERBOSE | re.UNICODE)
 
 proto_re = re.compile(r'^[\w-]+:/{0,3}', re.IGNORECASE)
@@ -86,8 +84,6 @@ email_re = re.compile(
     )@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6})  # domain
     """,
     re.IGNORECASE | re.MULTILINE | re.VERBOSE)
-
-NODE_TEXT = 4  # The numeric ID of a text node in simpletree.
 
 ETREE_TAG = lambda x: "".join(['{http://www.w3.org/1999/xhtml}', x])
 # a simple routine that returns the tag name with the namespace prefix
@@ -147,8 +143,13 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
     )
     s = HTMLSerializer(
         quote_attr_values='always',
-        alphabetical_attributes=True,
-        omit_optional_tags=False
+        omit_optional_tags=False,
+
+        # Bleach has its own sanitizer, so don't use the html5lib one
+        sanitize=False,
+
+        # Bleach sanitizer alphabetizes already, so don't use the html5lib one
+        alphabetical_attributes=False,
     )
     return s.render(filtered)
 
@@ -176,7 +177,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
     parser = html5lib.HTMLParser()
 
     forest = parser.parseFragment(text)
-    _seen = set([])
+    _seen = set()
 
     def replace_nodes(tree, new_frag, node, index=0):
         """Doesn't really replace nodes, but inserts the nodes contained in

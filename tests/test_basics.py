@@ -240,6 +240,92 @@ def test_wildcard_attributes():
     assert bleach.clean(dirty, tags=TAG, attributes=ATTR) in clean
 
 
+def test_callable_attributes():
+    """Verify callable attributes work and get correct arg values"""
+    def img_test(attr, val):
+        return attr == 'src' and val.startswith('https')
+
+    ATTR = {
+        'img': img_test,
+    }
+    TAGS = ['img']
+
+    assert (
+        bleach.clean('foo <img src="http://example.com" alt="blah"> baz', tags=TAGS, attributes=ATTR) ==
+        u'foo <img> baz'
+    )
+    assert (
+        bleach.clean('foo <img src="https://example.com" alt="blah"> baz', tags=TAGS, attributes=ATTR) ==
+        u'foo <img src="https://example.com"> baz'
+    )
+
+
+def test_svg_attr_val_allows_ref():
+    """Unescape values in svg attrs that allow url references"""
+    # Local IRI, so keep it
+    text = '<svg><rect fill="url(#foo)" /></svg>'
+    TAGS = ['svg', 'rect']
+    ATTRS = {
+        'rect': ['fill'],
+    }
+    assert (
+        bleach.clean(text, tags=TAGS, attributes=ATTRS) ==
+        '<svg><rect fill="url(#foo)"></rect></svg>'
+    )
+
+    # Non-local IRI, so drop it
+    text = '<svg><rect fill="url(http://example.com#foo)" /></svg>'
+    TAGS = ['svg', 'rect']
+    ATTRS = {
+        'rect': ['fill'],
+    }
+    assert (
+        bleach.clean(text, tags=TAGS, attributes=ATTRS) ==
+        '<svg><rect></rect></svg>'
+    )
+
+
+@pytest.mark.parametrize('text, expected', [
+    (
+        '<svg><pattern id="patt1" href="#patt2"></pattern></svg>',
+        '<svg><pattern href="#patt2" id="patt1"></pattern></svg>'
+    ),
+    (
+        '<svg><pattern id="patt1" xlink:href="#patt2"></pattern></svg>',
+        # NOTE(willkg): Bug in html5lib serializer drops the xlink part
+        '<svg><pattern id="patt1" href="#patt2"></pattern></svg>'
+    ),
+])
+def test_svg_allow_local_href(text, expected):
+    """Keep local hrefs for svg elements"""
+    TAGS = ['svg', 'pattern']
+    ATTRS = {
+        'pattern': ['id', 'href'],
+    }
+    assert bleach.clean(text, tags=TAGS, attributes=ATTRS) == expected
+
+
+@pytest.mark.parametrize('text, expected', [
+    (
+        '<svg><pattern id="patt1" href="https://example.com/patt"></pattern></svg>',
+        '<svg><pattern id="patt1"></pattern></svg>'
+    ),
+    (
+        '<svg><pattern id="patt1" xlink:href="https://example.com/patt"></pattern></svg>',
+        '<svg><pattern id="patt1"></pattern></svg>'
+    ),
+])
+def test_svg_allow_local_href_nonlocal(text, expected):
+    """Drop non-local hrefs for svg elements"""
+    TAGS = ['svg', 'pattern']
+    ATTRS = {
+        'pattern': ['id', 'href'],
+    }
+    assert bleach.clean(text, tags=TAGS, attributes=ATTRS) == expected
+
+
+
+
 @pytest.mark.xfail(reason='html5lib >= 0.99999999: changed API')
 def test_sarcasm():
     """Jokes should crash.<sarcasm/>"""
