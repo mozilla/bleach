@@ -5,8 +5,8 @@ Bleach
 .. image:: https://travis-ci.org/mozilla/bleach.png?branch=master
    :target: https://travis-ci.org/mozilla/bleach
 
-.. image:: https://badge.fury.io/py/Bleach.svg
-   :target: http://badge.fury.io/py/Bleach
+.. image:: https://badge.fury.io/py/bleach.svg
+   :target: http://badge.fury.io/py/bleach
 
 Bleach is a whitelist-based HTML sanitizing library that escapes or strips
 markup and attributes.
