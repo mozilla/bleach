@@ -16,7 +16,6 @@ def _attr_key(attr):
 
     """
     key = (attr[0][0] or ''), attr[0][1]
-    print(key)
     return key
 
 

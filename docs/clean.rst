@@ -5,7 +5,7 @@
 ``bleach.clean()``
 ==================
 
-:py:func:`bleach.clean`` is Bleach's HTML sanitization method.
+:py:func:`bleach.clean` is Bleach's HTML sanitization method.
 
 Given a fragment of HTML, Bleach will parse it according to the HTML5 parsing
 algorithm and sanitize any disallowed tags or attributes. This algorithm also
@@ -48,13 +48,41 @@ The default value is a relatively conservative list found in
 ``bleach.ALLOWED_TAGS``.
 
 
-Attribute Whitelist
-===================
+Allowed Attributes
+==================
 
-The ``attributes`` kwarg is a whitelist of attributes. It can be a list, in
-which case the attributes are allowed for any tag, or a dictionary, in which
-case the keys are tag names (or a wildcard: ``*`` for all tags) and the values
-are lists of allowed attributes.
+The ``attributes`` kwarg lets you specify which attributes are allowed.
+
+The default value is also a conservative dict found in
+``bleach.ALLOWED_ATTRIBUTES``.
+
+
+As a list
+---------
+
+The ``attributes`` value can be a list, in which case the attributes are allowed
+for any tag.
+
+For example:
+
+.. doctest::
+
+   >>> import bleach
+
+   >>> bleach.clean(
+   ...     u'<p class="foo" style="color: red; font-weight: bold;">blah blah blah</p>',
+   ...     tags=['p'],
+   ...     attributes=['style'],
+   ...     styles=['color'],
+   ... )
+   u'<p style="color: red;">blah blah blah</p>'
+
+
+As a dict
+---------
+
+The ``attributes`` value can be a dict, in which case the keys are tag names (or
+a wildcard: ``*`` for all tags) and the values are lists of allowed attributes.
 
 For example:
 
@@ -80,23 +108,19 @@ In this case, ``class`` is allowed on any allowed element (from the ``tags``
 argument), ``<a>`` tags are allowed to have ``href`` and ``rel`` attributes,
 and so on.
 
-The default value is also a conservative dict found in
-``bleach.ALLOWED_ATTRIBUTES``.
 
+Using functions
+---------------
 
-Callable Filters
-----------------
-
-You can also use a callable (instead of a list) in the ``attributes`` kwarg. If
-the callable returns ``True``, the attribute is allowed. Otherwise, it is
-stripped. For example:
+You can also use callables. If the callable returns ``True``, the attribute is
+allowed. Otherwise, it is stripped. For example:
 
 .. doctest::
 
     >>> from urlparse import urlparse
     >>> import bleach
 
-    >>> def filter_src(name, value):
+    >>> def allow_src(name, value):
     ...     if name in ('alt', 'height', 'width'):
     ...         return True
     ...     if name == 'src':
@@ -108,7 +132,7 @@ stripped. For example:
     ...    u'<img src="http://example.com" alt="an example">',
     ...    tags=['img'],
     ...    attributes={
-    ...        'img': filter_src
+    ...        'img': allow_src
     ...    }
     ... )
     u'<img alt="an example">'
@@ -229,3 +253,47 @@ By default, Bleach will strip out HTML comments. To disable this behavior, set
 
    >>> bleach.clean(html, strip_comments=False)
    u'my<!-- commented --> html'
+
+
+html5lib Filters
+================
+
+Bleach sanitizing is implemented as an html5lib Filter. The consequence of this
+is that we can pass the streamed content through additional specified filters
+after the :py:class:`bleach.sanitizer.BleachSanitizingFilter` filter has run.
+
+This lets you add data, drop data and change data as it is being serialized back
+to a unicode.
+
+Documentation on html5lib Filters is here:
+http://html5lib.readthedocs.io/en/latest/movingparts.html#filters
+
+Trivial Filter example:
+
+.. doctest::
+
+   >>> import bleach
+   >>> from html5lib.filters.base import Filter
+
+   >>> class MooFilter(Filter):
+   ...     def __iter__(self):
+   ...         for token in Filter.__iter__(self):
+   ...             if token['type'] in ['StartTag', 'EmptyTag'] and token['data']:
+   ...                 for attr, value in token['data'].items():
+   ...                     token['data'][attr] = 'moo'
+   ...             yield token
+   ...
+   >>> ATTRS = {
+   ...     'img': ['rel', 'src']
+   ... }
+   ...
+   >>> TAGS = ['img']
+   >>> dirty = 'this is cute! <img src="http://example.com/puppy.jpg" rel="nofollow">'
+   >>> bleach.clean(dirty, tags=TAGS, attributes=ATTRS, filters=[MooFilter])
+   u'this is cute! <img rel="moo" src="moo">'
+
+
+.. Warning::
+
+   Filters change the output of cleaning. Make sure that whatever changes the
+   filter is applying maintain the safety guarantees of the output.
