@@ -1,4 +1,5 @@
 import html5lib
+from html5lib.filters.base import Filter
 import pytest
 import six
 
@@ -147,14 +148,14 @@ class TestClean:
         )
 
     def test_allowed_styles(self):
-        ATTR = ['style']
+        ATTRS = ['style']
         STYLE = ['color']
         blank = '<b style=""></b>'
         s = '<b style="color: blue;"></b>'
-        assert bleach.clean('<b style="top:0"></b>', attributes=ATTR) == blank
-        assert bleach.clean(s, attributes=ATTR, styles=STYLE) == s
+        assert bleach.clean('<b style="top:0"></b>', attributes=ATTRS) == blank
+        assert bleach.clean(s, attributes=ATTRS, styles=STYLE) == s
         assert (
-            bleach.clean('<b style="top: 0; color: blue;"></b>', attributes=ATTR, styles=STYLE) ==
+            bleach.clean('<b style="top: 0; color: blue;"></b>', attributes=ATTRS, styles=STYLE) ==
             s
         )
 
@@ -165,7 +166,7 @@ class TestClean:
         assert bleach.clean(dirty, attributes=['class']) == clean
 
     def test_wildcard_attributes(self):
-        ATTR = {
+        ATTRS = {
             '*': ['id'],
             'img': ['src'],
         }
@@ -173,7 +174,7 @@ class TestClean:
         dirty = ('both <em id="foo" style="color: black">can</em> have '
                  '<img id="bar" src="foo"/>')
         assert (
-            bleach.clean(dirty, tags=TAG, attributes=ATTR) ==
+            bleach.clean(dirty, tags=TAG, attributes=ATTRS) ==
             'both <em id="foo">can</em> have <img id="bar" src="foo">'
         )
 
@@ -272,6 +273,27 @@ class TestClean:
         invalid_href = '<a href="http://xx.com">invalid href</a>'
         cleaned_href = '<a>invalid href</a>'
         assert bleach.clean(invalid_href, protocols=['my_protocol']) == cleaned_href
+
+    def test_filters(self):
+        # Create a Filter that changes all the attr values to "moo"
+        class MooFilter(Filter):
+            def __iter__(self):
+                for token in Filter.__iter__(self):
+                    if token['type'] in ['StartTag', 'EmptyTag'] and token['data']:
+                        for attr, value in token['data'].items():
+                            token['data'][attr] = 'moo'
+
+                    yield token
+
+        ATTRS = {
+            'img': ['rel', 'src']
+        }
+        TAGS = ['img']
+        dirty = 'this is cute! <img src="http://example.com/puppy.jpg" rel="nofollow">'
+        assert (
+            bleach.clean(dirty, tags=TAGS, attributes=ATTRS, filters=[MooFilter]) ==
+            'this is cute! <img rel="moo" src="moo">'
+        )
 
 
 class TestCleaner:

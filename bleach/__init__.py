@@ -115,9 +115,8 @@ class Cleaner(object):
 
     def __init__(self, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
                  styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
-                 strip_comments=True):
-        """
-        :arg tags: whitelist of allowed tags; defaults to
+                 strip_comments=True, filters=None):
+        """:arg tags: whitelist of allowed tags; defaults to
             ``bleach.ALLOWED_TAGS``
 
         :arg attributes: whitelist of allowed attributes; defaults to
@@ -133,6 +132,16 @@ class Cleaner(object):
 
         :arg strip_comments: whether or not to strip HTML comments
 
+        :arg filters: list of html5lib Filter classes to pass streamed content through
+
+            See http://html5lib.readthedocs.io/en/latest/movingparts.html#filters
+
+            .. Warning::
+
+               Using filters changes the output of
+               :py:method:`bleach.Cleaner.clean`. Make sure the way the filters
+               change the output are secure.
+
         """
         self.tags = tags
         self.attributes = attributes
@@ -140,6 +149,7 @@ class Cleaner(object):
         self.protocols = protocols
         self.strip = strip
         self.strip_comments = strip_comments
+        self.filters = filters or []
 
         self.parser = html5lib.HTMLParser(namespaceHTMLElements=False)
         self.walker = html5lib.getTreeWalker('etree')
@@ -183,12 +193,16 @@ class Cleaner(object):
             allowed_svg_properties=[],
         )
 
+        # Apply any filters after the BleachSanitizerFilter
+        for filter_class in self.filters:
+            filtered = filter_class(source=filtered)
+
         return self.serializer.render(filtered)
 
 
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
           styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
-          strip_comments=True):
+          strip_comments=True, filters=None):
     """Clean an HTML fragment of malicious content and return it
 
     This function is a security-focused function whose sole purpose is to
@@ -228,6 +242,16 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
     :arg strip_comments: whether or not to strip HTML comments
 
+    :arg filters: list of html5lib Filter classes to pass streamed content through
+
+        See http://html5lib.readthedocs.io/en/latest/movingparts.html#filters
+
+        .. Warning::
+
+           Using filters changes the output of
+           `bleach.Cleaner.clean`. Make sure the way the filters
+           change the output are secure.
+
     :returns: cleaned text as unicode
 
     """
@@ -238,6 +262,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
         protocols=protocols,
         strip=strip,
         strip_comments=strip_comments,
+        filters=filters,
     )
     return cleaner.clean(text)
 
