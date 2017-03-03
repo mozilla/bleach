@@ -79,19 +79,22 @@ class BleachSanitizerFilter(sanitizer.Filter):
             if not callable(allowed_attributes):
                 allowed_attributes += self.wildcard_attributes
 
-            # Drop any attributes that aren't allowed
+            # Loop through all the attributes and drop the ones that are not
+            # allowed, are unsafe or break other rules. Additionally, fix
+            # attribute values that need fixing.
+            #
+            # At the end of this loop, we have the final set of attributes
+            # we're keeping.
             attrs = {}
             for namespaced_name, val in token['data'].items():
                 namespace, name = namespaced_name
 
-                # See if we should dump the attribute
+                # Drop attributes that are not explicitly allowed
                 if callable(allowed_attributes):
                     if not allowed_attributes(name, val):
-                        # DROP!
                         continue
 
                 elif name not in allowed_attributes:
-                    # DROP!
                     continue
 
                 # Look at attributes that have uri values
@@ -108,7 +111,6 @@ class BleachSanitizerFilter(sanitizer.Filter):
                     # aren't allowed
                     if (re.match(r'^[a-z0-9][-+.a-z0-9]*:', val_unescaped) and
                             (val_unescaped.split(':')[0] not in self.allowed_protocols)):
-                        # DROP!
                         continue
 
                 # Drop values in svg attrs with non-local IRIs
@@ -118,7 +120,6 @@ class BleachSanitizerFilter(sanitizer.Filter):
                                      unescape(val))
                     new_val = new_val.strip()
                     if not new_val:
-                        # DROP!
                         continue
 
                     else:
@@ -143,6 +144,7 @@ class BleachSanitizerFilter(sanitizer.Filter):
             token['data'] = OrderedDict(
                 [(k, v) for k, v in sorted(attrs.items(), key=_attr_key)]
             )
+
         return token
 
     def sanitize_css(self, style):
