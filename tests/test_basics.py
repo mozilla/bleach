@@ -1,4 +1,3 @@
-import html5lib
 from html5lib.filters.base import Filter
 import pytest
 import six
@@ -183,17 +182,19 @@ class TestClean:
         def img_test(attr, val):
             return attr == 'src' and val.startswith('https')
 
-        ATTR = {
+        ATTRS = {
             'img': img_test,
         }
         TAGS = ['img']
 
         assert (
-            bleach.clean('foo <img src="http://example.com" alt="blah"> baz', tags=TAGS, attributes=ATTR) ==
+            bleach.clean('foo <img src="http://example.com" alt="blah"> baz', tags=TAGS,
+                         attributes=ATTRS) ==
             u'foo <img> baz'
         )
         assert (
-            bleach.clean('foo <img src="https://example.com" alt="blah"> baz', tags=TAGS, attributes=ATTR) ==
+            bleach.clean('foo <img src="https://example.com" alt="blah"> baz', tags=TAGS,
+                         attributes=ATTRS) ==
             u'foo <img src="https://example.com"> baz'
         )
 
@@ -325,11 +326,6 @@ class TestLinkify:
         assert bleach.linkify(link_good) == link_good
 
 
-def test_xml_render():
-    parser = html5lib.HTMLParser()
-    assert bleach._render(parser.parseFragment('')) == ''
-
-
 def test_idempotent():
     """Make sure that applying the filter twice doesn't change anything."""
     dirty = '<span>invalid & </span> < extra http://link.com<em>'
@@ -340,7 +336,8 @@ def test_idempotent():
     linked = bleach.linkify(dirty)
     assert (
         bleach.linkify(linked) ==
-        '<span>invalid &amp; </span> &lt; extra <a href="http://link.com" rel="nofollow">http://link.com</a><em></em>'
+        '<span>invalid &amp; </span> &lt; extra <a href="http://link.com" '
+        'rel="nofollow">http://link.com</a><em></em>'
     )
 
 

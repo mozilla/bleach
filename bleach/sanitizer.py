@@ -1,22 +1,11 @@
 from __future__ import unicode_literals
-from collections import OrderedDict
 import re
 from xml.sax.saxutils import unescape
 
 from html5lib.constants import namespaces
 from html5lib.filters import sanitizer
 
-
-def _attr_key(attr):
-    """Returns appropriate key for sorting attribute names
-
-    Attribute names are a tuple of ``(namespace, name)`` where namespace can be
-    ``None`` or a string. These can't be compared in Python 3, so we conver the
-    ``None`` to an empty string.
-
-    """
-    key = (attr[0][0] or ''), attr[0][1]
-    return key
+from bleach.utils import alphabetize_attributes
 
 
 class BleachSanitizerFilter(sanitizer.Filter):
@@ -60,9 +49,7 @@ class BleachSanitizerFilter(sanitizer.Filter):
                 if 'data' in token:
                     # Alphabetize the attributes before calling .disallowed_token()
                     # so that the resulting string is stable
-                    token['data'] = OrderedDict(
-                        [(key, val) for key, val in sorted(token['data'].items(), key=_attr_key)]
-                    )
+                    token['data'] = alphabetize_attributes(token['data'])
                 return self.disallowed_token(token)
 
         elif token_type == 'Comment':
@@ -139,10 +126,7 @@ class BleachSanitizerFilter(sanitizer.Filter):
                 # At this point, we want to keep the attribute, so add it in
                 attrs[namespaced_name] = val
 
-            # Alphabetize attributes
-            token['data'] = OrderedDict(
-                [(k, v) for k, v in sorted(attrs.items(), key=_attr_key)]
-            )
+            token['data'] = alphabetize_attributes(attrs)
 
         return token
 
