@@ -116,7 +116,9 @@ class Cleaner(object):
     def __init__(self, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
                  styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
                  strip_comments=True, filters=None):
-        """:arg tags: whitelist of allowed tags; defaults to
+        """Initializes a Cleaner
+
+        :arg tags: whitelist of allowed tags; defaults to
             ``bleach.ALLOWED_TAGS``
 
         :arg attributes: whitelist of allowed attributes; defaults to
@@ -138,9 +140,8 @@ class Cleaner(object):
 
             .. Warning::
 
-               Using filters changes the output of
-               :py:method:`bleach.Cleaner.clean`. Make sure the way the filters
-               change the output are secure.
+               Using filters changes the output of ``bleach.Cleaner.clean``.
+               Make sure the way the filters change the output are secure.
 
         """
         self.tags = tags
@@ -249,7 +250,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
         .. Warning::
 
            Using filters changes the output of
-           `bleach.Cleaner.clean`. Make sure the way the filters
+           ``bleach.Cleaner.clean``. Make sure the way the filters
            change the output are secure.
 
     :returns: cleaned text as unicode

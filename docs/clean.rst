@@ -22,6 +22,7 @@ If you're cleaning a lot of text, you might want to create a
 .. autofunction:: bleach.clean
 
 .. autoclass:: bleach.Cleaner
+   :members:
 
 
 Tag Whitelist
