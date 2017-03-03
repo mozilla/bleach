@@ -274,6 +274,19 @@ class TestClean:
         assert bleach.clean(invalid_href, protocols=['my_protocol']) == cleaned_href
 
 
+class TestCleaner:
+    def test_basics(self):
+        TAGS = ['span', 'br']
+        ATTRS = {'span': ['style']}
+
+        cleaner = bleach.Cleaner(tags=TAGS, attributes=ATTRS)
+
+        assert (
+            cleaner.clean('a <br/><span style="color:red">test</span>') ==
+            'a <br><span style="">test</span>'
+        )
+
+
 class TestLinkify:
     def test_no_href_links(self):
         s = '<a name="anchor">x</a>'

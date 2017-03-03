@@ -14,7 +14,7 @@ from bleach.encoding import force_unicode
 from bleach.sanitizer import BleachSanitizerFilter
 from bleach.version import __version__, VERSION # flake8: noqa
 
-__all__ = ['clean', 'linkify']
+__all__ = ['Cleaner', 'clean', 'linkify']
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
