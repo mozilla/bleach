@@ -92,6 +92,100 @@ ETREE_TAG = lambda x: "".join(['{http://www.w3.org/1999/xhtml}', x])
 DEFAULT_CALLBACKS = [linkify_callbacks.nofollow]
 
 
+class Cleaner(object):
+    """Cleaner for cleaning HTML fragments of malicious content
+
+    This cleaner is a security-focused function whose sole purpose is to remove
+    malicious content from a string such that it can be displayed as content in
+    a web page.
+
+    This cleaner is not designed to use to transform content to be used in
+    non-web-page contexts.
+
+    To use::
+
+        from bleach import Cleaner
+
+        cleaner = Cleaner()
+
+        for text in all_the_yucky_things:
+            sanitized = cleaner.clean(text)
+
+    """
+
+    def __init__(self, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
+                 styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
+                 strip_comments=True):
+        """
+        :arg tags: whitelist of allowed tags; defaults to
+            ``bleach.ALLOWED_TAGS``
+
+        :arg attributes: whitelist of allowed attributes; defaults to
+            ``bleach.ALLOWED_ATTRIBUTES``
+
+        :arg styles: whitelist of allowed css; defaults to
+            ``bleach.ALLOWED_STYLES``
+
+        :arg protocols: whitelist of allowed protocols for links; defaults
+            to ``bleach.ALLOWED_PROTOCOLS``
+
+        :arg strip: whether or not to strip disallowed elements
+
+        :arg strip_comments: whether or not to strip HTML comments
+
+        """
+        self.tags = tags
+        self.attributes = attributes
+        self.styles = styles
+        self.protocols = protocols
+        self.strip = strip
+        self.strip_comments = strip_comments
+
+        self.parser = html5lib.HTMLParser(namespaceHTMLElements=False)
+        self.walker = html5lib.getTreeWalker('etree')
+        self.serializer = HTMLSerializer(
+            quote_attr_values='always',
+            omit_optional_tags=False,
+
+            # Bleach has its own sanitizer, so don't use the html5lib one
+            sanitize=False,
+
+            # Bleach sanitizer alphabetizes already, so don't use the html5lib one
+            alphabetical_attributes=False,
+        )
+
+    def clean(self, text):
+        """Cleans text and returns sanitized result as unicode
+
+        :arg str text: text to be cleaned
+
+        :returns: sanitized text as unicode
+
+        """
+        if not text:
+            return u''
+
+        text = force_unicode(text)
+
+        dom = self.parser.parseFragment(text)
+        filtered = BleachSanitizerFilter(
+            source=self.walker(dom),
+
+            # Bleach-sanitizer-specific things
+            allowed_attributes_map=self.attributes,
+            strip_disallowed_elements=self.strip,
+            strip_html_comments=self.strip_comments,
+
+            # html5lib-sanitizer things
+            allowed_elements=self.tags,
+            allowed_css_properties=self.styles,
+            allowed_protocols=self.protocols,
+            allowed_svg_properties=[],
+        )
+
+        return self.serializer.render(filtered)
+
+
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
           styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
           strip_comments=True):
@@ -104,56 +198,48 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
     This function is not designed to use to transform content to be used in
     non-web-page contexts.
 
+    Example::
+
+        import bleach
+
+        better_text = bleach.clean(yucky_text)
+
+
+    .. Note::
+
+       If you're cleaning a lot of text and passing the same argument
+       values, consider caching a ``Cleaner`` instance.
+
     :arg text: the text to clean
+
     :arg tags: whitelist of allowed tags; defaults to
         ``bleach.ALLOWED_TAGS``
+
     :arg attributes: whitelist of allowed attributes; defaults to
         ``bleach.ALLOWED_ATTRIBUTES``
+
     :arg styles: whitelist of allowed css; defaults to
         ``bleach.ALLOWED_STYLES``
+
     :arg protocols: whitelist of allowed protocols for links; defaults
         to ``bleach.ALLOWED_PROTOCOLS``
+
     :arg strip: whether or not to strip disallowed elements
+
     :arg strip_comments: whether or not to strip HTML comments
 
     :returns: cleaned text as unicode
 
     """
-    if not text:
-        return u''
-
-    text = force_unicode(text)
-
-    parser = html5lib.HTMLParser(namespaceHTMLElements=False)
-    dom = parser.parseFragment(text)
-
-    walker = html5lib.getTreeWalker('etree')
-    filtered = BleachSanitizerFilter(
-        source=walker(dom),
-
-        # Bleach-sanitizer-specific things
-        allowed_attributes_map=attributes,
-        strip_disallowed_elements=strip,
-        strip_html_comments=strip_comments,
-
-        # html5lib-sanitizer things
-        allowed_elements=tags,
-        allowed_css_properties=styles,
-        allowed_protocols=protocols,
-        allowed_svg_properties=[],
-
+    cleaner = Cleaner(
+        tags=tags,
+        attributes=attributes,
+        styles=styles,
+        protocols=protocols,
+        strip=strip,
+        strip_comments=strip_comments,
     )
-    s = HTMLSerializer(
-        quote_attr_values='always',
-        omit_optional_tags=False,
-
-        # Bleach has its own sanitizer, so don't use the html5lib one
-        sanitize=False,
-
-        # Bleach sanitizer alphabetizes already, so don't use the html5lib one
-        alphabetical_attributes=False,
-    )
-    return s.render(filtered)
+    return cleaner.clean(text)
 
 
 def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False,
