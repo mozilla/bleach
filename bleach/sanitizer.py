@@ -141,7 +141,7 @@ class BleachSanitizerFilter(sanitizer.Filter):
 
             # Alphabetize attributes
             token['data'] = OrderedDict(
-                [(key, val) for key, val in sorted(attrs.items(), key=_attr_key)]
+                [(k, v) for k, v in sorted(attrs.items(), key=_attr_key)]
             )
         return token
 
