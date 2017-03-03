@@ -79,61 +79,72 @@ class BleachSanitizerFilter(sanitizer.Filter):
             if not callable(allowed_attributes):
                 allowed_attributes += self.wildcard_attributes
 
-            # Drop any attributes that aren't allowed
+            # Loop through all the attributes and drop the ones that are not
+            # allowed, are unsafe or break other rules. Additionally, fix
+            # attribute values that need fixing.
+            #
+            # At the end of this loop, we have the final set of attributes
+            # we're keeping.
             attrs = {}
             for namespaced_name, val in token['data'].items():
                 namespace, name = namespaced_name
 
+                # Drop attributes that are not explicitly allowed
                 if callable(allowed_attributes):
-                    if allowed_attributes(name, val):
-                        attrs[namespaced_name] = val
+                    if not allowed_attributes(name, val):
+                        continue
 
-                elif name in allowed_attributes:
-                    attrs[namespaced_name] = val
-
-            # Handle attributes that have uri values
-            for attr in self.attr_val_is_uri:
-                if attr not in attrs:
+                elif name not in allowed_attributes:
                     continue
 
-                val_unescaped = re.sub("[`\000-\040\177-\240\s]+", '',
-                                       unescape(attrs[attr])).lower()
+                # Look at attributes that have uri values
+                if namespaced_name in self.attr_val_is_uri:
+                    val_unescaped = re.sub(
+                        "[`\000-\040\177-\240\s]+",
+                        '',
+                        unescape(val)).lower()
 
-                # Remove replacement characters from unescaped characters.
-                val_unescaped = val_unescaped.replace("\ufffd", "")
+                    # Remove replacement characters from unescaped characters.
+                    val_unescaped = val_unescaped.replace("\ufffd", "")
 
-                if (re.match(r'^[a-z0-9][-+.a-z0-9]*:', val_unescaped) and
-                        (val_unescaped.split(':')[0] not in self.allowed_protocols)):
-                    # It has a protocol, but it's not allowed--so drop it
-                    del attrs[attr]
+                    # Drop attributes with uri values that have protocols that
+                    # aren't allowed
+                    if (re.match(r'^[a-z0-9][-+.a-z0-9]*:', val_unescaped) and
+                            (val_unescaped.split(':')[0] not in self.allowed_protocols)):
+                        continue
 
-            # Drop values in svg attrs with non-local IRIs
-            for attr in self.svg_attr_val_allows_ref:
-                if attr in attrs:
+                # Drop values in svg attrs with non-local IRIs
+                if namespaced_name in self.svg_attr_val_allows_ref:
                     new_val = re.sub(r'url\s*\(\s*[^#\s][^)]+?\)',
                                      ' ',
-                                     unescape(attrs[attr]))
+                                     unescape(val))
                     new_val = new_val.strip()
                     if not new_val:
-                        del attrs[attr]
+                        continue
+
                     else:
-                        attrs[attr] = new_val
+                        # Replace the val with the unescaped version because
+                        # it's a iri
+                        val = new_val
 
-            # Drop href and xlink:href attr for svg elements with non-local IRIs
-            if (None, token['name']) in self.svg_allow_local_href:
-                for href_attr in [(None, 'href'), (namespaces['xlink'], 'href')]:
-                    if href_attr in attrs:
-                        if re.search(r'^\s*[^#\s]', attrs[href_attr]):
-                            del attrs[href_attr]
+                # Drop href and xlink:href attr for svg elements with non-local IRIs
+                if (None, token['name']) in self.svg_allow_local_href:
+                    if namespaced_name in [(None, 'href'), (namespaces['xlink'], 'href')]:
+                        if re.search(r'^\s*[^#\s]', val):
+                            continue
 
-            # Sanitize css in style attribute
-            if (None, u'style') in attrs:
-                attrs[(None, u'style')] = self.sanitize_css(attrs[(None, u'style')])
+                # If it's a style attribute, sanitize it
+                if namespaced_name == (None, u'style'):
+                    val = self.sanitize_css(val)
+
+                # At this point, we want to keep the attribute, so add it in
+                attrs[namespaced_name] = val
 
             # Alphabetize attributes
             token['data'] = OrderedDict(
-                [(key, val) for key, val in sorted(attrs.items(), key=_attr_key)]
+                [(k, v) for k, v in sorted(attrs.items(), key=_attr_key)]
             )
+
         return token
 
     def sanitize_css(self, style):
