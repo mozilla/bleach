@@ -5,10 +5,7 @@
 ``bleach.clean()``
 ==================
 
-``clean()`` is Bleach's HTML sanitization method.
-
-.. autofunction:: bleach.clean
-
+:py:func:`bleach.clean`` is Bleach's HTML sanitization method.
 
 Given a fragment of HTML, Bleach will parse it according to the HTML5 parsing
 algorithm and sanitize any disallowed tags or attributes. This algorithm also
@@ -17,6 +14,14 @@ takes care of things like unclosed and (some) misnested tags.
 .. note::
    You may pass in a ``string`` or a ``unicode`` object, but Bleach will
    always return ``unicode``.
+
+
+If you're cleaning a lot of text, you might want to create a
+:py:class:`bleach.Cleaner` instance.
+
+.. autofunction:: bleach.clean
+
+.. autoclass:: bleach.Cleaner
 
 
 Tag Whitelist
