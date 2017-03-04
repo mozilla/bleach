@@ -254,7 +254,6 @@ class LinkifyFilter(Filter):
 
                     else:
                         # Add the "a" tag!
-
                         if prefix:
                             new_tokens.append(
                                 {u'type': u'Characters', u'data': prefix}
@@ -289,6 +288,49 @@ class LinkifyFilter(Filter):
 
             yield token
 
+    def handle_a_tag(self, token_buffer):
+        """Handle the "a" tag
+
+        This could adjust the link or drop it altogether depending on what the
+        callbacks return.
+
+        This yields the new set of tokens.
+
+        """
+        a_token = token_buffer[0]
+        if a_token['data']:
+            attrs = a_token['data']
+        else:
+            attrs = {}
+        text = self.extract_character_data(token_buffer)
+        attrs['_text'] = text
+
+        attrs = self.apply_callbacks(attrs, False)
+
+        if attrs is None:
+            # We're dropping the "a" tag and everything else and replacing
+            # it with character data. So emit that token.
+            yield {'type': 'Characters', 'data': text}
+
+        else:
+            new_text = attrs.pop('_text', '')
+            a_token['data'] = alphabetize_attributes(attrs)
+
+            if text == new_text:
+                # The callbacks didn't change the text, so we yield the new "a"
+                # token, then whatever else was there, then the end "a" token
+                yield a_token
+                for mem in token_buffer[1:]:
+                    yield mem
+
+            else:
+                # If the callbacks changed the text, then we're going to drop
+                # all the tokens between the start and end "a" tags and replace
+                # it with the new text
+                yield a_token
+                yield {'type': 'Characters', 'data': force_unicode(new_text)}
+                yield token_buffer[-1]
+
     def __iter__(self):
         in_a = False
         in_pre = False
@@ -300,47 +342,15 @@ class LinkifyFilter(Filter):
                 # Handle the case where we're in an "a" tag--we want to buffer tokens
                 # until we hit an end "a" tag.
                 if token['type'] == 'EndTag' and token['name'] == 'a':
-                    # We're no longer in an "a" tag, so we get all the things we
-                    # need to apply callbacks and then figure out what to do with
-                    # this "a" tag.
+                    # Add the end tag to the token buffer and then handle them
+                    # and yield anything returned
+                    token_buffer.append(token)
+                    for new_token in self.handle_a_tag(token_buffer):
+                        yield new_token
+
+                    # Clear "a" related state and continue since we've yielded all
+                    # the tokens we're going to yield
                     in_a = False
-                    a_token = token_buffer[0]
-                    if a_token['data']:
-                        attrs = a_token['data']
-                    else:
-                        attrs = {}
-
-                    text = self.extract_character_data(token_buffer)
-                    attrs['_text'] = text
-
-                    attrs = self.apply_callbacks(attrs, False)
-                    if attrs is None:
-                        # We're dropping the "a" tag and everything else and replacing
-                        # it with character data. So emit that token.
-                        yield {'type': 'Characters', 'data': text}
-
-                    else:
-                        new_text = attrs.pop('_text', '')
-                        # FIXME(willkg): add nofollow here
-                        a_token['data'] = alphabetize_attributes(attrs)
-
-                        if text == new_text:
-                            # The callbacks didn't change the text, so we yield the
-                            # new "a" token, then whatever else was there, then the
-                            # end "a" token
-                            yield a_token
-                            for mem in token_buffer[1:]:
-                                yield mem
-                            yield token
-
-                        else:
-                            # If the callbacks changed the text, then we're going
-                            # to drop all the tokens between the start and end "a"
-                            # tags and replace it with the new text
-                            yield a_token
-                            yield {'type': 'Characters', 'data': force_unicode(new_text)}
-                            yield token
-
                     token_buffer = []
                     continue
 
