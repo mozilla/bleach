@@ -5,7 +5,8 @@ except ImportError:
 
 import pytest
 
-from bleach import linkify, url_re, DEFAULT_CALLBACKS as DC
+from bleach import linkify, DEFAULT_CALLBACKS as DC
+from bleach.linkifier import url_re
 
 
 def test_url_re():
@@ -51,8 +52,9 @@ def test_trailing_slash():
 def test_mangle_link():
     """We can muck with the href attribute of the link."""
     def filter_url(attrs, new=False):
-        quoted = quote_plus(attrs['href'])
-        attrs['href'] = 'http://bouncer/?u={0!s}'.format(quoted)
+        if not attrs.get((None, 'href'), '').startswith('http://bouncer'):
+            quoted = quote_plus(attrs[(None, 'href')])
+            attrs[(None, 'href')] = 'http://bouncer/?u={0!s}'.format(quoted)
         return attrs
 
     assert (
@@ -188,7 +190,7 @@ def test_set_attrs():
     """We can set random attributes on links."""
 
     def set_attr(attrs, new=False):
-        attrs['rev'] = 'canonical'
+        attrs[(None, u'rev')] = u'canonical'
         return attrs
 
     assert (
@@ -214,7 +216,7 @@ def test_only_proto_links():
 def test_stop_email():
     """Returning None should prevent a link from being created."""
     def no_email(attrs, new=False):
-        if attrs['href'].startswith('mailto:'):
+        if attrs[(None, 'href')].startswith('mailto:'):
             return None
         return attrs
     text = 'do not link james@example.com'
@@ -276,14 +278,16 @@ def test_add_rel_nofollow():
 def test_url_with_path():
     assert (
         linkify('http://example.com/path/to/file') ==
-        '<a href="http://example.com/path/to/file" rel="nofollow">http://example.com/path/to/file</a>'
+        '<a href="http://example.com/path/to/file" rel="nofollow">'
+        'http://example.com/path/to/file</a>'
     )
 
 
 def test_link_ftp():
     assert (
         linkify('ftp://ftp.mozilla.org/some/file') ==
-        '<a href="ftp://ftp.mozilla.org/some/file" rel="nofollow">ftp://ftp.mozilla.org/some/file</a>'
+        '<a href="ftp://ftp.mozilla.org/some/file" rel="nofollow">'
+        'ftp://ftp.mozilla.org/some/file</a>'
     )
 
 
@@ -325,10 +329,8 @@ def test_escaped_html():
 def test_link_http_complete():
     assert (
         linkify('https://user:pass@ftp.mozilla.org/x/y.exe?a=b&c=d&e#f') ==
-        (
-            '<a href="https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f" rel="nofollow">'
-            'https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f</a>'
-        )
+        '<a href="https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f" rel="nofollow">'
+        'https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f</a>'
     )
 
 
@@ -348,7 +350,8 @@ def test_unsafe_url():
     """Any unsafe char ({}[]<>, etc.) in the path should end URL scanning."""
     assert (
         linkify('All your{"xx.yy.com/grover.png"}base are') ==
-        'All your{"<a href="http://xx.yy.com/grover.png" rel="nofollow">xx.yy.com/grover.png</a>"}base are'
+        'All your{"<a href="http://xx.yy.com/grover.png" rel="nofollow">xx.yy.com/grover.png</a>"}'
+        'base are'
     )
 
 
@@ -464,6 +467,14 @@ def test_sarcasm():
         '(http://en.wikipedia.org/wiki/)Test_(assessment',
         ('(', 'en.wikipedia.org/wiki/)Test_(assessment',
          'http://en.wikipedia.org/wiki/)Test_(assessment', '')
+    ),
+    (
+        'hello (http://www.mu.de/blah.html) world',
+        ('hello (', 'www.mu.de/blah.html', 'http://www.mu.de/blah.html', ') world')
+    ),
+    (
+        'hello (http://www.mu.de/blah.html). world',
+        ('hello (', 'www.mu.de/blah.html', 'http://www.mu.de/blah.html', '). world')
     )
 ])
 def test_wrapping_parentheses(data, expected_data):
@@ -556,8 +567,35 @@ def test_remove_first_childlink():
 
 def test_drop_link_tags():
     """Verify that dropping link tags *just* drops the tag and not the content"""
-    html = """first <a href="http://example.com/1/">second</a> third <a href="http://example.com/2/">fourth</a> fifth"""
+    html = (
+        'first <a href="http://example.com/1/">second</a> third <a href="http://example.com/2/">'
+        'fourth</a> fifth'
+    )
     assert (
         linkify(html, callbacks=[lambda attrs, new: None]) ==
         'first second third fourth fifth'
+    )
+
+
+@pytest.mark.parametrize('text, expected', [
+    (u'&lt;br&gt;', u'&lt;br&gt;'),
+    (
+        u'&lt;br&gt; http://example.com',
+        u'&lt;br&gt; <a href="http://example.com" rel="nofollow">http://example.com</a>'
+    ),
+    (
+        u'&lt;br&gt; <br> http://example.com',
+        u'&lt;br&gt; <br> <a href="http://example.com" rel="nofollow">http://example.com</a>'
+    )
+])
+def test_naughty_unescaping(text, expected):
+    """Verify that linkify is not unescaping things it shouldn't be"""
+    assert linkify(text) == expected
+
+
+def test_hang():
+    """This string would hang linkify. Issue #200"""
+    assert (
+        linkify("an@email.com<mailto:an@email.com>", parse_email=True) ==
+        '<a href="mailto:an@email.com">an@email.com</a><mailto:an@email.com></mailto:an@email.com>'
     )

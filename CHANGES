@@ -6,21 +6,68 @@ Version 2.0 (in development)
 
 **Backwards incompatible changes**
 
-- Removed support for Python 2.6. #206
-- Removed support for Python 3.2. #224
-- Bleach no longer supports html5lib < 0.99999999 (8 9s).
+* Removed support for Python 2.6. #206
 
-  This version represents a rewrite to use the new sanitizing API since
-  the old one was dropped in html5lib 0.99999999 (8 9s).
+* Removed support for Python 3.2. #224
 
-- linkify no longer accepts a tokenizer argument.
-- clean output is different than in previous versions; particularly this version
-  will add end tags even if the tag will be escaped.
+* Bleach no longer supports html5lib < 0.99999999 (8 9s).
+
+  This version is a rewrite to use the new sanitizing API since the old
+  one was dropped in html5lib 0.99999999 (8 9s).
+
+* ``bleach.clean`` and friends were rewritten
+
+  ``clean`` is now implemented as an html5lib Filter and happens at a different
+  step in the HTML parsing -> traversing -> serializing process. Because of
+  that, there are some differences in clean's output as compared with previous
+  versions.
+
+  Amongst other things, this version will add end tags even if the tag in
+  question is to be escaped.
+
+* ``bleach.linkify`` was rewritten
+
+  ``linkify`` was reimplemented as an html5lib Filter. As such, it no longer
+  accepts a ``tokenizer`` argument.
+
+  The callback functions for adjusting link attributes now takes a namespaced
+  attribute.
+
+  Previously you'd do something like this::
+
+      def check_protocol(attrs, is_new):
+          if not attrs.get('href', '').startswith('http:', 'https:')):
+              return None
+          return attrs
+
+  Now it's more like this::
+
+      def check_protocol(attrs, is_new):
+          if not attrs.get((None, 'href'), '').startswith(('http:', 'https:')):
+              #            ^^^^^^^^^^^^^^
+              return None
+          return attrs
+
 
 **Changes**
 
-- Supports Python 3.6.
-- Supports html5lib >= 0.99999999 (8 9s).
+* Supports Python 3.6.
+
+* Supports html5lib >= 0.99999999 (8 9s).
+
+* There's a ``bleach.Cleaner`` class that you can instantiate with your
+  favorite clean settings and reuse it.
+
+* There's a ``bleach.linkifier.LinkifyFilter`` which is an htm5lib Filter.
+
+* You can pass ``bleach.linkifier.LinkifyFilter`` as a Filter to
+  ``bleach.Cleaner`` allowing you to clean and linkify in one pass.
+
+* Lots of bug fixes.
+
+* Test cleanup.
+
+* Documentation fixes.
 
 
 Version 1.5 (November 4th, 2016)
