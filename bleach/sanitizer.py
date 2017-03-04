@@ -9,6 +9,11 @@ from bleach.utils import alphabetize_attributes
 
 
 class BleachSanitizerFilter(sanitizer.Filter):
+    """html5lib Filter that sanitizes text
+
+    This filter can be used anywhere html5lib filters can be used.
+
+    """
     def __init__(self, source, allowed_attributes_map,
                  strip_disallowed_elements=False, strip_html_comments=True,
                  **kwargs):
@@ -60,6 +65,7 @@ class BleachSanitizerFilter(sanitizer.Filter):
             return token
 
     def allow_token(self, token):
+        """Handles the case where we're allowing the tag"""
         if 'data' in token:
             allowed_attributes = self.allowed_attributes_map.get(token['name'], [])
             if not callable(allowed_attributes):
@@ -131,7 +137,7 @@ class BleachSanitizerFilter(sanitizer.Filter):
         return token
 
     def sanitize_css(self, style):
-        """html5lib sanitizer filter replacement to fix issues"""
+        """Sanitizes css in style tags"""
         # disallow urls
         style = re.compile('url\s*\(\s*[^\s)]+?\s*\)\s*').sub(' ', style)
 

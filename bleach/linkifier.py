@@ -54,6 +54,18 @@ email_re = re.compile(
 
 
 class LinkifyFilter(Filter):
+    """html5lib filter that linkifies text
+
+    This will do the following:
+
+    * convert email addresses into links
+    * convert urls into links
+    * edit existing links by running them through callbacks--the default is to
+      add a ``rel="nofollow"``
+
+    This filter can be used anywhere html5lib filters can be used.
+
+    """
     def __init__(self, source, callbacks=None, skip_pre=False, parse_email=False):
         super(LinkifyFilter, self).__init__(source)
 
@@ -62,6 +74,13 @@ class LinkifyFilter(Filter):
         self.parse_email = parse_email
 
     def apply_callbacks(self, attrs, is_new):
+        """Given an attrs dict and an is_new bool, runs through callbacks
+
+        Callbacks can return an adjusted attrs dict or None. In the case of
+        None, we stop going through callbacks and return that and the link gets
+        dropped.
+
+        """
         for cb in self.callbacks:
             attrs = cb(attrs, is_new)
             if attrs is None:
@@ -70,6 +89,23 @@ class LinkifyFilter(Filter):
 
     def extract_character_data(self, token_list):
         """Extracts and squashes character sequences in a token stream"""
+        # FIXME(willkg): This is a terrible idea. What it does is drop all the
+        # tags from the token list and merge the Characters and SpaceCharacters
+        # tokens into a single text.
+        #
+        # So something like this::
+        #
+        #     "<span>" "<b>" "some text" "</b>" "</span>"
+        #
+        # gets converted to "some text".
+        #
+        # This gets used to figure out the ``_text`` fauxttribute value for
+        # linkify callables.
+        #
+        # I'm not really sure how else to support that ``_text`` fauxttribute and
+        # maintain some modicum of backwards compatability with previous versions
+        # of Bleach.
+
         out = []
         for token in token_list:
             token_type = token['type']
@@ -86,6 +122,7 @@ class LinkifyFilter(Filter):
                 new_tokens = []
                 end = 0
 
+                # For each email address we find in the text
                 for match in email_re.finditer(text):
                     if match.start() > end:
                         new_tokens.append(
@@ -101,13 +138,13 @@ class LinkifyFilter(Filter):
                     attrs = self.apply_callbacks(attrs, True)
 
                     if attrs is None:
-                        # Just add the text
+                        # Just add the text--but not as a link
                         new_tokens.append(
                             {u'type': u'Characters', u'data': match.group(0)}
                         )
 
                     else:
-                        # Add a "a" tag
+                        # Add an "a" tag for the new link
                         _text = attrs.pop(u'_text', '')
                         attrs = alphabetize_attributes(attrs)
                         new_tokens.extend([
@@ -118,6 +155,8 @@ class LinkifyFilter(Filter):
                     end = match.end()
 
                 if new_tokens:
+                    # Yield the adjusted set of tokens and then continue
+                    # through the loop
                     if end < len(text):
                         new_tokens.append({u'type': u'Characters', u'data': text[end:]})
 
@@ -128,46 +167,58 @@ class LinkifyFilter(Filter):
 
             yield token
 
-    def strip_wrapping_parentheses(self, fragment):
-        """Strips wrapping parentheses"""
+    def strip_parentheses(self, fragment):
+        """Strips parentheses from before and after url"""
         openp = closep = 0
 
         # Count consecutive opening parentheses at the beginning of the
         # fragment (string)
-        for char in fragment:
-            if char == '(':
-                openp += 1
-            else:
-                break
+        if fragment.startswith(u'('):
+            for char in fragment:
+                if char == '(':
+                    openp += 1
+                else:
+                    break
 
-        if openp:
-            newer_frag = ''
-            # Cut the consecutive opening brackets from the fragment
-            fragment = fragment[openp:]
+            if openp:
+                newer_frag = ''
 
-            # Reverse the fragment for easier detection of parentheses
-            # inside the URL
-            reverse_fragment = fragment[::-1]
-            skip = False
-            for char in reverse_fragment:
-                if char == ')' and closep < openp and not skip:
-                    # Remove the closing parentheses if it has a matching
-                    # opening parentheses (they are balanced).
-                    closep += 1
-                    continue
+                # Cut the consecutive opening brackets from the fragment
+                fragment = fragment[openp:]
 
-                elif char != ')':
-                    # Do not remove ')' from the URL itself.
-                    skip = True
+                # Reverse the fragment for easier detection of parentheses
+                # inside the URL
+                reverse_fragment = fragment[::-1]
+                skip = False
+                for char in reverse_fragment:
+                    if char == ')' and closep < openp and not skip:
+                        # Remove the closing parentheses if it has a matching
+                        # opening parentheses (they are balanced).
+                        closep += 1
+                        continue
 
-                newer_frag += char
+                    elif char != ')':
+                        # Do not remove ')' from the URL itself.
+                        skip = True
 
-            # Reverse fragment back
-            fragment = newer_frag[::-1]
+                    newer_frag += char
+
+                # Reverse fragment back
+                fragment = newer_frag[::-1]
+
+        # Sometimes we pick up ) at the end of a url, but the url is in a
+        # parenthesized phrase like:
+        #
+        #     "i looked at the site (at http://example.com)"
+        if fragment.endswith(u')') and u'(' not in fragment:
+            new_fragment = fragment.rstrip(u')')
+            closep += (len(fragment) - len(new_fragment))
+            fragment = new_fragment
 
         return fragment, u'(' * openp, u')' * closep
 
     def strip_punctuation(self, fragment):
+        """Strips punctuation at the end of a url match"""
         match = re.search(punct_re, fragment)
         if match:
             return fragment[0:match.start()], match.group(0)
@@ -192,19 +243,12 @@ class LinkifyFilter(Filter):
                     prefix = suffix = ''
 
                     # Sometimes we pick up ( and ), so drop them from the url
-                    if url.startswith('('):
-                        url, prefix, suffix = self.strip_wrapping_parentheses(url)
-
-                    if url.endswith(u')') and u'(' not in url:
-                        new_url = url.rstrip(u')')
-                        suffix = url[len(new_url):] + suffix
-                        url = new_url
+                    url, prefix, suffix = self.strip_parentheses(url)
 
                     # Sometimes we pick up . and , at the end of the url that's
                     # part of the sentence and not the url so drop it
                     url, punct_suffix = self.strip_punctuation(url)
-                    if punct_suffix:
-                        suffix = suffix + punct_suffix
+                    suffix = suffix + punct_suffix
 
                     # If there's no protocol, add one
                     if re.search(proto_re, url):
@@ -218,19 +262,20 @@ class LinkifyFilter(Filter):
                     }
                     attrs = self.apply_callbacks(attrs, True)
 
-                    if prefix:
-                        new_tokens.append(
-                            {u'type': u'Characters', u'data': prefix}
-                        )
-
                     if attrs is None:
                         # Just add the text
                         new_tokens.append(
-                            {u'type': u'Characters', u'data': url}
+                            {u'type': u'Characters', u'data': prefix + url + suffix}
                         )
 
                     else:
-                        # Add an "a" tag!
+                        # Add the "a" tag!
+
+                        if prefix:
+                            new_tokens.append(
+                                {u'type': u'Characters', u'data': prefix}
+                            )
+
                         _text = attrs.pop(u'_text', '')
                         attrs = alphabetize_attributes(attrs)
 
@@ -240,14 +285,16 @@ class LinkifyFilter(Filter):
                             {u'type': u'EndTag', u'name': 'a'},
                         ])
 
-                    if suffix:
-                        new_tokens.append(
-                            {u'type': u'Characters', u'data': suffix}
-                        )
+                        if suffix:
+                            new_tokens.append(
+                                {u'type': u'Characters', u'data': suffix}
+                            )
 
                     end = match.end()
 
                 if new_tokens:
+                    # Yield the adjusted set of tokens and then continue
+                    # through the loop
                     if end < len(text):
                         new_tokens.append({u'type': u'Characters', u'data': text[end:]})
 
@@ -334,9 +381,9 @@ class LinkifyFilter(Filter):
                     # yet
                     continue
 
-            elif in_pre:
+            elif in_pre and self.skip_pre:
                 # NOTE(willkg): We put this clause here since in_a and
-                # switching in and out of is_a takes precedence.
+                # switching in and out of in_a takes precedence.
                 if token['type'] == 'EndTag' and token['name'] == 'pre':
                     in_pre = False
 
