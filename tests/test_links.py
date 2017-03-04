@@ -467,6 +467,14 @@ def test_sarcasm():
         '(http://en.wikipedia.org/wiki/)Test_(assessment',
         ('(', 'en.wikipedia.org/wiki/)Test_(assessment',
          'http://en.wikipedia.org/wiki/)Test_(assessment', '')
+    ),
+    (
+        'hello (http://www.mu.de/blah.html) world',
+        ('hello (', 'www.mu.de/blah.html', 'http://www.mu.de/blah.html', ') world')
+    ),
+    (
+        'hello (http://www.mu.de/blah.html). world',
+        ('hello (', 'www.mu.de/blah.html', 'http://www.mu.de/blah.html', '). world')
     )
 ])
 def test_wrapping_parentheses(data, expected_data):
