@@ -40,8 +40,6 @@ url_re = re.compile(
 
 proto_re = re.compile(r'^[\w-]+:/{0,3}', re.IGNORECASE)
 
-punct_re = re.compile(r'([\.,]+)$')
-
 email_re = re.compile(
     r"""(?<!//)
     (([-!#$%&'*+/=?^_`{0!s}|~0-9A-Z]+
@@ -167,63 +165,53 @@ class LinkifyFilter(Filter):
 
             yield token
 
-    def strip_parentheses(self, fragment):
-        """Strips parentheses from before and after url"""
-        openp = closep = 0
+    def strip_non_url_bits(self, fragment):
+        """Strips non-url bits from the url
 
-        # Count consecutive opening parentheses at the beginning of the
-        # fragment (string)
-        if fragment.startswith(u'('):
-            for char in fragment:
-                if char == '(':
-                    openp += 1
-                else:
-                    break
+        This accounts for over-eager matching by the regex.
 
-            if openp:
-                newer_frag = ''
+        """
+        prefix = suffix = ''
 
-                # Cut the consecutive opening brackets from the fragment
-                fragment = fragment[openp:]
+        while fragment:
+            # Try removing ( from the beginning and, if it's balanced, from the
+            # end, too
+            if fragment.startswith(u'('):
+                prefix = prefix + u'('
+                fragment = fragment[1:]
 
-                # Reverse the fragment for easier detection of parentheses
-                # inside the URL
-                reverse_fragment = fragment[::-1]
-                skip = False
-                for char in reverse_fragment:
-                    if char == ')' and closep < openp and not skip:
-                        # Remove the closing parentheses if it has a matching
-                        # opening parentheses (they are balanced).
-                        closep += 1
-                        continue
+                if fragment.endswith(u')'):
+                    suffix = u')' + suffix
+                    fragment = fragment[:-1]
+                continue
 
-                    elif char != ')':
-                        # Do not remove ')' from the URL itself.
-                        skip = True
+            # Now try extraneous things from the end. For example, sometimes we
+            # pick up ) at the end of a url, but the url is in a parenthesized
+            # phrase like:
+            #
+            #     "i looked at the site (at http://example.com)"
 
-                    newer_frag += char
+            if fragment.endswith(u')') and u'(' not in fragment:
+                fragment = fragment[:-1]
+                suffix = u')' + suffix
+                continue
 
-                # Reverse fragment back
-                fragment = newer_frag[::-1]
+            # Handle commas
+            if fragment.endswith(u','):
+                fragment = fragment[:-1]
+                suffix = u',' + suffix
+                continue
 
-        # Sometimes we pick up ) at the end of a url, but the url is in a
-        # parenthesized phrase like:
-        #
-        #     "i looked at the site (at http://example.com)"
-        if fragment.endswith(u')') and u'(' not in fragment:
-            new_fragment = fragment.rstrip(u')')
-            closep += (len(fragment) - len(new_fragment))
-            fragment = new_fragment
+            # Handle periods
+            if fragment.endswith(u'.'):
+                fragment = fragment[:-1]
+                suffix = u'.' + suffix
+                continue
 
-        return fragment, u'(' * openp, u')' * closep
+            # Nothing matched, so we're done
+            break
 
-    def strip_punctuation(self, fragment):
-        """Strips punctuation at the end of a url match"""
-        match = re.search(punct_re, fragment)
-        if match:
-            return fragment[0:match.start()], match.group(0)
-        else:
-            return fragment, ''
+        return fragment, prefix, suffix
 
     def handle_links(self, src_iter):
         """Handle links in character tokens"""
@@ -242,13 +230,9 @@ class LinkifyFilter(Filter):
                     url = match.group(0)
                     prefix = suffix = ''
 
-                    # Sometimes we pick up ( and ), so drop them from the url
-                    url, prefix, suffix = self.strip_parentheses(url)
-
-                    # Sometimes we pick up . and , at the end of the url that's
-                    # part of the sentence and not the url so drop it
-                    url, punct_suffix = self.strip_punctuation(url)
-                    suffix = suffix + punct_suffix
+                    # Sometimes we pick up too much in the url match, so look for
+                    # bits we should drop and remove them from the match
+                    url, prefix, suffix = self.strip_non_url_bits(url)
 
                     # If there's no protocol, add one
                     if re.search(proto_re, url):
