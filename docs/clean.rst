@@ -1,9 +1,9 @@
 .. _clean-chapter:
 .. highlightlang:: python
 
-==================
-``bleach.clean()``
-==================
+=========================
+Sanitizing text fragments
+=========================
 
 :py:func:`bleach.clean` is Bleach's HTML sanitization method.
 
@@ -16,21 +16,15 @@ takes care of things like unclosed and (some) misnested tags.
    always return ``unicode``.
 
 
-If you're cleaning a lot of text, you might want to create a
-:py:class:`bleach.Cleaner` instance.
-
 .. autofunction:: bleach.clean
 
-.. autoclass:: bleach.Cleaner
-   :members:
 
+Allowed tags (``tags``)
+=======================
 
-Tag Whitelist
-=============
-
-The ``tags`` kwarg is a whitelist of allowed HTML tags. It should be a list,
-tuple, or other iterable. Any other HTML tags will be escaped or stripped from
-the text.
+The ``tags`` kwarg specifies the allowed set of HTML tags. It should be a list,
+tuple, or other iterable. Any HTML tags not in this list will be escaped or
+stripped from the text.
 
 For example:
 
@@ -49,8 +43,8 @@ The default value is a relatively conservative list found in
 ``bleach.ALLOWED_TAGS``.
 
 
-Allowed Attributes
-==================
+Allowed Attributes (``attributes``)
+===================================
 
 The ``attributes`` kwarg lets you specify which attributes are allowed.
 
@@ -139,8 +133,8 @@ allowed. Otherwise, it is stripped. For example:
     u'<img alt="an example">'
 
 
-Styles Whitelist
-================
+Allowed styles (``styles``)
+===========================
 
 If you allow the ``style`` attribute, you will also need to whitelist styles
 users are allowed to set, for example ``color`` and ``background-color``.
@@ -172,8 +166,8 @@ For example, to allow users to set the color and font-weight of text:
 Default styles are stored in ``bleach.ALLOWED_STYLES``.
 
 
-Protocol Whitelist
-==================
+Allowed protocols (``protocols``)
+=================================
 
 If you allow tags that have attributes containing a URI value (like the ``href``
 attribute of an anchor tag, you may want to adapt the accepted protocols. The
@@ -208,8 +202,8 @@ This adds smb to the Bleach-specified set of allowed protocols:
 Default protocols are in ``bleach.ALLOWED_PROTOCOLS``.
 
 
-Stripping Markup
-================
+Stripping markup (``strip``)
+============================
 
 By default, Bleach *escapes* tags that aren't specified in the tags
 whitelist and invalid markup. For example:
@@ -237,8 +231,8 @@ If you would rather Bleach stripped this markup entirely, you can pass
    u'<b>is not allowed</b>'
 
 
-Stripping Comments
-==================
+Stripping comments (``strip_comments``)
+=======================================
 
 By default, Bleach will strip out HTML comments. To disable this behavior, set
 ``strip_comments=False``:
@@ -256,8 +250,8 @@ By default, Bleach will strip out HTML comments. To disable this behavior, set
    u'my<!-- commented --> html'
 
 
-html5lib Filters
-================
+html5lib Filters (``filters``)
+==============================
 
 Bleach sanitizing is implemented as an html5lib Filter. The consequence of this
 is that we can pass the streamed content through additional specified filters
@@ -298,3 +292,22 @@ Trivial Filter example:
 
    Filters change the output of cleaning. Make sure that whatever changes the
    filter is applying maintain the safety guarantees of the output.
+
+
+Using ``bleach.Cleaner``
+========================
+
+If you're cleaning a lot of text, you might want to create a
+:py:class:`bleach.Cleaner` instance.
+
+.. autoclass:: bleach.Cleaner
+   :members:
+
+
+Using ``bleach.sanitizer.BleachSanitizerFilter``
+================================================
+
+``bleach.clean`` creates a ``bleach.Cleaner`` which creates a
+``bleach.sanitizer.BleachSanitizerFilter`` which does the sanitizing work.
+``BleachSanitizerFilter`` is an html5lib Filter and can be used anywhere you can
+use an html5lib Filter.

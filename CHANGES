@@ -35,14 +35,14 @@ Version 2.0 (in development)
 
   Previously you'd do something like this::
 
-      def check_protocol(attrs):
+      def check_protocol(attrs, is_new):
           if not attrs.get('href', '').startswith('http:', 'https:')):
               return None
           return attrs
 
   Now it's more like this::
 
-      def check_protocol(attrs):
+      def check_protocol(attrs, is_new):
           if not attrs.get((None, 'href'), '').startswith(('http:', 'https:')):
               #            ^^^^^^^^^^^^^^
               return None
