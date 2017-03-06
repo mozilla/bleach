@@ -214,6 +214,7 @@ whitelist and invalid markup. For example:
 
    >>> bleach.clean('<span>is not allowed</span>')
    u'&lt;span&gt;is not allowed&lt;/span&gt;'
+
    >>> bleach.clean('<b><span>is not allowed</span></b>', tags=['b'])
    u'<b>&lt;span&gt;is not allowed&lt;/span&gt;</b>'
 
@@ -227,6 +228,7 @@ If you would rather Bleach stripped this markup entirely, you can pass
 
    >>> bleach.clean('<span>is not allowed</span>', strip=True)
    u'is not allowed'
+
    >>> bleach.clean('<b><span>is not allowed</span></b>', tags=['b'], strip=True)
    u'<b>is not allowed</b>'
 
@@ -250,10 +252,20 @@ By default, Bleach will strip out HTML comments. To disable this behavior, set
    u'my<!-- commented --> html'
 
 
-html5lib Filters (``filters``)
-==============================
+Using ``bleach.sanitizer.Cleaner``
+==================================
 
-Bleach sanitizing is implemented as an html5lib Filter. The consequence of this
+If you're cleaning a lot of text or you need better control of things, you
+should create a :py:class:`bleach.sanitizer.Cleaner` instance.
+
+.. autoclass:: bleach.sanitizer.Cleaner
+   :members:
+
+
+html5lib Filters (``filters``)
+------------------------------
+
+Bleach sanitizing is implemented as an html5lib filter. The consequence of this
 is that we can pass the streamed content through additional specified filters
 after the :py:class:`bleach.sanitizer.BleachSanitizingFilter` filter has run.
 
@@ -267,7 +279,7 @@ Trivial Filter example:
 
 .. doctest::
 
-   >>> import bleach
+   >>> from bleach.sanitizer import Cleaner
    >>> from html5lib.filters.base import Filter
 
    >>> class MooFilter(Filter):
@@ -283,8 +295,9 @@ Trivial Filter example:
    ... }
    ...
    >>> TAGS = ['img']
+   >>> cleaner = Cleaner(tags=TAGS, attributes=ATTRS, filters=[MooFilter])
    >>> dirty = 'this is cute! <img src="http://example.com/puppy.jpg" rel="nofollow">'
-   >>> bleach.clean(dirty, tags=TAGS, attributes=ATTRS, filters=[MooFilter])
+   >>> cleaner.clean(dirty)
    u'this is cute! <img rel="moo" src="moo">'
 
 
@@ -294,20 +307,11 @@ Trivial Filter example:
    filter is applying maintain the safety guarantees of the output.
 
 
-Using ``bleach.Cleaner``
-========================
-
-If you're cleaning a lot of text, you might want to create a
-:py:class:`bleach.Cleaner` instance.
-
-.. autoclass:: bleach.Cleaner
-   :members:
-
-
 Using ``bleach.sanitizer.BleachSanitizerFilter``
 ================================================
 
-``bleach.clean`` creates a ``bleach.Cleaner`` which creates a
+``bleach.clean`` creates a ``bleach.sanitizer.Cleaner`` which creates a
 ``bleach.sanitizer.BleachSanitizerFilter`` which does the sanitizing work.
-``BleachSanitizerFilter`` is an html5lib Filter and can be used anywhere you can
-use an html5lib Filter.
+
+``BleachSanitizerFilter`` is an html5lib filter and can be used anywhere you can
+use an html5lib filter.

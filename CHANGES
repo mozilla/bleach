@@ -17,7 +17,7 @@ Version 2.0 (in development)
 
 * ``bleach.clean`` and friends were rewritten
 
-  ``clean`` is now implemented as an html5lib Filter and happens at a different
+  ``clean`` was reimplemented as an html5lib filter and happens at a different
   step in the HTML parsing -> traversing -> serializing process. Because of
   that, there are some differences in clean's output as compared with previous
   versions.
@@ -43,11 +43,14 @@ Version 2.0 (in development)
   Now it's more like this::
 
       def check_protocol(attrs, is_new):
-          if not attrs.get((None, 'href'), '').startswith(('http:', 'https:')):
+          if not attrs.get((None, u'href'), u'').startswith(('http:', 'https:')):
               #            ^^^^^^^^^^^^^^
               return None
           return attrs
 
+  Further, you need to make sure you're always using unicode values. If you
+  don't then html5lib will raise an assertion error that the value is not
+  unicode.
 
 **Changes**
 
@@ -55,17 +58,19 @@ Version 2.0 (in development)
 
 * Supports html5lib >= 0.99999999 (8 9s).
 
-* There's a ``bleach.Cleaner`` class that you can instantiate with your
-  favorite clean settings and reuse it.
+* There's a ``bleach.sanitizer.Cleaner`` class that you can instantiate with your
+  favorite clean settings for easy reuse.
 
-* There's a ``bleach.linkifier.LinkifyFilter`` which is an htm5lib Filter.
+* There's a ``bleach.linkifier.Linker`` class that you can instantiate with your
+  favorite linkify settings for easy reuse.
 
-* You can pass ``bleach.linkifier.LinkifyFilter`` as a Filter to
-  ``bleach.Cleaner`` allowing you to clean and linkify in one pass.
+* There's a ``bleach.linkifier.LinkifyFilter`` which is an htm5lib filter that
+  you can pass as a filter to ``bleach.Cleaner`` allowing you to clean and
+  linkify in one pass.
 
-* Lots of bug fixes.
+* Tons of bug fixes.
 
-* Test cleanup.
+* Cleaned up tests.
 
 * Documentation fixes.
 

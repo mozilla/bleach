@@ -5,21 +5,18 @@
 Linkifying text fragments
 =========================
 
-``linkify()`` searches text for links, URLs, and email addresses and lets you
-control how and when those links are rendered.
+:py:func:`bleach.linkify` searches text for links, URLs, and email addresses and
+lets you control how and when those links are rendered.
 
-``linkify()`` works by building a document tree, so it's guaranteed never to do
-weird things to URLs in attribute values, can modify the value of attributes on
-``<a>`` tags, and can even do things like skip ``<pre>`` sections.
-
-By default, ``linkify()`` will perform some sanitization, only allowing a set of
-"safe" tags. Because it uses the HTML5 parsing algorithm, it will always handle
-things like unclosed tags.
+It works by building a document tree, so it's guaranteed never to do weird
+things to URLs in attribute values, can modify the value of attributes on
+``<a>`` tags and can even do things like skip ``<pre>`` sections.
 
 .. note::
 
    You may pass a ``string`` or ``unicode`` object, but Bleach will always
    return ``unicode``.
+
 
 .. autofunction:: bleach.linkify
 
@@ -57,29 +54,44 @@ included callback functions.
 Setting Attributes
 ------------------
 
-For example, to set ``rel="nofollow"`` on all links found in the text, a simple
-(and included) callback might be::
+For example, you could add a ``title`` attribute to all links:
 
-    def set_nofollow(attrs, new=False):
-        attrs[(None, 'rel')] = 'nofollow'
-        return attrs
+.. doctest::
+
+   >>> from bleach.linkifier import Linker
+
+   >>> def set_title(attrs, new=False):
+   ...     attrs[(None, u'title')] = u'link in user text'
+   ...     return attrs
+   ...
+   >>> linker = Linker(callbacks=[set_title])
+   >>> linker.linkify('abc http://example.com def')
+   u'abc <a href="http://example.com" title="link in user text">http://example.com</a> def'
 
 
 This would set the value of the ``rel`` attribute, stomping on a previous value
 if there was one.
 
-You could also make external links open in a new tab or set a class::
+Here's another example that makes external links open in a new tab and look like
+an external link:
 
-    from urlparse import urlparse
+.. doctest::
 
-    def set_target(attrs, new=False):
-        p = urlparse(attrs[(None, 'href')])
-        if p.netloc not in ['my-domain.com', 'other-domain.com']:
-            attrs[(None, 'target')] = '_blank'
-            attrs[(None, 'class')] = 'external'
-        else:
-            attrs.pop((None, 'target'), None)
-        return attrs
+   >>> from urlparse import urlparse
+   >>> from bleach.linkifier import Linker
+
+   >>> def set_target(attrs, new=False):
+   ...     p = urlparse(attrs[(None, u'href')])
+   ...     if p.netloc not in ['my-domain.com', 'other-domain.com']:
+   ...         attrs[(None, u'target')] = u'_blank'
+   ...         attrs[(None, u'class')] = u'external'
+   ...     else:
+   ...         attrs.pop((None, u'target'), None)
+   ...     return attrs
+   ...
+   >>> linker = Linker(callbacks=[set_target])
+   >>> linker.linkify('abc http://example.com def')
+   u'abc <a class="external" href="http://example.com" target="_blank">http://example.com</a> def'
 
 
 Removing Attributes
@@ -89,25 +101,42 @@ You can easily remove attributes you don't want to allow, even on existing
 links (``<a>`` tags) in the text. (See also :ref:`clean() <clean-chapter>` for
 sanitizing attributes.)
 
-::
+.. doctest::
 
-    def allowed_attributes(attrs, new=False):
-        """Only allow href, target, rel and title."""
-        allowed = [(None, 'href'), (None, 'target'),
-                   (None, 'rel'), (None, 'title')]
-        return dict((k, v) for k, v in attrs.items() if k in allowed)
+   >>> from bleach.linkifier import Linker
+
+   >>> def allowed_attrs(attrs, new=False):
+   ...     """Only allow href, target, rel and title."""
+   ...     allowed = [
+   ...         (None, u'href'),
+   ...         (None, u'target'),
+   ...         (None, u'rel'),
+   ...         (None, u'title'),
+   ...         u'_text',
+   ...     ]
+   ...     return dict((k, v) for k, v in attrs.items() if k in allowed)
+   ...
+   >>> linker = Linker(callbacks=[allowed_attrs])
+   >>> linker.linkify('<a style="font-weight: super bold;" href="http://example.com">link</a>')
+   u'<a href="http://example.com">link</a>'
 
 
-Or you could remove a specific attribute, if it exists::
+Or you could remove a specific attribute, if it exists:
 
-    def remove_title1(attrs, new=False):
-        attrs.pop((None, 'title'), None)
-        return attrs
+.. doctest::
 
-    def remove_title2(attrs, new=False):
-        if (None, 'title') in attrs:
-            del attrs[(None, 'title')]
-        return attrs
+   >>> from bleach.linkifier import Linker
+
+   >>> def remove_title(attrs, new=False):
+   ...     attrs.pop((None, u'title'), None)
+   ...     return attrs
+   ...
+   >>> linker = Linker(callbacks=[remove_title])
+   >>> linker.linkify('<a href="http://example.com">link</a>')
+   u'<a href="http://example.com">link</a>'
+
+   >>> linker.linkify('<a title="bad title" href="http://example.com">link</a>')
+   u'<a href="http://example.com">link</a>'
 
 
 Altering Attributes
@@ -117,31 +146,50 @@ You can alter and overwrite attributes, including the link text, via the
 ``_text`` key, to, for example, pass outgoing links through a warning page, or
 limit the length of text inside an ``<a>`` tag.
 
-::
+Example of shortening link text:
 
-    def shorten_url(attrs, new=False):
-        """Shorten overly-long URLs in the text."""
-        if not new:  # Only looking at newly-created links.
-            return attrs
+.. doctest::
 
-        # _text will be the same as the URL for new links.
-        text = attrs['_text']
-        if len(text) > 25:
-            attrs['_text'] = text[0:22] + '...'
-        return attrs
+   >>> from bleach.linkifier import Linker
 
-::
+   >>> def shorten_url(attrs, new=False):
+   ...     """Shorten overly-long URLs in the text."""
+   ...     # Only adjust newly-created links
+   ...     if not new:
+   ...         return attrs
+   ...     # _text will be the same as the URL for new links
+   ...     text = attrs[u'_text']
+   ...     if len(text) > 25:
+   ...         attrs[u'_text'] = text[0:22] + u'...'
+   ...     return attrs
+   ...
+   >>> linker = Linker(callbacks=[shorten_url])
+   >>> linker.linkify('http://example.com/longlonglonglonglongurl')
+   u'<a href="http://example.com/longlonglonglonglongurl">http://example.com/lon...</a>'
 
-    from urllib2 import quote
-    from urlparse import urlparse
 
-    def outgoing_bouncer(attrs, new=False):
-        """Send outgoing links through a bouncer."""
-        p = urlparse((None, attrs['href']))
-        if p.netloc not in ['my-domain.com', 'www.my-domain.com', '']:
-            bouncer = 'http://outgoing.my-domain.com/?destination=%s'
-            attrs[(None, 'href')] = bouncer % quote(attrs['href'])
-        return attrs
+Example of switching all links to go through a bouncer first:
+
+.. doctest::
+
+   >>> from six.moves.urllib.parse import quote, urlparse
+   >>> from bleach.linkifier import Linker
+
+   >>> def outgoing_bouncer(attrs, new=False):
+   ...     """Send outgoing links through a bouncer."""
+   ...     href_key = (None, u'href')
+   ...     p = urlparse(attrs.get(href_key, None))
+   ...     if p.netloc not in ['example.com', 'www.example.com', '']:
+   ...         bouncer = 'http://bn.ce/?destination=%s'
+   ...         attrs[href_key] = bouncer % quote(attrs[href_key])
+   ...     return attrs
+   ...
+   >>> linker = Linker(callbacks=[outgoing_bouncer])
+   >>> linker.linkify('http://example.com')
+   u'<a href="http://example.com">http://example.com</a>'
+
+   >>> linker.linkify('http://foo.com')
+   u'<a href="http://bn.ce/?destination=http%3A//foo.com">http://foo.com</a>'
 
 
 Preventing Links
@@ -151,33 +199,53 @@ A slightly more complex example is inspired by Crate_, where strings like
 ``models.py`` are often found, and linkified. ``.py`` is the ccTLD for
 Paraguay, so ``example.py`` may be a legitimate URL, but in the case of a site
 dedicated to Python packages, odds are it is not. In this case, Crate_ could
-write the following callback::
+write the following callback:
 
-    def dont_linkify_python(attrs, new=False):
-        if not new:  # This is an existing <a> tag, leave it be.
-            return attrs
+.. doctest::
 
-        # If the TLD is '.py', make sure it starts with http: or https:
-        href = attrs[(None, 'href')]
-        if href.endswith('.py') and not href.startswith(('http:', 'https:')):
-            # This looks like a Python file, not a URL. Don't make a link.
-            return None
+   >>> from bleach.linkifier import Linker
 
-        # Everything checks out, keep going to the next callback.
-        return attrs
+   >>> def dont_linkify_python(attrs, new=False):
+   ...     # This is an existing link, so leave it be
+   ...     if not new:
+   ...         return attrs
+   ...     # If the TLD is '.py', make sure it starts with http: or https:.
+   ...     # Use _text because that's the original text
+   ...     link_text = attrs[u'_text']
+   ...     if link_text.endswith('.py') and not link_text.startswith(('http:', 'https:')):
+   ...         # This looks like a Python file, not a URL. Don't make a link.
+   ...         return None
+   ...     # Everything checks out, keep going to the next callback.
+   ...     return attrs
+   ...
+   >>> linker = Linker(callbacks=[dont_linkify_python])
+   >>> linker.linkify('abc http://example.com def')
+   u'abc <a href="http://example.com">http://example.com</a> def'
+
+   >>> linker.linkify('abc models.py def')
+   u'abc models.py def'
 
 
 Removing Links
 --------------
 
 If you want to remove certain links, even if they are written in the text with
-``<a>`` tags, you can still return ``None``::
+``<a>`` tags, have the callback return ``None``.
 
-    def remove_mailto(attrs, new=False):
-        """Remove any mailto: links."""
-        if attrs[(None, 'href')].startswith('mailto:'):
-            return None
-        return attrs
+For example, this removes any ``mailto:`` links:
+
+.. doctest::
+
+   >>> from bleach.linkifier import Linker
+
+   >>> def remove_mailto(attrs, new=False):
+   ...     if attrs[(None, u'href')].startswith(u'mailto:'):
+   ...         return None
+   ...     return attrs
+   ...
+   >>> linker = Linker(callbacks=[remove_mailto])
+   >>> linker.linkify('<a href="mailto:janet@example.com">mail janet!</a>')
+   u'mail janet!'
 
 
 Skipping links in pre blocks (``skip_pre``)
@@ -194,11 +262,31 @@ any new links within a ``<pre>`` section, pass ``skip_pre=True``.
 Linkifying email addresses (``parse_email``)
 ============================================
 
-By default, ``linkify()`` does not create ``mailto:`` links for email
-addresses, but if you pass ``parse_email=True``, it will. ``mailto:`` links
-will go through exactly the same set of callbacks as all other links, whether
-they are newly created or already in the text, so be careful when writing
-callbacks that may need to behave differently if the protocol is ``mailto:``.
+By default, :py:func:`bleach.linkify` does not create ``mailto:`` links for
+email addresses, but if you pass ``parse_email=True``, it will. ``mailto:``
+links will go through exactly the same set of callbacks as all other links,
+whether they are newly created or already in the text, so be careful when
+writing callbacks that may need to behave differently if the protocol is
+``mailto:``.
+
+
+Using ``bleach.linkifier.Linker``
+=================================
+
+If you're linking a lot of text and passing the same argument values or you want
+more configurability, consider using a :py:class:`bleach.linkifier.Linker`
+instance.
+
+.. doctest::
+
+   >>> from bleach.linkifier import Linker
+
+   >>> linker = Linker(skip_pre=True)
+   >>> linker.linkify('a b c http://example.com d e f')
+   u'a b c <a href="http://example.com" rel="nofollow">http://example.com</a> d e f'
+
+
+.. autoclass:: bleach.linkifier.Linker
 
 
 Using ``bleach.linkifier.LinkifyFilter``
@@ -235,7 +323,7 @@ And passing parameters to ``LinkifyFilter``:
 
    >>> from functools import partial
 
-   >>> from bleach import Cleaner
+   >>> from bleach.sanitizer import Cleaner
    >>> from bleach.linkifier import LinkifyFilter
 
    >>> cleaner = Cleaner(

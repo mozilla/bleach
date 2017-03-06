@@ -1,3 +1,4 @@
+import re
 try:
     from urllib.parse import quote_plus
 except ImportError:
@@ -6,13 +7,7 @@ except ImportError:
 import pytest
 
 from bleach import linkify, DEFAULT_CALLBACKS as DC
-from bleach.linkifier import url_re
-
-
-def test_url_re():
-    text = 'just what i am looking for...it'
-    match = url_re.search(text)
-    assert not match, 'matched {0!s}'.format(text[slice(*match.span())])
+from bleach.linkifier import Linker
 
 
 def test_empty():
@@ -540,8 +535,7 @@ def test_link_emails_and_urls():
 
 def test_links_case_insensitive():
     """Protocols and domain names are case insensitive."""
-    expect = ('<a href="HTTP://EXAMPLE.COM" rel="nofollow">'
-              'HTTP://EXAMPLE.COM</a>')
+    expect = '<a href="HTTP://EXAMPLE.COM" rel="nofollow">HTTP://EXAMPLE.COM</a>'
     assert linkify('HTTP://EXAMPLE.COM') == expect
 
 
@@ -598,4 +592,36 @@ def test_hang():
     assert (
         linkify("an@email.com<mailto:an@email.com>", parse_email=True) ==
         '<a href="mailto:an@email.com">an@email.com</a><mailto:an@email.com></mailto:an@email.com>'
+    )
+
+
+def test_url_re_arg():
+    """Verifies that a specified url_re is used"""
+    fred_re = re.compile(r"""(fred\.com)""")
+
+    linker = Linker(url_re=fred_re)
+    assert (
+        linker.linkify('a b c fred.com d e f') ==
+        'a b c <a href="http://fred.com" rel="nofollow">fred.com</a> d e f'
+    )
+
+    assert (
+        linker.linkify('a b c http://example.com d e f') ==
+        'a b c http://example.com d e f'
+    )
+
+
+def test_email_re_arg():
+    """Verifies that a specified email_re is used"""
+    fred_re = re.compile(r"""(fred@example\.com)""")
+
+    linker = Linker(parse_email=True, email_re=fred_re)
+    assert (
+        linker.linkify('a b c fred@example.com d e f') ==
+        'a b c <a href="mailto:fred@example.com">fred@example.com</a> d e f'
+    )
+
+    assert (
+        linker.linkify('a b c jim@example.com d e f') ==
+        'a b c jim@example.com d e f'
     )

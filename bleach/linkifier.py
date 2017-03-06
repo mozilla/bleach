@@ -1,14 +1,19 @@
 from __future__ import unicode_literals
 import re
 
+import html5lib
 from html5lib.filters.base import Filter
+from html5lib.filters.sanitizer import allowed_protocols
+from html5lib.serializer import HTMLSerializer
 
-from bleach import allowed_protocols
+from bleach import callbacks as linkify_callbacks
 from bleach.encoding import force_unicode
 from bleach.utils import alphabetize_attributes
 
 
-# FIXME(willkg): Move this to a constants module.
+DEFAULT_CALLBACKS = [linkify_callbacks.nofollow]
+
+
 TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
        ba bb bd be bf bg bh bi biz bj bm bn bo br bs bt bv bw by bz ca cat
        cc cd cf cg ch ci ck cl cm cn co com coop cr cu cv cx cy cz de dj dk
@@ -27,20 +32,37 @@ TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
 TLDS.reverse()
 
 
-url_re = re.compile(
-    r"""\(*  # Match any opening parentheses.
-    \b(?<![@.])(?:(?:{0}):/{{0,3}}(?:(?:\w+:)?\w+@)?)?  # http://
-    ([\w-]+\.)+(?:{1})(?:\:[0-9]+)?(?!\.\w)\b   # xx.yy.tld(:##)?
-    (?:[/?][^\s\{{\}}\|\\\^\[\]`<>"]*)?
-        # /path/zz (excluding "unsafe" chars from RFC 1738,
-        # except for # and ~, which happen in practice)
-    """.format('|'.join(allowed_protocols), '|'.join(TLDS)),
-    re.IGNORECASE | re.VERBOSE | re.UNICODE)
+def build_url_re(tlds=TLDS, protocols=allowed_protocols):
+    """Builds the url regex used by linkifier
+
+   If you want a different set of tlds or allowed protocols, pass those in
+   and stomp on the existing ``url_re``::
+
+       from bleach import linkifier
+
+       my_url_re = linkifier.build_url_re(my_tlds_list, my_protocols)
+
+       linker = LinkifyFilter(url_re=my_url_re)
+
+    """
+    return re.compile(
+        r"""\(*  # Match any opening parentheses.
+        \b(?<![@.])(?:(?:{0}):/{{0,3}}(?:(?:\w+:)?\w+@)?)?  # http://
+        ([\w-]+\.)+(?:{1})(?:\:[0-9]+)?(?!\.\w)\b   # xx.yy.tld(:##)?
+        (?:[/?][^\s\{{\}}\|\\\^\[\]`<>"]*)?
+            # /path/zz (excluding "unsafe" chars from RFC 1738,
+            # except for # and ~, which happen in practice)
+        """.format('|'.join(protocols), '|'.join(tlds)),
+        re.IGNORECASE | re.VERBOSE | re.UNICODE)
 
 
-proto_re = re.compile(r'^[\w-]+:/{0,3}', re.IGNORECASE)
+URL_RE = build_url_re()
 
-email_re = re.compile(
+
+PROTO_RE = re.compile(r'^[\w-]+:/{0,3}', re.IGNORECASE)
+
+
+EMAIL_RE = re.compile(
     r"""(?<!//)
     (([-!#$%&'*+/=?^_`{0!s}|~0-9A-Z]+
         (\.[-!#$%&'*+/=?^_`{1!s}|~0-9A-Z]+)*  # dot-atom
@@ -49,6 +71,46 @@ email_re = re.compile(
     )@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6})  # domain
     """,
     re.IGNORECASE | re.MULTILINE | re.VERBOSE)
+
+
+class Linker(object):
+    def __init__(self, callbacks=DEFAULT_CALLBACKS, skip_pre=False, parse_email=False,
+                 url_re=URL_RE, email_re=EMAIL_RE):
+        self.callbacks = callbacks
+        self.skip_pre = skip_pre
+        self.parse_email = parse_email
+        self.url_re = url_re
+        self.email_re = email_re
+
+        self.parser = html5lib.HTMLParser(namespaceHTMLElements=False)
+        self.walker = html5lib.getTreeWalker('etree')
+        self.serializer = HTMLSerializer(
+            quote_attr_values='always',
+            omit_optional_tags=False,
+
+            # linkify does not sanitize
+            sanitize=False,
+
+            # linkify alphabetizes
+            alphabetical_attributes=False,
+        )
+
+    def linkify(self, text):
+        text = force_unicode(text)
+
+        if not text:
+            return u''
+
+        dom = self.parser.parseFragment(text)
+        filtered = LinkifyFilter(
+            source=self.walker(dom),
+            callbacks=self.callbacks,
+            skip_pre=self.skip_pre,
+            parse_email=self.parse_email,
+            url_re=self.url_re,
+            email_re=self.email_re,
+        )
+        return self.serializer.render(filtered)
 
 
 class LinkifyFilter(Filter):
@@ -64,12 +126,16 @@ class LinkifyFilter(Filter):
     This filter can be used anywhere html5lib filters can be used.
 
     """
-    def __init__(self, source, callbacks=None, skip_pre=False, parse_email=False):
+    def __init__(self, source, callbacks=None, skip_pre=False, parse_email=False,
+                 url_re=URL_RE, email_re=EMAIL_RE):
         super(LinkifyFilter, self).__init__(source)
 
         self.callbacks = callbacks or []
         self.skip_pre = skip_pre
         self.parse_email = parse_email
+
+        self.url_re = url_re
+        self.email_re = email_re
 
     def apply_callbacks(self, attrs, is_new):
         """Given an attrs dict and an is_new bool, runs through callbacks
@@ -121,7 +187,7 @@ class LinkifyFilter(Filter):
                 end = 0
 
                 # For each email address we find in the text
-                for match in email_re.finditer(text):
+                for match in self.email_re.finditer(text):
                     if match.start() > end:
                         new_tokens.append(
                             {u'type': u'Characters', u'data': text[end:match.start()]}
@@ -221,7 +287,7 @@ class LinkifyFilter(Filter):
                 new_tokens = []
                 end = 0
 
-                for match in url_re.finditer(text):
+                for match in self.url_re.finditer(text):
                     if match.start() > end:
                         new_tokens.append(
                             {u'type': u'Characters', u'data': text[end:match.start()]}
@@ -235,7 +301,7 @@ class LinkifyFilter(Filter):
                     url, prefix, suffix = self.strip_non_url_bits(url)
 
                     # If there's no protocol, add one
-                    if re.search(proto_re, url):
+                    if PROTO_RE.search(url):
                         href = url
                     else:
                         href = u'http://%s' % url
