@@ -140,8 +140,7 @@ class TestClean:
             '<p>multiply nested text</p>'
         )
 
-        s = ('<p><a href="http://example.com/"><img src="http://example.com/">'
-             '</a></p>')
+        s = '<p><a href="http://example.com/"><img src="http://example.com/"></a></p>'
         assert (
             bleach.clean(s, tags=['p', 'a'], strip=True) ==
             '<p><a href="http://example.com/"></a></p>'
@@ -301,6 +300,13 @@ class TestClean:
         )
 
 
+def test_clean_idempotent():
+    """Make sure that applying the filter twice doesn't change anything."""
+    dirty = '<span>invalid & </span> < extra http://link.com<em>'
+
+    assert bleach.clean(bleach.clean(dirty)) == bleach.clean(dirty)
+
+
 class TestCleaner:
     def test_basics(self):
         TAGS = ['span', 'br']
@@ -312,41 +318,3 @@ class TestCleaner:
             cleaner.clean('a <br/><span style="color:red">test</span>') ==
             'a <br><span style="">test</span>'
         )
-
-
-class TestLinkify:
-    def test_no_href_links(self):
-        s = '<a name="anchor">x</a>'
-        assert bleach.linkify(s) == s
-
-    def test_rel_already_there(self):
-        """Make sure rel attribute is updated not replaced"""
-        linked = ('Click <a href="http://example.com" rel="tooltip">'
-                  'here</a>.')
-
-        link_good = 'Click <a href="http://example.com" rel="tooltip nofollow">here</a>.'
-
-        assert bleach.linkify(linked) == link_good
-        assert bleach.linkify(link_good) == link_good
-
-
-def test_idempotent():
-    """Make sure that applying the filter twice doesn't change anything."""
-    dirty = '<span>invalid & </span> < extra http://link.com<em>'
-
-    clean = bleach.clean(dirty)
-    assert bleach.clean(clean) == clean
-
-    linked = bleach.linkify(dirty)
-    assert (
-        bleach.linkify(linked) ==
-        '<span>invalid &amp; </span> &lt; extra <a href="http://link.com" '
-        'rel="nofollow">http://link.com</a><em></em>'
-    )
-
-
-def test_serializer():
-    s = '<table></table>'
-    assert bleach.clean(s, tags=['table']) == s
-    assert bleach.linkify('<table>test</table>') == 'test<table></table>'
-    assert bleach.clean('<p>test</p>', tags=['p']) == '<p>test</p>'

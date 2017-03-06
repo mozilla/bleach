@@ -515,12 +515,6 @@ def test_ignore_bad_protocols():
     )
 
 
-def test_max_recursion_depth():
-    """If we hit the max recursion depth, just return the string."""
-    test = '<em>' * 2000 + 'foo' + '</em>' * 2000
-    assert linkify(test) == test
-
-
 def test_link_emails_and_urls():
     """parse_email=True shouldn't prevent URLs from getting linkified."""
     assert (
@@ -548,14 +542,6 @@ def test_elements_inside_links():
     assert (
         linkify('<a href="#"><strong>bold</strong> hello<br></a>') ==
         '<a href="#" rel="nofollow"><strong>bold</strong> hello<br></a>'
-    )
-
-
-def test_remove_first_childlink():
-    callbacks = [lambda *a: None]
-    assert (
-        linkify('<p><a href="/foo">something</a></p>', callbacks=callbacks) ==
-        '<p>something</p>'
     )
 
 
@@ -625,3 +611,24 @@ def test_email_re_arg():
         linker.linkify('a b c jim@example.com d e f') ==
         'a b c jim@example.com d e f'
     )
+
+
+def test_linkify_idempotent():
+    dirty = '<span>invalid & </span> < extra http://link.com<em>'
+    assert linkify(linkify(dirty)) == linkify(dirty)
+
+
+class TestLinkify:
+    def test_no_href_links(self):
+        s = '<a name="anchor">x</a>'
+        assert linkify(s) == s
+
+    def test_rel_already_there(self):
+        """Make sure rel attribute is updated not replaced"""
+        linked = ('Click <a href="http://example.com" rel="tooltip">'
+                  'here</a>.')
+
+        link_good = 'Click <a href="http://example.com" rel="tooltip nofollow">here</a>.'
+
+        assert linkify(linked) == link_good
+        assert linkify(link_good) == link_good
