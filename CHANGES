@@ -44,7 +44,7 @@ Version 2.0 (in development)
 
       def check_protocol(attrs, is_new):
           if not attrs.get((None, u'href'), u'').startswith(('http:', 'https:')):
-              #            ^^^^^^^^^^^^^^
+              #            ^^^^^^^^^^^^^^^
               return None
           return attrs
 
@@ -65,8 +65,8 @@ Version 2.0 (in development)
   favorite linkify settings for easy reuse.
 
 * There's a ``bleach.linkifier.LinkifyFilter`` which is an htm5lib filter that
-  you can pass as a filter to ``bleach.Cleaner`` allowing you to clean and
-  linkify in one pass.
+  you can pass as a filter to ``bleach.sanitizer.Cleaner`` allowing you to clean
+  and linkify in one pass.
 
 * Tons of bug fixes.
 

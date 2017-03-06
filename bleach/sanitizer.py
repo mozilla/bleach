@@ -36,10 +36,6 @@ ALLOWED_STYLES = []
 
 ALLOWED_PROTOCOLS = ['http', 'https', 'mailto']
 
-ETREE_TAG = lambda x: "".join(['{http://www.w3.org/1999/xhtml}', x])
-# a simple routine that returns the tag name with the namespace prefix
-# as returned by etree's Element.tag attribute
-
 
 class Cleaner(object):
     """Cleaner for cleaning HTML fragments of malicious content
@@ -53,7 +49,7 @@ class Cleaner(object):
 
     To use::
 
-        from bleach import Cleaner
+        from bleach.sanitizer import Cleaner
 
         cleaner = Cleaner()
 
