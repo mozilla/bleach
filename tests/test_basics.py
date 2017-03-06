@@ -3,6 +3,7 @@ import pytest
 import six
 
 import bleach
+from bleach.sanitizer import Cleaner
 
 
 class TestClean:
@@ -291,8 +292,11 @@ class TestClean:
         }
         TAGS = ['img']
         dirty = 'this is cute! <img src="http://example.com/puppy.jpg" rel="nofollow">'
+
+        cleaner = Cleaner(tags=TAGS, attributes=ATTRS, filters=[MooFilter])
+
         assert (
-            bleach.clean(dirty, tags=TAGS, attributes=ATTRS, filters=[MooFilter]) ==
+            cleaner.clean(dirty) ==
             'this is cute! <img rel="moo" src="moo">'
         )
 
@@ -302,7 +306,7 @@ class TestCleaner:
         TAGS = ['span', 'br']
         ATTRS = {'span': ['style']}
 
-        cleaner = bleach.Cleaner(tags=TAGS, attributes=ATTRS)
+        cleaner = Cleaner(tags=TAGS, attributes=ATTRS)
 
         assert (
             cleaner.clean('a <br/><span style="color:red">test</span>') ==
