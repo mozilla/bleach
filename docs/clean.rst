@@ -55,8 +55,8 @@ The default value is also a conservative dict found in
 As a list
 ---------
 
-The ``attributes`` value can be a list, in which case the attributes are allowed
-for any tag.
+The ``attributes`` value can be a list which specifies the list of attributes
+allowed for any tag.
 
 For example:
 
@@ -76,10 +76,12 @@ For example:
 As a dict
 ---------
 
-The ``attributes`` value can be a dict, in which case the keys are tag names (or
-a wildcard: ``*`` for all tags) and the values are lists of allowed attributes.
+The ``attributes`` value can be a dict which maps tags to what attributes they can have.
 
-For example:
+You can also specify ``*``, which will match any tag.
+
+For example, this allows "href" and "rel" for "a" tags, "alt" for the "img" tag
+and "class" for any tag (including "a" and "img"):
 
 .. doctest::
 
@@ -99,48 +101,66 @@ For example:
    u'<img alt="an example">'
 
 
-In this case, ``class`` is allowed on any allowed element (from the ``tags``
-argument), ``<a>`` tags are allowed to have ``href`` and ``rel`` attributes,
-and so on.
-
-
 Using functions
 ---------------
 
-You can also use callables. If the callable returns ``True``, the attribute is
-allowed. Otherwise, it is stripped. For example:
+You can also use callables that take the tag, attribute name and attribute value
+and returns ``True`` to keep the attribute or ``False`` to drop it.
+
+You can pass a callable as the attributes argument value and it'll run for
+every tag/attr.
+
+For example:
 
 .. doctest::
 
-    >>> from urlparse import urlparse
-    >>> import bleach
+   >>> import bleach
 
-    >>> def allow_src(name, value):
-    ...     if name in ('alt', 'height', 'width'):
-    ...         return True
-    ...     if name == 'src':
-    ...         p = urlparse(value)
-    ...         return (not p.netloc) or p.netloc == 'mydomain.com'
-    ...     return False
+   >>> def allow_h(tag, name, value):
+   ...     return name[0] == 'h'
 
-    >>> bleach.clean(
-    ...    u'<img src="http://example.com" alt="an example">',
-    ...    tags=['img'],
-    ...    attributes={
-    ...        'img': allow_src
-    ...    }
-    ... )
-    u'<img alt="an example">'
+   >>> bleach.clean(
+   ...    u'<a href="http://example.com" title="link">link</a>',
+   ...    tags=['a'],
+   ...    attributes=allow_h,
+   ... )
+   u'<a href="http://example.com">link</a>'
+
+
+You can also pass a callable as a value in an attributes dict and it'll run for
+attributes for specified tags:
+
+.. doctest::
+
+   >>> from urlparse import urlparse
+   >>> import bleach
+
+   >>> def allow_src(tag, name, value):
+   ...     if name in ('alt', 'height', 'width'):
+   ...         return True
+   ...     if name == 'src':
+   ...         p = urlparse(value)
+   ...         return (not p.netloc) or p.netloc == 'mydomain.com'
+   ...     return False
+
+   >>> bleach.clean(
+   ...    u'<img src="http://example.com" alt="an example">',
+   ...    tags=['img'],
+   ...    attributes={
+   ...        'img': allow_src
+   ...    }
+   ... )
+   u'<img alt="an example">'
 
 
 Allowed styles (``styles``)
 ===========================
 
-If you allow the ``style`` attribute, you will also need to whitelist styles
-users are allowed to set, for example ``color`` and ``background-color``.
+If you allow the ``style`` attribute, you will also need to specify the allowed
+styles users are allowed to set, for example ``color`` and ``background-color``.
 
-The default value is an empty list, i.e., the ``style`` attribute will be
-allowed but no values will be.
+The default value is an empty list. In other words, the ``style`` attribute will
+be allowed but no style declaration names will be allowed.
 
 For example, to allow users to set the color and font-weight of text:
 
@@ -205,8 +225,8 @@ Default protocols are in ``bleach.ALLOWED_PROTOCOLS``.
 Stripping markup (``strip``)
 ============================
 
-By default, Bleach *escapes* tags that aren't specified in the tags
-whitelist and invalid markup. For example:
+By default, Bleach *escapes* tags that aren't specified in the allowed tags list
+and invalid markup. For example:
 
 .. doctest::
 

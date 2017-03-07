@@ -75,7 +75,7 @@ def test_invalid_href_attr():
 def test_invalid_filter_attr():
     IMG = ['img', ]
     IMG_ATTR = {
-        'img': lambda attr, val: attr == 'src' and val == "http://example.com/"
+        'img': lambda tag, name, val: name == 'src' and val == "http://example.com/"
     }
 
     assert (
