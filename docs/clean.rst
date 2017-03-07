@@ -40,16 +40,27 @@ For example:
 
 
 The default value is a relatively conservative list found in
-``bleach.ALLOWED_TAGS``.
+``bleach.sanitizer.ALLOWED_TAGS``.
+
+
+.. autodata:: bleach.sanitizer.ALLOWED_TAGS
 
 
 Allowed Attributes (``attributes``)
 ===================================
 
-The ``attributes`` kwarg lets you specify which attributes are allowed.
+The ``attributes`` kwarg lets you specify which attributes are allowed. The
+value can be a list, a callable or a map of tag name to list or callable.
 
 The default value is also a conservative dict found in
-``bleach.ALLOWED_ATTRIBUTES``.
+``bleach.sanitizer.ALLOWED_ATTRIBUTES``.
+
+
+.. autodata:: bleach.sanitizer.ALLOWED_ATTRIBUTES
+
+.. versionchanged:: 2.0
+
+   Prior to 2.0, the ``attributes`` kwarg value could only be a list or a map.
 
 
 As a list
@@ -153,6 +164,13 @@ attributes for specified tags:
    u'<img alt="an example">'
 
 
+.. versionchanged:: 2.0
+
+   In previous versions of Bleach, the callable took an attribute name and a
+   attribute value. Now it takes a tag, an attribute name and an attribute
+   value.
+
+
 Allowed styles (``styles``)
 ===========================
 
@@ -183,15 +201,16 @@ For example, to allow users to set the color and font-weight of text:
    u'<p style="font-weight: heavy;">my html</p>'
 
 
-Default styles are stored in ``bleach.ALLOWED_STYLES``.
+Default styles are stored in ``bleach.sanitizer.ALLOWED_STYLES``.
+
+.. autodata:: bleach.sanitizer.ALLOWED_STYLES
 
 
 Allowed protocols (``protocols``)
 =================================
 
 If you allow tags that have attributes containing a URI value (like the ``href``
-attribute of an anchor tag, you may want to adapt the accepted protocols. The
-default list only allows ``http``, ``https`` and ``mailto``.
+attribute of an anchor tag, you may want to adapt the accepted protocols.
 
 For example, this sets allowed protocols to http, https and smb:
 
@@ -219,7 +238,9 @@ This adds smb to the Bleach-specified set of allowed protocols:
    u'<a href="smb://more_text">allowed protocol</a>'
 
 
-Default protocols are in ``bleach.ALLOWED_PROTOCOLS``.
+Default protocols are in ``bleach.sanitizer.ALLOWED_PROTOCOLS``.
+
+.. autodata:: bleach.sanitizer.ALLOWED_PROTOCOLS
 
 
 Stripping markup (``strip``)
@@ -281,6 +302,8 @@ should create a :py:class:`bleach.sanitizer.Cleaner` instance.
 .. autoclass:: bleach.sanitizer.Cleaner
    :members:
 
+.. versionadded:: 2.0
+
 
 html5lib Filters (``filters``)
 ------------------------------
@@ -326,6 +349,8 @@ Trivial Filter example:
    Filters change the output of cleaning. Make sure that whatever changes the
    filter is applying maintain the safety guarantees of the output.
 
+.. versionadded:: 2.0
+
 
 Using ``bleach.sanitizer.BleachSanitizerFilter``
 ================================================
@@ -335,3 +360,8 @@ Using ``bleach.sanitizer.BleachSanitizerFilter``
 
 ``BleachSanitizerFilter`` is an html5lib filter and can be used anywhere you can
 use an html5lib filter.
+
+.. autoclass:: bleach.sanitizer.BleachSanitizerFilter
+
+
+.. versionadded:: 2.0
