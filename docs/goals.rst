@@ -13,15 +13,15 @@ Goals
 =====
 
 
-Always take a whitelist-based approach
---------------------------------------
+Always take a allowed-list-based approach
+-----------------------------------------
 
-Bleach should always take a whitelist-based approach to allowing any kind of
-content or markup. Blacklisting is error-prone and not future proof.
+Bleach should always take a allowed-list-based approach to markup filtering.
+Specifying disallowed lists is error-prone and not future proof.
 
 For example, you should have to opt-in to allowing the ``onclick`` attribute,
-not blacklist all the other ``on*`` attributes. Future versions of HTML may add
-new event handlers, like ``ontouch``, that old blacklists would not prevent.
+not opt-out of all the other ``on*`` attributes. Future versions of HTML may add
+new event handlers, like ``ontouch``, that old disallow would not prevent.
 
 
 Main goal is to sanitize input of malicious content
@@ -39,8 +39,8 @@ Examples might include:
 
 These examples, and others, are traditionally prone to security issues like XSS
 or other script injection, or annoying issues like unclosed tags and invalid
-markup. Bleach will take a proactive, whitelist-only approach to allowing HTML
-content, and will use the HTML5 parsing algorithm to handle invalid markup.
+markup. Bleach will take a proactive, allowed-list-only approach to allowing
+HTML content, and will use the HTML5 parsing algorithm to handle invalid markup.
 
 See the :ref:`chapter on clean() <clean-chapter>` for more info.
 
@@ -52,7 +52,7 @@ The secondary goal of Bleach is to provide a mechanism for finding or altering
 links (``<a>`` tags with ``href`` attributes, or things that look like URLs or
 email addresses) in text.
 
-While Bleach itself will always operate on a whitelist-based security model,
+While Bleach itself will always operate on a allowed-list-based security model,
 the :ref:`linkify() method <linkify-chapter>` is flexible enough to allow the
 creation, alteration, and removal of links based on an extremely wide range of
 use cases.
@@ -69,8 +69,8 @@ Sanitize complete HTML documents
 --------------------------------
 
 Once you're creating whole documents, you have to allow so many tags that a
-blacklist approach (e.g. forbidding ``<script>`` or ``<object>``) may be more
-appropriate.
+disallow-list approach (e.g. forbidding ``<script>`` or ``<object>``) may be
+more appropriate.
 
 
 Remove all HTML or transforming content for some non-web-page purpose

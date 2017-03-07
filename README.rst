@@ -8,7 +8,7 @@ Bleach
 .. image:: https://badge.fury.io/py/bleach.svg
    :target: http://badge.fury.io/py/bleach
 
-Bleach is a whitelist-based HTML sanitizing library that escapes or strips
+Bleach is a allowed-list-based HTML sanitizing library that escapes or strips
 markup and attributes.
 
 Bleach can also linkify text safely, applying filters that Django's ``urlize``

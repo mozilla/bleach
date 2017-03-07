@@ -74,10 +74,40 @@ EMAIL_RE = re.compile(
 
 
 class Linker(object):
-    def __init__(self, callbacks=DEFAULT_CALLBACKS, skip_pre=False, parse_email=False,
+    """Convert URL-like strings in an HTML fragment to links
+
+    This function converts strings that look like URLs, domain names and email
+    addresses in text that may be an HTML fragment to links, while preserving:
+
+    1. links already in the string
+    2. urls found in attributes
+    3. email addresses
+
+    linkify does a best-effort approach and tries to recover from bad
+    situations due to crazy text.
+
+    """
+    def __init__(self, callbacks=DEFAULT_CALLBACKS, skip_tags=None, parse_email=False,
                  url_re=URL_RE, email_re=EMAIL_RE):
+        """Creates a Linker instance
+
+        :arg list callbacks: list of callbacks to run when adjusting tag attributes
+
+        :arg list skip_tags: list of tags that you don't want to linkify the
+            contents of; for example, you could set this to ``['pre']`` to skip
+            linkifying contents of ``pre`` tags
+
+        :arg bool parse_email: whether or not to linkify email addresses
+
+        :arg re url_re: url matching regex
+
+        :arg email_re: email matching regex
+
+        :returns: linkified text as unicode
+
+        """
         self.callbacks = callbacks
-        self.skip_pre = skip_pre
+        self.skip_tags = skip_tags
         self.parse_email = parse_email
         self.url_re = url_re
         self.email_re = email_re
@@ -105,7 +135,7 @@ class Linker(object):
         filtered = LinkifyFilter(
             source=self.walker(dom),
             callbacks=self.callbacks,
-            skip_pre=self.skip_pre,
+            skip_tags=self.skip_tags,
             parse_email=self.parse_email,
             url_re=self.url_re,
             email_re=self.email_re,
@@ -126,12 +156,31 @@ class LinkifyFilter(Filter):
     This filter can be used anywhere html5lib filters can be used.
 
     """
-    def __init__(self, source, callbacks=None, skip_pre=False, parse_email=False,
+    def __init__(self, source, callbacks=None, skip_tags=None, parse_email=False,
                  url_re=URL_RE, email_re=EMAIL_RE):
+        """Creates a LinkifyFilter instance
+
+        :arg TreeWalker source: stream
+
+        :arg list callbacks: list of callbacks to run when adjusting tag attributes
+
+        :arg list skip_tags: list of tags that you don't want to linkify the
+            contents of; for example, you could set this to ``['pre']`` to skip
+            linkifying contents of ``pre`` tags
+
+        :arg bool parse_email: whether or not to linkify email addresses
+
+        :arg re url_re: url matching regex
+
+        :arg email_re: email matching regex
+
+        :returns: linkified text as unicode
+
+        """
         super(LinkifyFilter, self).__init__(source)
 
         self.callbacks = callbacks or []
-        self.skip_pre = skip_pre
+        self.skip_tags = skip_tags or []
         self.parse_email = parse_email
 
         self.url_re = url_re
@@ -140,9 +189,15 @@ class LinkifyFilter(Filter):
     def apply_callbacks(self, attrs, is_new):
         """Given an attrs dict and an is_new bool, runs through callbacks
 
-        Callbacks can return an adjusted attrs dict or None. In the case of
-        None, we stop going through callbacks and return that and the link gets
-        dropped.
+        Callbacks can return an adjusted attrs dict or ``None``. In the case of
+        ``None``, we stop going through callbacks and return that and the link
+        gets dropped.
+
+        :arg dict attrs: map of ``(namespace, name)`` -> ``value``
+
+        :arg bool is_new: whether or not this link was added by linkify
+
+        :returns: adjusted attrs dict or ``None``
 
         """
         for cb in self.callbacks:
@@ -399,7 +454,7 @@ class LinkifyFilter(Filter):
 
     def __iter__(self):
         in_a = False
-        in_pre = False
+        in_skip_tag = None
 
         token_buffer = []
 
@@ -425,10 +480,10 @@ class LinkifyFilter(Filter):
                     continue
 
             elif token['type'] in ['StartTag', 'EmptyTag']:
-                if token['name'] == 'pre' and self.skip_pre:
-                    # The "pre" tag starts a "special mode" where we don't linkify
-                    # anything.
-                    in_pre = True
+                if token['name'] in self.skip_tags:
+                    # Skip tags start a "special mode" where we don't linkify
+                    # anything until the end tag.
+                    in_skip_tag = token['name']
 
                 elif token['name'] == 'a':
                     # The "a" tag is special--we switch to a slurp mode and
@@ -441,13 +496,13 @@ class LinkifyFilter(Filter):
                     # yet
                     continue
 
-            elif in_pre and self.skip_pre:
+            elif in_skip_tag and self.skip_tags:
                 # NOTE(willkg): We put this clause here since in_a and
                 # switching in and out of in_a takes precedence.
-                if token['type'] == 'EndTag' and token['name'] == 'pre':
-                    in_pre = False
+                if token['type'] == 'EndTag' and token['name'] == in_skip_tag:
+                    in_skip_tag = None
 
-            elif not in_a and not in_pre and token['type'] == 'Characters':
+            elif not in_a and not in_skip_tag and token['type'] == 'Characters':
                 new_stream = iter([token])
                 if self.parse_email:
                     new_stream = self.handle_email_addresses(new_stream)

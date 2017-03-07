@@ -357,24 +357,24 @@ def test_unsafe_url():
     )
 
 
-def test_skip_pre():
-    """Skip linkification in <pre> tags."""
+def test_skip_tags():
+    """Skip linkification in skip tags"""
     simple = 'http://xx.com <pre>http://xx.com</pre>'
     linked = ('<a href="http://xx.com" rel="nofollow">http://xx.com</a> '
               '<pre>http://xx.com</pre>')
     all_linked = ('<a href="http://xx.com" rel="nofollow">http://xx.com</a> '
                   '<pre><a href="http://xx.com" rel="nofollow">http://xx.com'
                   '</a></pre>')
-    assert linkify(simple, skip_pre=True) == linked
+    assert linkify(simple, skip_tags=['pre']) == linked
     assert linkify(simple) == all_linked
 
     already_linked = '<pre><a href="http://xx.com">xx</a></pre>'
     nofollowed = '<pre><a href="http://xx.com" rel="nofollow">xx</a></pre>'
     assert linkify(already_linked) == nofollowed
-    assert linkify(already_linked, skip_pre=True) == nofollowed
+    assert linkify(already_linked, skip_tags=['pre']) == nofollowed
 
     assert (
-        linkify('<pre><code>http://example.com</code></pre>http://example.com', skip_pre=True) ==
+        linkify('<pre><code>http://example.com</code></pre>http://example.com', skip_tags=['pre']) ==
         (
             '<pre><code>http://example.com</code></pre>'
             '<a href="http://example.com" rel="nofollow">http://example.com</a>'

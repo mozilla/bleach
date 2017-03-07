@@ -63,16 +63,16 @@ class Cleaner(object):
                  strip_comments=True, filters=None):
         """Initializes a Cleaner
 
-        :arg tags: whitelist of allowed tags; defaults to
+        :arg list tags: allowed list of tags; defaults to
             ``bleach.ALLOWED_TAGS``
 
-        :arg attributes: whitelist of allowed attributes; defaults to
-            ``bleach.ALLOWED_ATTRIBUTES``
+        :arg dict attributes: allowed attributes; can be a callable, list or dict;
+            defaults to ``bleach.ALLOWED_ATTRIBUTES``
 
-        :arg styles: whitelist of allowed css; defaults to
+        :arg list styles: allowed list of css styles; defaults to
             ``bleach.ALLOWED_STYLES``
 
-        :arg protocols: whitelist of allowed protocols for links; defaults
+        :arg list protocols: allowed list of protocols for links; defaults
             to ``bleach.ALLOWED_PROTOCOLS``
 
         :arg strip: whether or not to strip disallowed elements
@@ -196,7 +196,27 @@ class BleachSanitizerFilter(sanitizer.Filter):
     def __init__(self, source, attributes=ALLOWED_ATTRIBUTES,
                  strip_disallowed_elements=False, strip_html_comments=True,
                  **kwargs):
+        """Creates a BleachSanitizerFilter instance
 
+        :arg Treewalker source: stream
+
+        :arg list tags: allowed list of tags; defaults to
+            ``bleach.ALLOWED_TAGS``
+
+        :arg dict attributes: allowed attributes; can be a callable, list or dict;
+            defaults to ``bleach.ALLOWED_ATTRIBUTES``
+
+        :arg list styles: allowed list of css styles; defaults to
+            ``bleach.ALLOWED_STYLES``
+
+        :arg list protocols: allowed list of protocols for links; defaults
+            to ``bleach.ALLOWED_PROTOCOLS``
+
+        :arg strip_disallowed_elements: whether or not to strip disallowed elements
+
+        :arg strip_html_comments: whether or not to strip HTML comments
+
+        """
         self.attr_filter = attribute_filter_factory(attributes)
 
         self.strip_disallowed_elements = strip_disallowed_elements
