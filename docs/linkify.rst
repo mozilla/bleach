@@ -248,15 +248,13 @@ For example, this removes any ``mailto:`` links:
    u'mail janet!'
 
 
-Skipping links in pre blocks (``skip_pre``)
-===========================================
+Skipping links in specified tag blocks (``skip_tags``)
+======================================================
 
 ``<pre>`` tags are often special, literal sections. If you don't want to create
-any new links within a ``<pre>`` section, pass ``skip_pre=True``.
+any new links within a ``<pre>`` section, pass ``skip_tags=['pre']``.
 
-.. note::
-   Though new links will not be created, existing links created with ``<a>``
-   tags will still be passed through all the callbacks.
+This works for ``code``, ``div`` and any other blocks you want to skip over.
 
 
 Linkifying email addresses (``parse_email``)
@@ -281,7 +279,7 @@ instance.
 
    >>> from bleach.linkifier import Linker
 
-   >>> linker = Linker(skip_pre=True)
+   >>> linker = Linker(skip_tags=['pre'])
    >>> linker.linkify('a b c http://example.com d e f')
    u'a b c <a href="http://example.com" rel="nofollow">http://example.com</a> d e f'
 
@@ -328,7 +326,7 @@ And passing parameters to ``LinkifyFilter``:
 
    >>> cleaner = Cleaner(
    ...     tags=['pre'],
-   ...     filters=[partial(LinkifyFilter, skip_pre=True)]
+   ...     filters=[partial(LinkifyFilter, skip_tags=['pre'])]
    ... )
    ...
    >>> cleaner.clean('<pre>http://example.com</pre>')

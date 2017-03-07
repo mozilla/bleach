@@ -47,16 +47,16 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
     :arg str text: the text to clean
 
-    :arg list tags: whitelist of allowed tags; defaults to
+    :arg list tags: allowed list of tags; defaults to
         ``bleach.ALLOWED_TAGS``
 
-    :arg dict attributes: whitelist of allowed attributes; defaults to
-        ``bleach.ALLOWED_ATTRIBUTES``
+    :arg dict attributes: allowed attributes; can be a callable, list or dict;
+        defaults to ``bleach.ALLOWED_ATTRIBUTES``
 
-    :arg list styles: whitelist of allowed css; defaults to
+    :arg list styles: allowed list of css styles; defaults to
         ``bleach.ALLOWED_STYLES``
 
-    :arg list protocols: whitelist of allowed protocols for links; defaults
+    :arg list protocols: allowed list of protocols for links; defaults
         to ``bleach.ALLOWED_PROTOCOLS``
 
     :arg bool strip: whether or not to strip disallowed elements
@@ -77,7 +77,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
     return cleaner.clean(text)
 
 
-def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False, parse_email=False):
+def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_tags=None, parse_email=False):
     """Convert URL-like strings in an HTML fragment to links
 
     This function converts strings that look like URLs, domain names and email
@@ -106,7 +106,9 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False, parse_email=False
 
     :arg list callbacks: list of callbacks to run when adjusting tag attributes
 
-    :arg bool skip_pre: whether or not to skip linkifying text in a ``pre`` tag
+    :arg list skip_tags: list of tags that you don't want to linkify the
+        contents of; for example, you could set this to ``['pre']`` to skip
+        linkifying contents of ``pre`` tags
 
     :arg bool parse_email: whether or not to linkify email addresses
 
@@ -115,7 +117,7 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_pre=False, parse_email=False
     """
     linker = Linker(
         callbacks=callbacks,
-        skip_pre=skip_pre,
+        skip_tags=skip_tags,
         parse_email=parse_email
     )
     return linker.linkify(text)

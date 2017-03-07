@@ -60,6 +60,23 @@ Version 2.0 (in development)
 
   All linkify filters will need to be updated.
 
+* ``bleach.linkify`` and friends had a ``skip_pre`` argument--that's been
+  replaced with a more general ``skip_tags`` argument.
+
+  Before, you might do::
+
+      bleach.linkify(some_text, skip_pre=True)
+
+  The equivalent with Bleach 2.0 is::
+
+      bleach.linkify(some_text, skip_tags=['pre'])
+
+  You can skip other tags, too, like ``style`` or ``script`` or other places
+  where you don't want linkification happening.
+
+  All uses of linkify that use ``skip_pre`` will need to be updated.
+
+
 **Changes**
 
 * Supports Python 3.6.

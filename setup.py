@@ -12,7 +12,7 @@ if 'test' in sys.argv:
 tests_require = [
     'pytest>=3.0.0',
 ]
-    
+
 install_requires = [
     'six',
     # >= 8 9s because of breaking API change
@@ -42,7 +42,7 @@ def get_version():
 setup(
     name='bleach',
     version=get_version(),
-    description='An easy whitelist-based HTML-sanitizing tool.',
+    description='An easy safelist-based HTML-sanitizing tool.',
     long_description=get_long_desc(),
     maintainer='Will Kahn-Greene',
     url='http://github.com/mozilla/bleach',
