@@ -128,7 +128,7 @@ class Cleaner(object):
             source=self.walker(dom),
 
             # Bleach-sanitizer-specific things
-            allowed_attributes_map=self.attributes,
+            attributes=self.attributes,
             strip_disallowed_elements=self.strip,
             strip_html_comments=self.strip_comments,
 
@@ -146,22 +146,58 @@ class Cleaner(object):
         return self.serializer.render(filtered)
 
 
+def attribute_filter_factory(attributes):
+    """Generates attribute filter function for the given attributes value
+
+    The attributes value can take one of several shapes. This returns a filter
+    function appropriate to the attributes value. One nice thing about this is
+    that there's less if/then shenanigans in the ``allow_token`` method.
+
+    """
+    if callable(attributes):
+        return attributes
+
+    if isinstance(attributes, dict):
+        def _attr_filter(tag, attr, value):
+            if tag in attributes:
+                attr_val = attributes[tag]
+                if callable(attr_val):
+                    return attr_val(tag, attr, value)
+
+                if attr in attr_val:
+                    return True
+
+            if '*' in attributes:
+                attr_val = attributes['*']
+                if callable(attr_val):
+                    return attr_val(tag, attr, value)
+
+                return attr in attr_val
+
+            return False
+
+        return _attr_filter
+
+    if isinstance(attributes, list):
+        def _attr_filter(tag, attr, value):
+            return attr in attributes
+
+        return _attr_filter
+
+    raise ValueError('attributes needs to be a callable, a list or a dict')
+
+
 class BleachSanitizerFilter(sanitizer.Filter):
     """html5lib Filter that sanitizes text
 
     This filter can be used anywhere html5lib filters can be used.
 
     """
-    def __init__(self, source, allowed_attributes_map,
+    def __init__(self, source, attributes=ALLOWED_ATTRIBUTES,
                  strip_disallowed_elements=False, strip_html_comments=True,
                  **kwargs):
 
-        if isinstance(allowed_attributes_map, dict):
-            self.wildcard_attributes = allowed_attributes_map.get('*', [])
-            self.allowed_attributes_map = allowed_attributes_map
-        else:
-            self.wildcard_attributes = allowed_attributes_map
-            self.allowed_attributes_map = {}
+        self.attr_filter = attribute_filter_factory(attributes)
 
         self.strip_disallowed_elements = strip_disallowed_elements
         self.strip_html_comments = strip_html_comments
@@ -205,10 +241,6 @@ class BleachSanitizerFilter(sanitizer.Filter):
     def allow_token(self, token):
         """Handles the case where we're allowing the tag"""
         if 'data' in token:
-            allowed_attributes = self.allowed_attributes_map.get(token['name'], [])
-            if not callable(allowed_attributes):
-                allowed_attributes += self.wildcard_attributes
-
             # Loop through all the attributes and drop the ones that are not
             # allowed, are unsafe or break other rules. Additionally, fix
             # attribute values that need fixing.
@@ -220,11 +252,10 @@ class BleachSanitizerFilter(sanitizer.Filter):
                 namespace, name = namespaced_name
 
                 # Drop attributes that are not explicitly allowed
-                if callable(allowed_attributes):
-                    if not allowed_attributes(name, val):
-                        continue
-
-                elif name not in allowed_attributes:
+                #
+                # NOTE(willkg): We pass in the attribute name--not a namespaced
+                # name.
+                if not self.attr_filter(token['name'], name, val):
                     continue
 
                 # Look at attributes that have uri values

@@ -25,6 +25,12 @@ Version 2.0 (in development)
   Amongst other things, this version will add end tags even if the tag in
   question is to be escaped.
 
+* ``bleach.clean`` and friends attribute callables now take three arguments:
+  tag, attribute name and attribute value. Previously they only took attribute
+  name and attribute value.
+
+  All attribute callables will need to be updated.
+
 * ``bleach.linkify`` was rewritten
 
   ``linkify`` was reimplemented as an html5lib Filter. As such, it no longer
@@ -52,6 +58,8 @@ Version 2.0 (in development)
   don't then html5lib will raise an assertion error that the value is not
   unicode.
 
+  All linkify filters will need to be updated.
+
 **Changes**
 
 * Supports Python 3.6.
@@ -67,6 +75,8 @@ Version 2.0 (in development)
 * There's a ``bleach.linkifier.LinkifyFilter`` which is an htm5lib filter that
   you can pass as a filter to ``bleach.sanitizer.Cleaner`` allowing you to clean
   and linkify in one pass.
+
+* ``bleach.clean`` and friends can now take a callable as an attributes arg value.
 
 * Tons of bug fixes.
 

@@ -164,23 +164,46 @@ class TestClean:
         clean = '<em class="FOO">BAR</em>'
         assert bleach.clean(dirty, attributes=['class']) == clean
 
-    def test_wildcard_attributes(self):
+    def test_attributes_callable(self):
+        """Verify attributes can take a callable"""
+        ATTRS = lambda tag, name, val: name == 'title'
+        TAGS = ['a']
+
+        assert (
+            bleach.clean(u'<a href="/foo" title="blah">example</a>', tags=TAGS, attributes=ATTRS) ==
+            u'<a title="blah">example</a>'
+        )
+
+    def test_attributes_wildcard(self):
+        """Verify attributes[*] works"""
         ATTRS = {
             '*': ['id'],
             'img': ['src'],
         }
-        TAG = ['img', 'em']
+        TAGS = ['img', 'em']
         dirty = ('both <em id="foo" style="color: black">can</em> have '
                  '<img id="bar" src="foo"/>')
         assert (
-            bleach.clean(dirty, tags=TAG, attributes=ATTRS) ==
+            bleach.clean(dirty, tags=TAGS, attributes=ATTRS) ==
             'both <em id="foo">can</em> have <img id="bar" src="foo">'
         )
 
-    def test_callable_attributes(self):
-        """Verify callable attributes work and get correct arg values"""
-        def img_test(attr, val):
-            return attr == 'src' and val.startswith('https')
+    def test_attributes_wildcard_callable(self):
+        """Verify attributes[*] callable works"""
+        ATTRS = {
+            '*': lambda tag, name, val: name == 'title'
+        }
+        TAGS = ['a']
+
+        assert (
+            bleach.clean(u'<a href="/foo" title="blah">example</a>', tags=TAGS, attributes=ATTRS) ==
+            u'<a title="blah">example</a>'
+        )
+
+    def test_attributes_tag_callable(self):
+        """Verify attributes[tag] callable works"""
+        def img_test(tag, name, val):
+            return name == 'src' and val.startswith('https')
 
         ATTRS = {
             'img': img_test,
@@ -196,6 +219,28 @@ class TestClean:
             bleach.clean('foo <img src="https://example.com" alt="blah"> baz', tags=TAGS,
                          attributes=ATTRS) ==
             u'foo <img src="https://example.com"> baz'
+        )
+
+    def test_attributes_tag_list(self):
+        """Verify attributes[tag] list works"""
+        ATTRS = {
+            'a': ['title']
+        }
+        TAGS = ['a']
+
+        assert (
+            bleach.clean(u'<a href="/foo" title="blah">example</a>', tags=TAGS, attributes=ATTRS) ==
+            u'<a title="blah">example</a>'
+        )
+
+    def test_attributes_list(self):
+        """Verify attributes list works"""
+        ATTRS = ['title']
+        TAGS = ['a']
+
+        assert (
+            bleach.clean(u'<a href="/foo" title="blah">example</a>', tags=TAGS, attributes=ATTRS) ==
+            u'<a title="blah">example</a>'
         )
 
     def test_svg_attr_val_allows_ref(self):
