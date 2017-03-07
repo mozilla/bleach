@@ -48,16 +48,16 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
     :arg str text: the text to clean
 
     :arg list tags: allowed list of tags; defaults to
-        ``bleach.ALLOWED_TAGS``
+        ``bleach.sanitizer.ALLOWED_TAGS``
 
     :arg dict attributes: allowed attributes; can be a callable, list or dict;
-        defaults to ``bleach.ALLOWED_ATTRIBUTES``
+        defaults to ``bleach.sanitizer.ALLOWED_ATTRIBUTES``
 
     :arg list styles: allowed list of css styles; defaults to
-        ``bleach.ALLOWED_STYLES``
+        ``bleach.sanitizer.ALLOWED_STYLES``
 
     :arg list protocols: allowed list of protocols for links; defaults
-        to ``bleach.ALLOWED_PROTOCOLS``
+        to ``bleach.sanitizer.ALLOWED_PROTOCOLS``
 
     :arg bool strip: whether or not to strip disallowed elements
 
@@ -104,7 +104,8 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_tags=None, parse_email=False
 
     :arg str text: the text to linkify
 
-    :arg list callbacks: list of callbacks to run when adjusting tag attributes
+    :arg list callbacks: list of callbacks to run when adjusting tag attributes;
+        defaults to ``bleach.linkifier.DEFAULT_CALLBACKS``
 
     :arg list skip_tags: list of tags that you don't want to linkify the
         contents of; for example, you could set this to ``['pre']`` to skip

@@ -11,6 +11,7 @@ from bleach.encoding import force_unicode
 from bleach.utils import alphabetize_attributes
 
 
+#: List of default callbacks
 DEFAULT_CALLBACKS = [linkify_callbacks.nofollow]
 
 
@@ -91,7 +92,8 @@ class Linker(object):
                  url_re=URL_RE, email_re=EMAIL_RE):
         """Creates a Linker instance
 
-        :arg list callbacks: list of callbacks to run when adjusting tag attributes
+        :arg list callbacks: list of callbacks to run when adjusting tag attributes;
+            defaults to ``bleach.linkifier.DEFAULT_CALLBACKS``
 
         :arg list skip_tags: list of tags that you don't want to linkify the
             contents of; for example, you could set this to ``['pre']`` to skip
@@ -101,7 +103,7 @@ class Linker(object):
 
         :arg re url_re: url matching regex
 
-        :arg email_re: email matching regex
+        :arg re email_re: email matching regex
 
         :returns: linkified text as unicode
 
@@ -126,6 +128,13 @@ class Linker(object):
         )
 
     def linkify(self, text):
+        """Linkify specified text
+
+        :arg str text: the text to add links to
+
+        :returns: linkified text as unicode
+
+        """
         text = force_unicode(text)
 
         if not text:
@@ -162,7 +171,8 @@ class LinkifyFilter(Filter):
 
         :arg TreeWalker source: stream
 
-        :arg list callbacks: list of callbacks to run when adjusting tag attributes
+        :arg list callbacks: list of callbacks to run when adjusting tag attributes;
+            defaults to ``bleach.linkifier.DEFAULT_CALLBACKS``
 
         :arg list skip_tags: list of tags that you don't want to linkify the
             contents of; for example, you could set this to ``['pre']`` to skip
@@ -172,9 +182,7 @@ class LinkifyFilter(Filter):
 
         :arg re url_re: url matching regex
 
-        :arg email_re: email matching regex
-
-        :returns: linkified text as unicode
+        :arg re email_re: email matching regex
 
         """
         super(LinkifyFilter, self).__init__(source)

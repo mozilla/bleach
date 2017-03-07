@@ -11,6 +11,7 @@ from bleach.encoding import force_unicode
 from bleach.utils import alphabetize_attributes
 
 
+#: List of allowed tags
 ALLOWED_TAGS = [
     'a',
     'abbr',
@@ -26,14 +27,20 @@ ALLOWED_TAGS = [
     'ul',
 ]
 
+
+#: Map of allowed attributes by tag
 ALLOWED_ATTRIBUTES = {
     'a': ['href', 'title'],
     'abbr': ['title'],
     'acronym': ['title'],
 }
 
+
+#: List of allowed styles
 ALLOWED_STYLES = []
 
+
+#: List of allowed protocols
 ALLOWED_PROTOCOLS = ['http', 'https', 'mailto']
 
 
@@ -64,24 +71,24 @@ class Cleaner(object):
         """Initializes a Cleaner
 
         :arg list tags: allowed list of tags; defaults to
-            ``bleach.ALLOWED_TAGS``
+            ``bleach.sanitizer.ALLOWED_TAGS``
 
         :arg dict attributes: allowed attributes; can be a callable, list or dict;
-            defaults to ``bleach.ALLOWED_ATTRIBUTES``
+            defaults to ``bleach.sanitizer.ALLOWED_ATTRIBUTES``
 
         :arg list styles: allowed list of css styles; defaults to
-            ``bleach.ALLOWED_STYLES``
+            ``bleach.sanitizer.ALLOWED_STYLES``
 
         :arg list protocols: allowed list of protocols for links; defaults
-            to ``bleach.ALLOWED_PROTOCOLS``
+            to ``bleach.sanitizer.ALLOWED_PROTOCOLS``
 
-        :arg strip: whether or not to strip disallowed elements
+        :arg bool strip: whether or not to strip disallowed elements
 
-        :arg strip_comments: whether or not to strip HTML comments
+        :arg bool strip_comments: whether or not to strip HTML comments
 
-        :arg filters: list of html5lib Filter classes to pass streamed content through
+        :arg list filters: list of html5lib Filter classes to pass streamed content through
 
-            See http://html5lib.readthedocs.io/en/latest/movingparts.html#filters
+            .. seealso:: http://html5lib.readthedocs.io/en/latest/movingparts.html#filters
 
             .. Warning::
 
@@ -201,20 +208,21 @@ class BleachSanitizerFilter(sanitizer.Filter):
         :arg Treewalker source: stream
 
         :arg list tags: allowed list of tags; defaults to
-            ``bleach.ALLOWED_TAGS``
+            ``bleach.sanitizer.ALLOWED_TAGS``
 
         :arg dict attributes: allowed attributes; can be a callable, list or dict;
-            defaults to ``bleach.ALLOWED_ATTRIBUTES``
+            defaults to ``bleach.sanitizer.ALLOWED_ATTRIBUTES``
 
         :arg list styles: allowed list of css styles; defaults to
-            ``bleach.ALLOWED_STYLES``
+            ``bleach.sanitizer.ALLOWED_STYLES``
 
         :arg list protocols: allowed list of protocols for links; defaults
-            to ``bleach.ALLOWED_PROTOCOLS``
+            to ``bleach.sanitizer.ALLOWED_PROTOCOLS``
 
-        :arg strip_disallowed_elements: whether or not to strip disallowed elements
+        :arg bool strip_disallowed_elements: whether or not to strip disallowed
+            elements
 
-        :arg strip_html_comments: whether or not to strip HTML comments
+        :arg bool strip_html_comments: whether or not to strip HTML comments
 
         """
         self.attr_filter = attribute_filter_factory(attributes)

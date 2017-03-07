@@ -50,6 +50,16 @@ links will be removed leaving the innerText left in its place.
 The default callback adds ``rel="nofollow"``. See ``bleach.callbacks`` for some
 included callback functions.
 
+This defaults to ``bleach.linkify.DEFAULT_CALLBACKS``.
+
+
+.. autodata:: bleach.linkifier.DEFAULT_CALLBACKS
+
+
+.. versionchanged:: 2.0
+
+   In previous versions of Bleach, the attribute names were not namespaced.
+
 
 Setting Attributes
 ------------------
@@ -226,6 +236,9 @@ write the following callback:
    u'abc models.py def'
 
 
+.. _Crate: https://crate.io/
+
+
 Removing Links
 --------------
 
@@ -257,6 +270,11 @@ any new links within a ``<pre>`` section, pass ``skip_tags=['pre']``.
 This works for ``code``, ``div`` and any other blocks you want to skip over.
 
 
+.. versionchanged:: 2.0
+
+   This used to be ``skip_pre``, but this makes it more general.
+
+
 Linkifying email addresses (``parse_email``)
 ============================================
 
@@ -285,6 +303,10 @@ instance.
 
 
 .. autoclass:: bleach.linkifier.Linker
+   :members:
+
+
+.. versionadded:: 2.0
 
 
 Using ``bleach.linkifier.LinkifyFilter``
@@ -333,4 +355,7 @@ And passing parameters to ``LinkifyFilter``:
    u'<pre>http://example.com</pre>'
 
 
-.. _Crate: https://crate.io/
+.. autoclass:: bleach.linkifier.LinkifyFilter
+
+
+.. versionadded:: 2.0
