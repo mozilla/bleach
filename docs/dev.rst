@@ -40,22 +40,36 @@ Release process
 
 5. Verify correctness.
 
-   1. Run tests with tox
-   2. Build the docs
-   3. Verify everything works
+   1. Run tests with tox::
 
-6. Push everything to GitHub. This will cause Travis to run the tests.
+         $ tox
 
-7. After Travis is happy, tag the release::
+   2. Build the docs::
+
+         $ cd docs
+         $ make html
+
+   3. Run the doctests::
+
+         $ cd docs/
+         $ make doctests
+
+   4. Verify everything works
+
+6. Commit the changes.
+
+7. Push the changes to GitHub. This will cause Travis to run the tests.
+
+8. After Travis is happy, tag the release::
 
      $ git tag -a v0.4
 
    Copy the details from ``CHANGES`` into the tag comment.
 
-8. Push the new tag::
+9. Push the new tag::
 
      $ git push --tags official master
 
    That will push the release to PyPI.
 
-9. Blog posts, twitter, update topic in ``#bleach``, etc.
+10. Blog posts, twitter, update topic in ``#bleach``, etc.

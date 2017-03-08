@@ -22,6 +22,7 @@ install_requires = [
 
 def get_long_desc():
     desc = open('README.rst').read()
+    desc += '\n\n'
     desc += open('CHANGES').read()
     return desc
 
@@ -45,6 +46,7 @@ setup(
     description='An easy safelist-based HTML-sanitizing tool.',
     long_description=get_long_desc(),
     maintainer='Will Kahn-Greene',
+    maintainer_email='willkg@mozilla.com',
     url='http://github.com/mozilla/bleach',
     license='Apache Software License',
     packages=find_packages(),

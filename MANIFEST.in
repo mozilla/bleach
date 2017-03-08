@@ -11,4 +11,4 @@ include docs/Makefile
 
 recursive-include docs *.rst
 
-recursive-include tests *.py
+recursive-include tests *.py *.test *.out
