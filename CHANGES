@@ -15,6 +15,11 @@ Version 2.0 (March 8th, 2017)
   This version is a rewrite to use the new sanitizing API since the old
   one was dropped in html5lib 0.99999999 (8 9s).
 
+  If you're using 0.9999999 (7 9s) upgrade to 0.99999999 (8 9s) or higher.
+
+  If you're using 1.0b8 (equivalent to 0.9999999 (7 9s)), upgrade to 1.0b9
+  (equivalent to 0.99999999 (8 9s)) or higher.
+
 * ``bleach.clean`` and friends were rewritten
 
   ``clean`` was reimplemented as an html5lib filter and happens at a different
