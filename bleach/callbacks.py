@@ -4,7 +4,11 @@ from __future__ import unicode_literals
 
 def nofollow(attrs, new=False):
     href_key = (None, u'href')
-    if href_key not in attrs or attrs[href_key].startswith(u'mailto:'):
+
+    if href_key not in attrs:
+        return attrs
+
+    if attrs[href_key].startswith(u'mailto:'):
         return attrs
 
     rel_key = (None, u'rel')
@@ -18,6 +22,10 @@ def nofollow(attrs, new=False):
 
 def target_blank(attrs, new=False):
     href_key = (None, u'href')
+
+    if href_key not in attrs:
+        return attrs
+
     if attrs[href_key].startswith(u'mailto:'):
         return attrs
 
