@@ -53,7 +53,7 @@ def test_mangle_link():
         return attrs
 
     assert (
-        linkify('http://example.com', DC + [filter_url]) ==
+        linkify('http://example.com', callbacks=DC + [filter_url]) ==
         '<a href="http://bouncer/?u=http%3A%2F%2Fexample.com" rel="nofollow">http://example.com</a>'
     )
 
@@ -66,7 +66,7 @@ def test_mangle_text():
         return attrs
 
     assert (
-        linkify('http://ex.mp <a href="http://ex.mp/foo">foo</a>', [ft]) ==
+        linkify('http://ex.mp <a href="http://ex.mp/foo">foo</a>', callbacks=[ft]) ==
         '<a href="http://ex.mp">bar</a> <a href="http://ex.mp/foo">bar</a>'
     )
 
@@ -185,7 +185,7 @@ def test_prevent_links(callback, expected):
     """Returning None from any callback should remove links or prevent them
     from being created."""
     text = 'a ex.mp <a href="http://example.com">example</a>'
-    assert linkify(text, callback) == expected
+    assert linkify(text, callbacks=callback) == expected
 
 
 def test_set_attrs():
@@ -196,7 +196,7 @@ def test_set_attrs():
         return attrs
 
     assert (
-        linkify('ex.mp', [set_attr]) ==
+        linkify('ex.mp', callbacks=[set_attr]) ==
         '<a href="http://ex.mp" rev="canonical">ex.mp</a>'
     )
 
@@ -210,7 +210,7 @@ def test_only_proto_links():
 
     in_text = 'a ex.mp http://ex.mp <a href="/foo">bar</a>'
     assert (
-        linkify(in_text, [only_proto]) ==
+        linkify(in_text, callbacks=[only_proto]) ==
         'a ex.mp <a href="http://ex.mp">http://ex.mp</a> <a href="/foo">bar</a>'
     )
 
@@ -248,7 +248,7 @@ def test_escaping():
 
 
 def test_nofollow_off():
-    assert linkify('example.com', []) == '<a href="http://example.com">example.com</a>'
+    assert linkify('example.com', callbacks=[]) == '<a href="http://example.com">example.com</a>'
 
 
 def test_link_in_html():
