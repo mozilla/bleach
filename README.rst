@@ -62,14 +62,6 @@ Or with ``easy_install``::
 
     $ easy_install bleach
 
-Or by cloning the repo from GitHub_::
-
-    $ git clone git://github.com/mozilla/bleach.git
-
-Then install it by running::
-
-    $ python setup.py install
-
 
 Upgrading Bleach
 ================

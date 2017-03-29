@@ -2,6 +2,23 @@
 Bleach development
 ==================
 
+Install for development
+=======================
+
+To install Bleach to make changes to it::
+
+1. Clone the repo from GitHub::
+
+       $ git clone git://github.com/mozilla/bleach.git
+
+2. Create a virtual environment using whatever method you want.
+
+3. Install Bleach into the virtual environment such that you can see
+   changes::
+
+       $ pip install -e .
+
+
 Docs
 ====
 
