@@ -109,8 +109,8 @@ this.
 Bleach vs html5lib
 ==================
 
-Bleach is built upon html5lib_, and html5lib has `a built-in sanitizer
-<https://github.com/html5lib/html5lib-python/blob/1.0b10/html5lib/serializer.py#L148>`_,
+Bleach is built upon html5lib_, and html5lib has `a built-in sanitizer filter
+<https://html5lib.readthedocs.io/en/latest/html5lib.filters.html#module-html5lib.filters.sanitizer>`_,
 so why use Bleach?
 
 * Bleach's API is simpler.
@@ -127,3 +127,5 @@ so why use Bleach?
   less safe.
 * ``html5lib.filters.sanitizer.Filter``'s ``sanitize_css`` is broken and doesn't
   work.
+
+.. _html5lib: https://github.com/html5lib/html5lib-python
