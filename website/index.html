@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Python Bleach 2.0.0</title>
+        <style>
+         textarea, iframe {
+             width: 95%;
+         }
+         #clean, #dirty, #ifr {
+             height: 100px;
+         }
+         .test-case > .ifr {
+             height: 50px;
+         }
+         .test-case, .demo {
+             padding-bottom: 15px;
+             border-bottom: 2px solid gray;
+         }
+        </style>
+    </head>
+    <body>
+        <h2>Python Bleach 2.0.0</h2>
+        <p>
+            <a href="http://badge.fury.io/py/bleach"><img style="max-width:100%;" alt="pypi version" src="https://badge.fury.io/py/bleach.svg"></a>
+            <a href="https://travis-ci.org/mozilla/bleach"><img style="max-width:100%;" alt="Build Status" src="https://travis-ci.org/mozilla/bleach.svg?branch=master"></a>
+        </p>
+
+        <div class="demo">
+            <h3>Demo</h3>
+            <p>
+                This is the demo for <a href="https://bleach.readthedocs.io/en/latest/index.html">Bleach</a>, a whitelist-based HTML sanitizing library that escapes or strips markup and attributes.
+                Enter a sample payload in the textarea below and watch it sanitize in the textarea and iframe below.
+            </p>
+
+            <hr>
+            <p><button class="unsafe-write">write <strong>unsanitized</strong> textarea value to DOM</button></p>
+            <p><button class="clean-and-write">bleach.clean textarea value then write result to DOM</button></p>
+            <p><input id="autoclean" type="checkbox" checked /> clean when dirty HTML changes</p>
+
+            <p><label for="dirty">Dirty HTML</label></p>
+            <textarea placeholder="Payload goes here." id="dirty" class="dirty"><!-- Loading Test-Vectors ... --></textarea>
+            <p><label for="clean">Clean HTML</label></p>
+            <textarea placeholder="Here be the sanitized markup to inspect!" id="clean" class="clean"></textarea>
+            <p><label for="ifr" class="dom-label">Clean DOM</label></p>
+            <iframe src="about:blank" id="ifr" class="ifr"></iframe>
+        </div>
+
+        <div id="test-template" class="test-case" style="display:none">
+            <a class="test-name-link" href="#"><h3 class="test-name"></h3></a>
+
+            <p>
+                <button class="unsafe-write" data-test="null">
+                    write <strong>unsanitized</strong> textarea value to DOM
+                </button>
+                <p><button class="clean-and-write">bleach.clean textarea value then write result to DOM</button></p>
+            </p>
+
+            <p><label for="dirty">Dirty HTML</label></p>
+            <textarea placeholder="Payload goes here." class="dirty" readonly rows="2"></textarea>
+            <p><label for="clean">Clean HTML</label></p>
+            <textarea placeholder="Here be the sanitized markup to inspect!" class="clean" readonly rows="2"></textarea>
+            <p><label for="ifr" class="dom-label">Clean DOM</label></p>
+            <iframe src="about:blank" class="ifr"></iframe>
+        </div>
+
+        <script>
+         var writeToIframe = function(ifr, value) {
+             ifr.contentDocument.open();
+             ifr.contentDocument.write(value);
+             ifr.contentDocument.close();
+         };
+
+         var sanitize = function(event) {
+             if (event && event.target && event.target.className.indexOf("clean-and-write") !== -1) {
+                 var grandParent = event.target.parentElement.parentElement;
+                 var xhr = new XMLHttpRequest();
+                 xhr.open('POST', '/sanitize');
+                 xhr.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
+                 xhr.onload = function() {
+                     var sanitized = xhr.responseText;
+                     grandParent.querySelector("label.dom-label[for=ifr]").textContent = "Clean DOM";
+                     writeToIframe(grandParent.querySelector('.ifr'), sanitized);
+                     grandParent.querySelector("textarea.clean").value = sanitized;
+                 }
+                 xhr.send(grandParent.querySelector("textarea.dirty").value);
+             }
+         };
+
+         var unsafeWrite = function(event) {
+             if (event.target.className.indexOf("unsafe-write") !== -1) {
+                 var grandParent = event.target.parentElement.parentElement;
+                 grandParent.querySelector("textarea.clean").value = "N/A";
+                 grandParent.querySelector("label.dom-label[for=ifr]").textContent = "Dirty DOM";
+                 writeToIframe(grandParent.querySelector('.ifr'), grandParent.querySelector("textarea.dirty").value);
+             }
+         };
+
+         var addTest = function (test, index) {
+             var testTemplate = document.getElementById('test-template');
+             var template = testTemplate.cloneNode(true);
+             var testId = 'test-' + index;
+             template.setAttribute('id', testId);
+             template.getElementsByClassName('test-name-link')[0].setAttribute('href', '#' + testId);
+             template.getElementsByClassName('test-name')[0].textContent = test.title;
+             template.getElementsByClassName('dirty')[0].value = test.payload;
+             template.getElementsByClassName('clean')[0].value = test.actual;
+             template.style.display = "block";
+
+             // iframe must be in DOM before we can write to it.
+             document.getElementsByTagName('body')[0].appendChild(template);
+
+             writeToIframe(template.getElementsByClassName('ifr')[0], test.actual);
+         };
+
+         var loadTests = function(url, onSuccess) {
+             var xhr = new XMLHttpRequest();
+             xhr.open('GET', url);
+             xhr.onload = function () {
+                 return onSuccess(xhr.responseText);
+             };
+             xhr.onerror = function() {
+                 console.error(arguments)
+             }
+             xhr.send(null);
+         };
+
+         // TODO: debounce input events?
+         document.getElementById('dirty')
+                 .addEventListener('input', function () {
+                     var autocleanEl = document.getElementById('autoclean');
+                     if (autocleanEl.checked) {
+                         sanitize({target: document.getElementsByClassName('clean-and-write')[0]});
+                     }
+         });
+
+         document.addEventListener('click', unsafeWrite, false);
+         document.addEventListener('click', sanitize, false);
+
+         document.addEventListener('DOMContentLoaded', function() {
+             loadTests('/testcases.json', function (responseText) {
+                 dirty.value = '<!-- I am ready now, click one of the buttons! -->\r\n';
+
+                 JSON.parse(responseText).forEach(addTest)
+             });
+         }, false);
+        </script>
+    </body>
+</html>
