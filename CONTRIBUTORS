@@ -1,8 +1,9 @@
 Bleach was originally written and maintained by James Socol and various
 contributors within and without the Mozilla Corporation and Foundation.
-It is currently maintained by Jannis Leidel and Will Kahn-Greene.
 
-Maintainers:
+It is currently maintained by Will Kahn-Greene.
+
+Maintainer:
 
 - Will Kahn-Greene <willkg@mozilla.com>
 
@@ -29,6 +30,7 @@ Contributors:
 - Erik Rose
 - Gaurav Dadhania
 - Geoffrey Sneddon
+- Greg Guthe
 - Istvan Albert
 - Jaime Irurzun
 - James Socol
