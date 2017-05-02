@@ -16,7 +16,7 @@ tests_require = [
 install_requires = [
     'six',
     # >= 8 9s because of breaking API change
-    'html5lib>=0.99999999',
+    'html5lib>=0.99999999,>=1.0b9',
 ]
 
 
