@@ -105,6 +105,18 @@ like Opera's ``-o-link``. Painful as it is, if you want your users to be able to
 change nearly anything in a ``style`` attribute, you should have to opt into
 this.
 
+Usage with Javascript frameworks and template languages
+-------------------------------------------------------
+
+A number of Javascript frameworks and template languages allow `XSS
+via Javascript Gadgets <http://sebastian-lekies.de/slides/appsec2017.pdf>`_.
+While Bleach usually produces output safe for these contexts, it is
+not tested against them nor guaranteed to produce safe output.  Check
+that bleach properly strips or escapes language-specific syntax like
+``data-bind`` attributes for Knockout.js or ``ng-*`` attributes from
+Angular templates before using bleach-sanitized output with your
+framework or template language.
+
 
 Bleach vs html5lib
 ==================
