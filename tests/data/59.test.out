@@ -1,0 +1,10 @@
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <menclose notation="box"><mi>a</mi></menclose><mo>,</mo>
+    <menclose notation="box"><mi mathcolor="#FF0000">a</mi></menclose><mo>,</mo>
+    <menclose mathcolor="#FF0000" notation="box"><mi>a</mi></menclose><mo>,</mo>
+    <menclose mathbackground="#80FF80" notation="box"><mi mathcolor="#FF0000">a</mi></menclose><mo>,</mo>
+    <menclose mathbackground="#80FF80" mathcolor="#FF0000" notation="box"><mi>a</mi></menclose><mo>,</mo>
+    <menclose notation="box"><mi mathbackground="#80FF80">a</mi></menclose>
+  </mrow>
+</math>

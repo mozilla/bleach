@@ -1,0 +1,5 @@
+<div id="108">
+<a href="http://foo.bar/#x=`y"></a><img alt="`&gt;&lt;img src=xx onerror=alert(108)&gt;&lt;/a&gt;">
+
+<img alt="`&gt;&lt;img src=xx onerror=alert(2)//">
+<img alt="`&gt;&lt;img src=xx onerror=alert(3)//">//["'`--&gt;]]&gt;]</div>

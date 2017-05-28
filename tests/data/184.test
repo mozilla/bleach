@@ -1,0 +1,4 @@
+<div id="118"><div draggable="true" ondragstart="event.dataTransfer.setData('text/plain','malicious code');">
+    <h1>Drop me</h1>
+</div>
+<iframe src="http://www.example.org/dropHere.html"></iframe>//["'`-->]]>]</div>

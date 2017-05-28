@@ -1,0 +1,1 @@
+<div id="93"><div style="list-style:url(http://foo.f)\u0010url(javascript:alert(93));">X</div>//["'`--&gt;]]&gt;]</div>
