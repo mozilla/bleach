@@ -8,6 +8,17 @@ import six
 from bleach import clean
 
 
+def test_escaped_entities():
+    # html5lib unescapes character entities, so these would become ' and "
+    # which makes it possible to break out of html attributes.
+    #
+    # Verify that bleach.clean() doesn't unescape entities.
+    assert (
+        clean('&#39;&#34;') ==
+        '&amp;#39;&amp;#34;'
+    )
+
+
 def test_nested_script_tag():
     assert (
         clean('<<script>script>evil()<</script>/script>') ==
@@ -105,7 +116,7 @@ def test_invalid_tag_char():
 def test_unclosed_tag():
     assert (
         clean('<script src=http://xx.com/xss.js<b>') ==
-        '&lt;script src="http://xx.com/xss.js&amp;lt;b"&gt;&lt;/script&gt;'
+        '&lt;script src="http://xx.com/xss.js&lt;b"&gt;&lt;/script&gt;'
     )
     assert (
         clean('<script src="http://xx.com/xss.js"<b>') in
@@ -181,7 +192,7 @@ def test_regression_manually():
     """Regression tests for clean so we can see if there are issues"""
     # NOTE(willkg): Have to do this one by hand because of the \r
     s = """<IMG SRC="jav&#x0D;ascript:alert(<WBR>'XSS');">"""
-    expected = """&lt;img src="jav\rascript:alert(&amp;lt;WBR&amp;gt;'XSS');"&gt;"""
+    expected = """&lt;img src="jav&amp;#x0D;ascript:alert(&lt;WBR&gt;'XSS');"&gt;"""
 
     assert clean(s) == expected
 

@@ -4,9 +4,15 @@ import six
 from xml.sax.saxutils import unescape
 
 import html5lib
-from html5lib.constants import namespaces
+from html5lib.constants import (
+    ReparseException,
+    namespaces,
+    prefixes,
+    tokenTypes,
+)
 from html5lib.filters import sanitizer
 from html5lib.serializer import HTMLSerializer
+from html5lib._tokenizer import HTMLTokenizer
 
 from bleach.utils import alphabetize_attributes, force_unicode
 
@@ -42,6 +48,33 @@ ALLOWED_STYLES = []
 
 #: List of allowed protocols
 ALLOWED_PROTOCOLS = ['http', 'https', 'mailto']
+
+
+class BleachHTMLTokenizer(HTMLTokenizer):
+    def consumeEntity(self, allowedChar=None, fromAttribute=False):
+        # We don't want to consume and convert entities. Instead we put the
+        # '&' in output.
+        if fromAttribute:
+            self.currentToken['data'][-1][1] += '&'
+
+        else:
+            self.tokenQueue.append({"type": tokenTypes['Characters'], "data": '&'})
+
+
+class BleachHTMLParser(html5lib.HTMLParser):
+    def _parse(self, stream, innerHTML=False, container="div", scripting=False, **kwargs):
+        # Override HTMLParser so we can swap out the tokenizer.
+        self.innerHTMLMode = innerHTML
+        self.container = container
+        self.scripting = scripting
+        self.tokenizer = BleachHTMLTokenizer(stream, parser=self, **kwargs)
+        self.reset()
+
+        try:
+            self.mainLoop()
+        except ReparseException:
+            self.reset()
+            self.mainLoop()
 
 
 class Cleaner(object):
@@ -104,7 +137,7 @@ class Cleaner(object):
         self.strip_comments = strip_comments
         self.filters = filters or []
 
-        self.parser = html5lib.HTMLParser(namespaceHTMLElements=False)
+        self.parser = BleachHTMLParser(namespaceHTMLElements=False)
         self.walker = html5lib.getTreeWalker('etree')
         self.serializer = HTMLSerializer(
             quote_attr_values='always',
@@ -336,6 +369,35 @@ class BleachSanitizerFilter(sanitizer.Filter):
 
             token['data'] = alphabetize_attributes(attrs)
 
+        return token
+
+    def disallowed_token(self, token):
+        token_type = token["type"]
+        if token_type == "EndTag":
+            token["data"] = "</%s>" % token["name"]
+
+        elif token["data"]:
+            assert token_type in ("StartTag", "EmptyTag")
+            attrs = []
+            for (ns, name), v in token["data"].items():
+                attrs.append(' %s="%s"' % (
+                    name if ns is None else "%s:%s" % (prefixes[ns], name),
+                    # Note: HTMLSerializer escapes attribute values already, so
+                    # if we do it here (like HTMLSerializer does), then we end
+                    # up double-escaping.
+                    v)
+                )
+            token["data"] = "<%s%s>" % (token["name"], ''.join(attrs))
+
+        else:
+            token["data"] = "<%s>" % token["name"]
+
+        if token.get("selfClosing"):
+            token["data"] = token["data"][:-1] + "/>"
+
+        token["type"] = "Characters"
+
+        del token["name"]
         return token
 
     def sanitize_css(self, style):
