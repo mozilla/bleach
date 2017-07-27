@@ -1,6 +1,5 @@
 from html5lib.filters.base import Filter
 import pytest
-import six
 
 import bleach
 from bleach.sanitizer import Cleaner
@@ -11,12 +10,10 @@ class TestClean:
         assert bleach.clean('') == ''
 
     def test_nbsp(self):
-        if six.PY3:
-            expected = '\xa0test string\xa0'
-        else:
-            expected = six.u('\\xa0test string\\xa0')
-
-        assert bleach.clean('&nbsp;test string&nbsp;') == expected
+        assert (
+            bleach.clean('&nbsp;test string&nbsp;') ==
+            '&amp;nbsp;test string&amp;nbsp;'
+        )
 
     def test_comments_only(self):
         comment = '<!-- this is a comment -->'
@@ -99,20 +96,30 @@ class TestClean:
             bleach.clean('an < entity') ==
             'an &lt; entity'
         )
-
         assert (
             bleach.clean('tag < <em>and</em> entity') ==
             'tag &lt; <em>and</em> entity'
         )
 
+    def test_character_entities(self):
         assert (
             bleach.clean('&amp;') ==
-            '&amp;'
+            '&amp;amp;'
+        )
+        assert (
+            bleach.clean('&nbsp;') ==
+            '&amp;nbsp;'
+        )
+        assert (
+            bleach.clean('http://example.com?active=true&current=true') ==
+            'http://example.com?active=true&amp;current=true'
         )
 
     def test_escaped_entities(self):
-        s = '&lt;em&gt;strong&lt;/em&gt;'
-        assert bleach.clean(s) == s
+        assert (
+            bleach.clean('&lt;em&gt;strong&lt;/em&gt;') ==
+            '&amp;lt;em&amp;gt;strong&amp;lt;/em&amp;gt;'
+        )
 
     def test_weird_strings(self):
         s = '</3'
@@ -343,13 +350,6 @@ class TestClean:
             cleaner.clean(dirty) ==
             'this is cute! <img rel="moo" src="moo">'
         )
-
-
-def test_clean_idempotent():
-    """Make sure that applying the filter twice doesn't change anything."""
-    dirty = '<span>invalid & </span> < extra http://link.com<em>'
-
-    assert bleach.clean(bleach.clean(dirty)) == bleach.clean(dirty)
 
 
 class TestCleaner:
