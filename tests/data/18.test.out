@@ -1,1 +1,1 @@
-&lt;img src="jav	ascript:alert(&amp;lt;WBR&amp;gt;'XSS');"&gt;
+&lt;img src="jav&amp;#x09;ascript:alert(&lt;WBR&gt;'XSS');"&gt;
