@@ -186,12 +186,3 @@ def test_regressions(fn, text):
     # maintain the files. If there comes a time when the input needs whitespace
     # at the beginning or end, then we'll have to figure out something else.
     assert clean(text.strip()) == expected.strip()
-
-
-def test_regression_manually():
-    """Regression tests for clean so we can see if there are issues"""
-    # NOTE(willkg): Have to do this one by hand because of the \r
-    s = """<IMG SRC="jav&#x0D;ascript:alert(<WBR>'XSS');">"""
-    expected = """&lt;img src="jav&amp;#x0D;ascript:alert(&lt;WBR&gt;'XSS');"&gt;"""
-
-    assert clean(s) == expected
