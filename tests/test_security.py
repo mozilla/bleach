@@ -188,15 +188,6 @@ def test_regressions(fn, text):
     assert clean(text.strip()) == expected.strip()
 
 
-def test_regression_manually():
-    """Regression tests for clean so we can see if there are issues"""
-    # NOTE(willkg): Have to do this one by hand because of the \r
-    s = """<IMG SRC="jav&#x0D;ascript:alert(<WBR>'XSS');">"""
-    expected = """&lt;img src="jav&amp;#x0D;ascript:alert(&lt;WBR&gt;'XSS');"&gt;"""
-
-    assert clean(s) == expected
-
-
 def test_only_text_is_cleaned():
     some_text = 'text'
     some_type = int
