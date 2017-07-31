@@ -5,7 +5,7 @@ Bleach development
 Install for development
 =======================
 
-To install Bleach to make changes to it::
+To install Bleach to make changes to it:
 
 1. Clone the repo from GitHub::
 

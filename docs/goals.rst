@@ -68,9 +68,32 @@ non-goal use cases include:
 Sanitize complete HTML documents
 --------------------------------
 
-Once you're creating whole documents, you have to allow so many tags that a
-disallow-list approach (e.g. forbidding ``<script>`` or ``<object>``) may be
-more appropriate.
+Bleach's ``clean`` is not for sanitizing entire HTML documents. Once you're
+creating whole documents, you have to allow so many tags that a disallow-list
+approach (e.g. forbidding ``<script>`` or ``<object>``) may be more appropriate.
+
+
+Sanitize for use in HTML attributes
+-----------------------------------
+
+Bleach's ``clean`` is used for sanitizing content to be used in an HTML
+context--not for HTML attributes.
+
+For example, this is safe::
+
+    <p>
+      {{ bleach.clean(user_bio) }}
+    </p>
+
+
+This is **not safe**::
+
+    <body data-bio="{{ bleach.clean(user_bio} }}">
+
+
+If you need to use the output of ``bleach.clean()`` in an HTML attribute, you
+need to pass it through your template library's escape function. For example,
+Jinja2's ``escape`` or ``django.utils.html.escape`` or something like that.
 
 
 Remove all HTML or transforming content for some non-web-page purpose

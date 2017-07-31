@@ -11,9 +11,35 @@ Given a fragment of HTML, Bleach will parse it according to the HTML5 parsing
 algorithm and sanitize any disallowed tags or attributes. This algorithm also
 takes care of things like unclosed and (some) misnested tags.
 
-.. note::
-   You may pass in a ``string`` or a ``unicode`` object, but Bleach will
-   always return ``unicode``.
+You may pass in a ``string`` or a ``unicode`` object, but Bleach will always
+return ``unicode``.
+
+.. Note::
+
+   :py:func:`bleach.clean` is for sanitizing HTML **fragments** and not entire
+   HTML documents.
+
+
+.. Warning::
+
+   :py:func:`bleach.clean` is for sanitising HTML fragments to use in an HTML
+   context--not for HTML attributes.
+
+   For example, this is safe::
+
+     <p>
+       {{ bleach.clean(user_bio) }}
+     </p>
+
+
+   This is **not safe**::
+
+     <body data-bio="{{ bleach.clean(user_bio} }}">
+
+
+   If you need to use the output of ``bleach.clean()`` in an HTML attribute, you
+   need to pass it through your template library's escape function. For example,
+   Jinja2's ``escape`` or ``django.utils.html.escape`` or something like that.
 
 
 .. autofunction:: bleach.clean
