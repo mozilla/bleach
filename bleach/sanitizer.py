@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import re
+import six
 from xml.sax.saxutils import unescape
 
 import html5lib
@@ -125,32 +126,36 @@ class Cleaner(object):
         :returns: sanitized text as unicode
 
         """
-        if not text:
-            return u''
+        if isinstance(text, six.string_types):
 
-        text = force_unicode(text)
+            if not text:
+                return u''
 
-        dom = self.parser.parseFragment(text)
-        filtered = BleachSanitizerFilter(
-            source=self.walker(dom),
+            text = force_unicode(text)
 
-            # Bleach-sanitizer-specific things
-            attributes=self.attributes,
-            strip_disallowed_elements=self.strip,
-            strip_html_comments=self.strip_comments,
+            dom = self.parser.parseFragment(text)
+            filtered = BleachSanitizerFilter(
+                source=self.walker(dom),
 
-            # html5lib-sanitizer things
-            allowed_elements=self.tags,
-            allowed_css_properties=self.styles,
-            allowed_protocols=self.protocols,
-            allowed_svg_properties=[],
-        )
+                # Bleach-sanitizer-specific things
+                attributes=self.attributes,
+                strip_disallowed_elements=self.strip,
+                strip_html_comments=self.strip_comments,
 
-        # Apply any filters after the BleachSanitizerFilter
-        for filter_class in self.filters:
-            filtered = filter_class(source=filtered)
+                # html5lib-sanitizer things
+                allowed_elements=self.tags,
+                allowed_css_properties=self.styles,
+                allowed_protocols=self.protocols,
+                allowed_svg_properties=[],
+            )
 
-        return self.serializer.render(filtered)
+            # Apply any filters after the BleachSanitizerFilter
+            for filter_class in self.filters:
+                filtered = filter_class(source=filtered)
+
+            return self.serializer.render(filtered)
+
+        raise TypeError('argument must of text type')
 
 
 def attribute_filter_factory(attributes):
