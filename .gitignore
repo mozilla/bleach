@@ -10,3 +10,4 @@ build
 docs/_build/
 .cache/
 .eggs/
+.*env*/
