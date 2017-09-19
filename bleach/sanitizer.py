@@ -8,8 +8,7 @@ from html5lib.constants import namespaces
 from html5lib.filters import sanitizer
 from html5lib.serializer import HTMLSerializer
 
-from bleach.encoding import force_unicode
-from bleach.utils import alphabetize_attributes
+from bleach.utils import alphabetize_attributes, force_unicode
 
 
 #: List of allowed tags
