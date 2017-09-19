@@ -349,7 +349,17 @@ class LinkifyFilter(Filter):
 
     def handle_links(self, src_iter):
         """Handle links in character tokens"""
+        in_a = False  # happens, if parse_email=True and if a mail was found
         for token in src_iter:
+            if in_a:
+                if token['type'] == 'EndTag' and token['name'] == 'a':
+                    in_a = False
+                yield token
+                continue
+            elif token['type'] == 'StartTag' and token['name'] == 'a':
+                in_a = True
+                yield token
+                continue
             if token['type'] == 'Characters':
                 text = token['data']
                 new_tokens = []

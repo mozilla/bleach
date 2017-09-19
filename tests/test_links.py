@@ -588,6 +588,14 @@ def test_hang():
     )
 
 
+def test_hyphen_in_mail():
+    """Test hyphens `-` in mails. Issue #300."""
+    assert (
+        linkify('ex@am-ple.com', parse_email=True) ==
+        '<a href="mailto:ex@am-ple.com">ex@am-ple.com</a>'
+    )
+
+
 def test_url_re_arg():
     """Verifies that a specified url_re is used"""
     fred_re = re.compile(r"""(fred\.com)""")
