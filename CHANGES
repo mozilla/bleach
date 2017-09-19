@@ -1,6 +1,40 @@
 Bleach Changes
 ==============
 
+Version 2.1 (in development)
+----------------------------
+
+**Security issues**
+
+**Backwards incompatible changes**
+
+* Redid versioning. ``bleach.VERSION`` is no longer available. Use the string
+  version at ``bleach.__version__`` and parse it with
+  ``pkg_resources.parse_version``. (#307)
+
+**Features**
+
+**Bug fixes**
+
+* linkify: fix http links inside of mailto links; thank you, sedrubal! (#300)
+
+* clean, linkify: linkify and clean should only accept text types; thank you,
+  Janusz! (#292)
+
+* clarify security policy in docs (#303)
+
+* fix dependency specification for html5lib 1.0b8, 1.0b9, and 1.0b10; thank you,
+  Zoltán! (#268)
+
+* add Bleach vs. html5lib comparison to README; thank you, Stu Cox! (#278)
+
+* fix KeyError exceptions on tags without href attr; thank you, Alex Defsen!
+  (#273)
+
+* add test website and scripts to test ``bleach.clean()`` output in browser;
+  thank you, Greg Guthe!
+
+
 Version 2.0 (March 8th, 2017)
 -----------------------------
 
