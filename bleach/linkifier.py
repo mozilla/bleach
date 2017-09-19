@@ -8,8 +8,7 @@ from html5lib.filters.sanitizer import allowed_protocols
 from html5lib.serializer import HTMLSerializer
 
 from bleach import callbacks as linkify_callbacks
-from bleach.encoding import force_unicode
-from bleach.utils import alphabetize_attributes
+from bleach.utils import alphabetize_attributes, force_unicode
 
 
 #: List of default callbacks
