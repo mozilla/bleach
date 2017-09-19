@@ -135,26 +135,27 @@ class Linker(object):
 
         :returns: linkified text as unicode
 
+        :raises TypeError: if ``text`` is not a text type
+
         """
-        if isinstance(text, six.string_types):
+        if not isinstance(text, six.string_types):
+            raise TypeError('argument must of text type')
 
-            text = force_unicode(text)
+        text = force_unicode(text)
 
-            if not text:
-                return u''
+        if not text:
+            return u''
 
-            dom = self.parser.parseFragment(text)
-            filtered = LinkifyFilter(
-                source=self.walker(dom),
-                callbacks=self.callbacks,
-                skip_tags=self.skip_tags,
-                parse_email=self.parse_email,
-                url_re=self.url_re,
-                email_re=self.email_re,
-            )
-            return self.serializer.render(filtered)
-
-        raise TypeError('argument must of text type')
+        dom = self.parser.parseFragment(text)
+        filtered = LinkifyFilter(
+            source=self.walker(dom),
+            callbacks=self.callbacks,
+            skip_tags=self.skip_tags,
+            parse_email=self.parse_email,
+            url_re=self.url_re,
+            email_re=self.email_re,
+        )
+        return self.serializer.render(filtered)
 
 
 class LinkifyFilter(Filter):
