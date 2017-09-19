@@ -1,6 +1,5 @@
 from html5lib.filters.base import Filter
 import pytest
-import six
 
 import bleach
 from bleach.sanitizer import Cleaner
@@ -11,12 +10,7 @@ def test_empty():
 
 
 def test_nbsp():
-    if six.PY3:
-        expected = '\xa0test string\xa0'
-    else:
-        expected = six.u('\\xa0test string\\xa0')
-
-    assert bleach.clean('&nbsp;test string&nbsp;') == expected
+    assert bleach.clean('&nbsp;test string&nbsp;') == '&nbsp;test string&nbsp;'
 
 
 def test_comments_only():
@@ -100,30 +94,56 @@ def test_bad_href():
     )
 
 
-def test_bare_entities():
-    assert (
-        bleach.clean('an & entity') ==
-        'an &amp; entity'
-    )
-    assert (
-        bleach.clean('an < entity') ==
-        'an &lt; entity'
-    )
-
-    assert (
-        bleach.clean('tag < <em>and</em> entity') ==
-        'tag &lt; <em>and</em> entity'
-    )
-
-    assert (
-        bleach.clean('&amp;') ==
-        '&amp;'
-    )
+@pytest.mark.parametrize('text, expected', [
+    ('an & entity', 'an &amp; entity'),
+    ('an < entity', 'an &lt; entity'),
+    ('tag < <em>and</em> entity', 'tag &lt; <em>and</em> entity'),
+])
+def test_bare_entities(text, expected):
+    assert bleach.clean(text) == expected
 
 
-def test_escaped_entities():
-    s = '&lt;em&gt;strong&lt;/em&gt;'
-    assert bleach.clean(s) == s
+@pytest.mark.parametrize('text, expected', [
+    # Test character entities
+    ('&amp;', '&amp;'),
+    ('&nbsp;', '&nbsp;'),
+    ('&lt;em&gt;strong&lt;/em&gt;', '&lt;em&gt;strong&lt;/em&gt;'),
+
+    # Test character entity at beginning of string
+    ('&amp;is cool', '&amp;is cool'),
+
+    # Test it at the end of the string
+    ('cool &amp;', 'cool &amp;'),
+
+    # Test bare ampersands and entities at beginning
+    ('&&amp; is cool', '&amp;&amp; is cool'),
+
+    # Test entities and bare ampersand at end
+    ('&amp; is cool &amp;&', '&amp; is cool &amp;&amp;'),
+
+    # Test missing semi-colon means we don't treat it like an entity
+    ('this &amp that', 'this &amp;amp that'),
+
+    # Test a thing that looks like a character entity, but isn't because it's
+    # missing a ; (&curren)
+    (
+        'http://example.com?active=true&current=true',
+        'http://example.com?active=true&amp;current=true'
+    ),
+
+    # Test numeric entities
+    ('&#39;', '&#39;'),
+    ('&#34;', '&#34;'),
+    ('&#123;', '&#123;'),
+    ('&#x0007b;', '&#x0007b;'),
+    ('&#x0007B;', '&#x0007B;'),
+
+    # Test non-numeric entities
+    ('&#', '&amp;#'),
+    ('&#<', '&amp;#&lt;')
+])
+def test_character_entities(text, expected):
+    assert bleach.clean(text) == expected
 
 
 def test_weird_strings():

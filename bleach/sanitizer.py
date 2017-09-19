@@ -1,21 +1,29 @@
 from __future__ import unicode_literals
 import re
+import string
+
 import six
 from xml.sax.saxutils import unescape
 
 import html5lib
 from html5lib.constants import (
+    entities,
     ReparseException,
     namespaces,
     prefixes,
     tokenTypes,
 )
+from html5lib.filters.base import Filter
 from html5lib.filters import sanitizer
 from html5lib.serializer import HTMLSerializer
 from html5lib._tokenizer import HTMLTokenizer
+from html5lib._trie import Trie
 
 from bleach.utils import alphabetize_attributes, force_unicode
 
+
+#: Trie of html entity string -> character representation
+ENTITIES_TRIE = Trie(entities)
 
 #: List of allowed tags
 ALLOWED_TAGS = [
@@ -50,10 +58,16 @@ ALLOWED_STYLES = []
 ALLOWED_PROTOCOLS = ['http', 'https', 'mailto']
 
 
+AMP_SPLIT_RE = re.compile('(&)')
+
+
 class BleachHTMLTokenizer(HTMLTokenizer):
     def consumeEntity(self, allowedChar=None, fromAttribute=False):
-        # We don't want to consume and convert entities. Instead we put the
-        # '&' in output.
+        # We don't want to consume and convert entities, so this overrides the
+        # html5lib tokenizer's consumeEntity so that it's now a no-op.
+        #
+        # However, when that gets called, it's consumed an &, so we put that in
+        # the steam.
         if fromAttribute:
             self.currentToken['data'][-1][1] += '&'
 
@@ -63,7 +77,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
 class BleachHTMLParser(html5lib.HTMLParser):
     def _parse(self, stream, innerHTML=False, container="div", scripting=False, **kwargs):
-        # Override HTMLParser so we can swap out the tokenizer.
+        # Override HTMLParser so we can swap out the tokenizer for our own.
         self.innerHTMLMode = innerHTML
         self.container = container
         self.scripting = scripting
@@ -142,6 +156,10 @@ class Cleaner(object):
         self.serializer = HTMLSerializer(
             quote_attr_values='always',
             omit_optional_tags=False,
+
+            # We want to leave entities as they are without escaping or
+            # resolving or expanding
+            resolve_entities=False,
 
             # Bleach has its own sanitizer, so don't use the html5lib one
             sanitize=False,
@@ -270,6 +288,19 @@ class BleachSanitizerFilter(sanitizer.Filter):
 
         return super(BleachSanitizerFilter, self).__init__(source, **kwargs)
 
+    def __iter__(self):
+        for token in Filter.__iter__(self):
+            ret = self.sanitize_token(token)
+
+            if not ret:
+                continue
+
+            if isinstance(ret, list):
+                for subtoken in ret:
+                    yield subtoken
+            else:
+                yield ret
+
     def sanitize_token(self, token):
         """Sanitize a token either by HTML-encoding or dropping.
 
@@ -281,6 +312,10 @@ class BleachSanitizerFilter(sanitizer.Filter):
 
         Also gives the option to strip tags instead of encoding.
 
+        :arg dict token: token to sanitize
+
+        :returns: token or list of tokens
+
         """
         token_type = token['type']
         if token_type in ['StartTag', 'EndTag', 'EmptyTag']:
@@ -288,7 +323,7 @@ class BleachSanitizerFilter(sanitizer.Filter):
                 return self.allow_token(token)
 
             elif self.strip_disallowed_elements:
-                pass
+                return None
 
             else:
                 if 'data' in token:
@@ -300,9 +335,129 @@ class BleachSanitizerFilter(sanitizer.Filter):
         elif token_type == 'Comment':
             if not self.strip_html_comments:
                 return token
+            else:
+                return None
+
+        elif token_type == 'Characters':
+            return self.sanitize_characters(token)
 
         else:
             return token
+
+    def match_entity(self, stream):
+        """Returns first entity in stream or None if no entity exists
+
+        Note: For Bleach purposes, entities must start with a "&" and end with
+        a ";".
+
+        :arg stream: the character stream
+
+        :returns: ``None`` or the entity string without "&" or ";"
+
+        """
+        # Nix the & at the beginning
+        if stream[0] != '&':
+            raise ValueError('Stream should begin with "&"')
+
+        stream = stream[1:]
+
+        stream = list(stream)
+        possible_entity = ''
+        end_characters = '<&=;' + string.whitespace
+
+        # Handle number entities
+        if stream and stream[0] == '#':
+            possible_entity = '#'
+            stream.pop(0)
+
+            if stream and stream[0] in ('x', 'X'):
+                allowed = '0123456789abcdefABCDEF'
+                possible_entity += stream.pop(0)
+            else:
+                allowed = '0123456789'
+
+            # FIXME(willkg): Do we want to make sure these are valid number
+            # entities? This doesn't do that currently.
+            while stream and stream[0] not in end_characters:
+                c = stream.pop(0)
+                if c not in allowed:
+                    break
+                possible_entity += c
+
+            if possible_entity and stream and stream[0] == ';':
+                return possible_entity
+            return None
+
+        # Handle character entities
+        while stream and stream[0] not in end_characters:
+            c = stream.pop(0)
+            if not ENTITIES_TRIE.has_keys_with_prefix(possible_entity):
+                break
+            possible_entity += c
+
+        if possible_entity and stream and stream[0] == ';':
+            return possible_entity
+
+        return None
+
+    def next_possible_entity(self, text):
+        """Takes a text and generates a list of possible entities
+
+        :arg text: the text to look at
+
+        :returns: generator where each part (except the first) starts with an
+            "&"
+
+        """
+        for i, part in enumerate(AMP_SPLIT_RE.split(text)):
+            if i == 0:
+                yield part
+            elif i % 2 == 0:
+                yield '&' + part
+
+    def sanitize_characters(self, token):
+        """Handles Characters tokens
+
+        Our overridden tokenizer doesn't do anything with entities. However,
+        that means that the serializer will convert all ``&`` in Characters
+        tokens to ``&amp;``.
+
+        Since we don't want that, we extract entities here and convert them to
+        Entity tokens so the serializer will let them be.
+
+        :arg token: the Characters token to work on
+
+        :returns: a list of tokens
+
+        """
+        data = token.get('data', '')
+
+        # If there isn't a & in the data, we can return now
+        if '&' not in data:
+            return token
+
+        new_tokens = []
+
+        # For each possible entity that starts with a "&", we try to extract an
+        # actual entity and re-tokenize accordingly
+        for part in self.next_possible_entity(data):
+            if not part:
+                continue
+
+            if part.startswith('&'):
+                entity = self.match_entity(part)
+                if entity is not None:
+                    new_tokens.append({'type': 'Entity', 'name': entity})
+                    # Length of the entity plus 2--one for & at the beginning
+                    # and and one for ; at the end
+                    part = part[len(entity) + 2:]
+                    if part:
+                        new_tokens.append({'type': 'Characters', 'data': part})
+                    continue
+
+            new_tokens.append({'type': 'Characters', 'data': part})
+
+        return new_tokens
 
     def allow_token(self, token):
         """Handles the case where we're allowing the tag"""
@@ -382,9 +537,9 @@ class BleachSanitizerFilter(sanitizer.Filter):
             for (ns, name), v in token["data"].items():
                 attrs.append(' %s="%s"' % (
                     name if ns is None else "%s:%s" % (prefixes[ns], name),
-                    # Note: HTMLSerializer escapes attribute values already, so
-                    # if we do it here (like HTMLSerializer does), then we end
-                    # up double-escaping.
+                    # NOTE(willkg): HTMLSerializer escapes attribute values
+                    # already, so if we do it here (like HTMLSerializer does),
+                    # then we end up double-escaping.
                     v)
                 )
             token["data"] = "<%s%s>" % (token["name"], ''.join(attrs))

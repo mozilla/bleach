@@ -15,7 +15,7 @@ def test_escaped_entities():
     # Verify that bleach.clean() doesn't unescape entities.
     assert (
         clean('&#39;&#34;') ==
-        '&amp;#39;&amp;#34;'
+        '&#39;&#34;'
     )
 
 
