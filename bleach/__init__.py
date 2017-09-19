@@ -7,14 +7,12 @@ from pkg_resources import parse_version
 from bleach.linkifier import (
     DEFAULT_CALLBACKS,
     Linker,
-    LinkifyFilter,
 )
 from bleach.sanitizer import (
     ALLOWED_ATTRIBUTES,
     ALLOWED_PROTOCOLS,
     ALLOWED_STYLES,
     ALLOWED_TAGS,
-    BleachSanitizerFilter,
     Cleaner,
 )
 
