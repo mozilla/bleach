@@ -2,20 +2,27 @@
 
 from __future__ import unicode_literals
 
+from pkg_resources import parse_version
+
 from bleach.linkifier import (
     DEFAULT_CALLBACKS,
     Linker,
-    LinkifyFilter,
 )
 from bleach.sanitizer import (
     ALLOWED_ATTRIBUTES,
     ALLOWED_PROTOCOLS,
     ALLOWED_STYLES,
     ALLOWED_TAGS,
-    BleachSanitizerFilter,
     Cleaner,
 )
-from bleach.version import __version__, VERSION # flake8: noqa
+
+
+# yyyymmdd
+__releasedate__ = ''
+# x.y or x.y.dev0
+__version__ = '2.1.dev0'
+VERSION = parse_version(__version__)
+
 
 __all__ = ['clean', 'linkify']
 

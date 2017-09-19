@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
+import os
 import re
 import sys
 
 from setuptools import setup, find_packages
-from distutils.util import convert_path
+
 
 setup_requires = []
 if 'test' in sys.argv:
@@ -31,16 +32,10 @@ def get_long_desc():
 
 
 def get_version():
-    version_path = convert_path('bleach/version.py')
-    with open(version_path) as version_file:
-        for line in version_file:
-            if line.startswith('VERSION = '):
-                match = re.search(r'[(](\d+), (\d+), (\d+)[)]$', line)
-                return '{0!s}.{1!s}.{2!s}'.format(
-                    match.group(1),
-                    match.group(2),
-                    match.group(3)
-                )
+    fn = os.path.join('bleach', '__init__.py')
+    vsre = r"""^__version__ = ['"]([^'"]*)['"]"""
+    version_file = open(fn, 'rt').read()
+    return re.search(vsre, version_file, re.M).group(1)
 
 
 setup(

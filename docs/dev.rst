@@ -47,11 +47,10 @@ Release process
 2. Check to make sure ``setup.py`` and ``requirements.txt`` are
    correct and match requirements-wise.
 
-3. Update version number in:
+3. Update version numbers in ``bleach/__init__.py``.
 
-   * ``bleach/version.py``
-
-   Set the version to something like ``VERSION = (1, 4, 3)``.
+   1. Set ``__version__`` to something like ``2.0``.
+   2. Set ``__releasedate__`` to something like ``20120731``.
 
 4. Update ``CONTRIBUTORS``, ``CHANGES`` and ``MANIFEST.in``.
 
@@ -77,9 +76,9 @@ Release process
 
 7. Push the changes to GitHub. This will cause Travis to run the tests.
 
-8. After Travis is happy, tag the release::
+8. After Travis is happy, create a signed tag for the release::
 
-     $ git tag -a v0.4
+     $ git tag -s v0.4
 
    Copy the details from ``CHANGES`` into the tag comment.
 
