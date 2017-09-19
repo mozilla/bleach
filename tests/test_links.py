@@ -647,3 +647,16 @@ class TestLinkify:
 
         assert linkify(linked) == link_good
         assert linkify(link_good) == link_good
+
+    def test_only_text_is_linkified(self):
+        some_text = 'text'
+        some_type = int
+        no_type = None
+
+        assert linkify(some_text) == some_text
+
+        with pytest.raises(TypeError):
+            linkify(some_type)
+
+        with pytest.raises(TypeError):
+            linkify(no_type)

@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import re
+import six
 
 import html5lib
 from html5lib.filters.base import Filter
@@ -135,21 +136,25 @@ class Linker(object):
         :returns: linkified text as unicode
 
         """
-        text = force_unicode(text)
+        if isinstance(text, six.string_types):
 
-        if not text:
-            return u''
+            text = force_unicode(text)
 
-        dom = self.parser.parseFragment(text)
-        filtered = LinkifyFilter(
-            source=self.walker(dom),
-            callbacks=self.callbacks,
-            skip_tags=self.skip_tags,
-            parse_email=self.parse_email,
-            url_re=self.url_re,
-            email_re=self.email_re,
-        )
-        return self.serializer.render(filtered)
+            if not text:
+                return u''
+
+            dom = self.parser.parseFragment(text)
+            filtered = LinkifyFilter(
+                source=self.walker(dom),
+                callbacks=self.callbacks,
+                skip_tags=self.skip_tags,
+                parse_email=self.parse_email,
+                url_re=self.url_re,
+                email_re=self.email_re,
+            )
+            return self.serializer.render(filtered)
+
+        raise TypeError('argument must of text type')
 
 
 class LinkifyFilter(Filter):

@@ -184,3 +184,17 @@ def test_regression_manually():
     expected = """&lt;img src="jav\rascript:alert(&amp;lt;WBR&amp;gt;'XSS');"&gt;"""
 
     assert clean(s) == expected
+
+
+def test_only_text_is_cleaned():
+    some_text = 'text'
+    some_type = int
+    no_type = None
+
+    assert clean(some_text) == some_text
+
+    with pytest.raises(TypeError):
+        clean(some_type)
+
+    with pytest.raises(TypeError):
+        clean(no_type)
