@@ -125,37 +125,38 @@ class Cleaner(object):
 
         :returns: sanitized text as unicode
 
+        :raises TypeError: if ``text`` is not a text type
+
         """
-        if isinstance(text, six.string_types):
+        if not isinstance(text, six.string_types):
+            raise TypeError('argument must of text type')
 
-            if not text:
-                return u''
+        if not text:
+            return u''
 
-            text = force_unicode(text)
+        text = force_unicode(text)
 
-            dom = self.parser.parseFragment(text)
-            filtered = BleachSanitizerFilter(
-                source=self.walker(dom),
+        dom = self.parser.parseFragment(text)
+        filtered = BleachSanitizerFilter(
+            source=self.walker(dom),
 
-                # Bleach-sanitizer-specific things
-                attributes=self.attributes,
-                strip_disallowed_elements=self.strip,
-                strip_html_comments=self.strip_comments,
+            # Bleach-sanitizer-specific things
+            attributes=self.attributes,
+            strip_disallowed_elements=self.strip,
+            strip_html_comments=self.strip_comments,
 
-                # html5lib-sanitizer things
-                allowed_elements=self.tags,
-                allowed_css_properties=self.styles,
-                allowed_protocols=self.protocols,
-                allowed_svg_properties=[],
-            )
+            # html5lib-sanitizer things
+            allowed_elements=self.tags,
+            allowed_css_properties=self.styles,
+            allowed_protocols=self.protocols,
+            allowed_svg_properties=[],
+        )
 
-            # Apply any filters after the BleachSanitizerFilter
-            for filter_class in self.filters:
-                filtered = filter_class(source=filtered)
+        # Apply any filters after the BleachSanitizerFilter
+        for filter_class in self.filters:
+            filtered = filter_class(source=filtered)
 
-            return self.serializer.render(filtered)
-
-        raise TypeError('argument must of text type')
+        return self.serializer.render(filtered)
 
 
 def attribute_filter_factory(attributes):
