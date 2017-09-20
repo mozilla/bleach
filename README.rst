@@ -51,21 +51,6 @@ please read our wiki page at
 `<https://www.mozilla.org/en-US/security/#For_Developers>`_.
 
 
-Security
-========
-
-Bleach is a security-related library.
-
-We have a responsible security vulnerability reporting process. Please use
-that if you're reporting a security issue.
-
-Security issues are fixed in private. After we land such a fix, we'll do a
-release.
-
-For every release, we mark security issues we've fixed in the ``CHANGES`` in
-the **Security issues** section. We include relevant CVE links.
-
-
 Installing Bleach
 =================
 
@@ -102,6 +87,32 @@ The simplest way to use Bleach is:
 
     >>> bleach.linkify('an http://example.com url')
     u'an <a href="http://example.com" rel="nofollow">http://example.com</a> url
+
+
+Security
+========
+
+Bleach is a security-related library.
+
+We have a responsible security vulnerability reporting process. Please use
+that if you're reporting a security issue.
+
+Security issues are fixed in private. After we land such a fix, we'll do a
+release.
+
+For every release, we mark security issues we've fixed in the ``CHANGES`` in
+the **Security issues** section. We include relevant CVE links.
+
+
+Code of conduct
+===============
+
+This project and repository is governed by Mozilla's code of conduct and
+etiquette guidelines. For more details please see the `Mozilla Community
+Participation Guidelines
+<https://www.mozilla.org/about/governance/policies/participation/>`_ and
+`Developer Etiquette Guidelines
+<https://bugzilla.mozilla.org/page.cgi?id=etiquette.html>`_.
 
 
 .. _html5lib: https://github.com/html5lib/html5lib-python
