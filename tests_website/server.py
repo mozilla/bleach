@@ -1,19 +1,16 @@
 #!/usr/bin/env python
 
 """
-Simple Test/Demo Server for running bleach.clean output
-on various desktops.
+Simple Test/Demo Server for running bleach.clean output on various
+desktops.
 
 Usage:
 
-python server.py
+    python server.py
+
 """
 
-# import SimpleHTTPServer
-# import SocketServer
-
 import six
-
 
 import bleach
 
@@ -23,17 +20,26 @@ PORT = 8080
 
 class BleachCleanHandler(six.moves.SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_POST(self):
-        content_len = int(self.headers.getheader('content-length', 0))
+        if six.PY2:
+            content_len = int(self.headers.getheader('content-length', 0))
+        else:
+            content_len = int(self.headers.get('content-length', 0))
         body = self.rfile.read(content_len)
         print("read %s bytes: %s" % (content_len, body))
+
+        if six.PY3:
+            body = body.decode('utf-8')
+        print('input: %r' % body)
         cleaned = bleach.clean(body)
-        print("cleaned %s" % cleaned)
 
         self.send_response(200)
         self.send_header('Content-Length', len(cleaned))
         self.send_header('Content-Type', 'text/plain;charset=UTF-8')
         self.end_headers()
 
+        if six.PY3:
+            cleaned = bytes(cleaned, encoding='utf-8')
+        print("cleaned: %r" % cleaned)
         self.wfile.write(cleaned)
 
 
