@@ -19,6 +19,12 @@ To install Bleach to make changes to it:
        $ pip install -e .
 
 
+.. include:: ../CONTRIBUTING.rst
+
+
+.. include:: ../CODE_OF_CONDUCT.rst
+
+
 Docs
 ====
 
