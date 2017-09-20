@@ -411,6 +411,20 @@ def test_clean_idempotent():
     assert bleach.clean(bleach.clean(dirty)) == bleach.clean(dirty)
 
 
+def test_only_text_is_cleaned():
+    some_text = 'text'
+    some_type = int
+    no_type = None
+
+    assert bleach.clean(some_text) == some_text
+
+    with pytest.raises(TypeError):
+        bleach.clean(some_type)
+
+    with pytest.raises(TypeError):
+        bleach.clean(no_type)
+
+
 class TestCleaner:
     def test_basics(self):
         TAGS = ['span', 'br']

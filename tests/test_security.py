@@ -186,17 +186,3 @@ def test_regressions(fn, text):
     # maintain the files. If there comes a time when the input needs whitespace
     # at the beginning or end, then we'll have to figure out something else.
     assert clean(text.strip()) == expected.strip()
-
-
-def test_only_text_is_cleaned():
-    some_text = 'text'
-    some_type = int
-    no_type = None
-
-    assert clean(some_text) == some_text
-
-    with pytest.raises(TypeError):
-        clean(some_type)
-
-    with pytest.raises(TypeError):
-        clean(no_type)
