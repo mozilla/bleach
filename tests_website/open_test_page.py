@@ -2,6 +2,7 @@
 
 import webbrowser
 
+
 TEST_BROWSERS = set([
     # 'mozilla',
     'firefox',
@@ -28,6 +29,7 @@ TEST_BROWSERS = set([
     # 'chromium-browser',
 ])
 REGISTERED_BROWSERS = set(webbrowser._browsers.keys())
+
 
 if __name__ == '__main__':
     for b in TEST_BROWSERS & REGISTERED_BROWSERS:

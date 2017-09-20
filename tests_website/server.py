@@ -9,17 +9,19 @@ Usage:
 python server.py
 """
 
-import SimpleHTTPServer
-import SocketServer
-import json
+# import SimpleHTTPServer
+# import SocketServer
+
+import six
+
 
 import bleach
 
 
 PORT = 8080
 
-class BleachCleanHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
+class BleachCleanHandler(six.moves.SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_POST(self):
         content_len = int(self.headers.getheader('content-length', 0))
         body = self.rfile.read(content_len)
@@ -36,7 +38,9 @@ class BleachCleanHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    SocketServer.TCPServer.allow_reuse_address = True  # Prevent 'cannot bind to address' errors on restart
-    httpd = SocketServer.TCPServer(('127.0.0.1', PORT), BleachCleanHandler)
+    # Prevent 'cannot bind to address' errors on restart
+    six.moves.socketserver.TCPServer.allow_reuse_address = True
+
+    httpd = six.moves.socketserver.TCPServer(('127.0.0.1', PORT), BleachCleanHandler)
     print("listening on localhost port %d" % PORT)
     httpd.serve_forever()
