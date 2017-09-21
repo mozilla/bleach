@@ -28,8 +28,10 @@ Main goal is to sanitize input of malicious content
 ---------------------------------------------------
 
 The primary goal of Bleach is to sanitize user input that is allowed to contain
-*some* HTML as markup and is to be included in the content of a larger page.
-Examples might include:
+*some* HTML as markup and is to be included in the content of a larger page
+in an HTML context.
+
+Examples of such content might include:
 
 * User comments on a blog.
 
@@ -73,20 +75,20 @@ creating whole documents, you have to allow so many tags that a disallow-list
 approach (e.g. forbidding ``<script>`` or ``<object>``) may be more appropriate.
 
 
-Sanitize for use in HTML attributes
------------------------------------
+Sanitize for use in HTML attributes, CSS, JSON, xhtml, SVG, or other contexts
+----------------------------------------------------------------------------
 
 Bleach's ``clean`` is used for sanitizing content to be used in an HTML
-context--not for HTML attributes.
+context--not for HTML attributes, CSS, JSON, xhtml, SVG, or other contexts.
 
-For example, this is safe::
+For example, this is a safe use of ``clean`` output in an HTML context::
 
     <p>
       {{ bleach.clean(user_bio) }}
     </p>
 
 
-This is **not safe**::
+This is a **not safe** use of ``clean`` output in an HTML attribute::
 
     <body data-bio="{{ bleach.clean(user_bio} }}">
 
@@ -94,6 +96,10 @@ This is **not safe**::
 If you need to use the output of ``bleach.clean()`` in an HTML attribute, you
 need to pass it through your template library's escape function. For example,
 Jinja2's ``escape`` or ``django.utils.html.escape`` or something like that.
+
+If you need to use the output of ``bleach.clean()`` in any other context,
+you need to pass it through an appropriate sanitizer/escaper for that
+context.
 
 
 Remove all HTML or transforming content for some non-web-page purpose
