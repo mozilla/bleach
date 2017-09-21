@@ -131,6 +131,20 @@ def test_bare_entities(text, expected):
         'http://example.com?active=true&amp;current=true'
     ),
 
+    # Test entities in HTML attributes
+    (
+        '<a href="?art&amp;copy">foo</a>',
+        '<a href="?art&amp;copy">foo</a>'
+    ),
+    (
+        '<a href="?this=&gt;that">foo</a>',
+        '<a href="?this=&gt;that">foo</a>'
+    ),
+    (
+        '<a href="http://example.com?active=true&current=true">foo</a>',
+        '<a href="http://example.com?active=true&amp;current=true">foo</a>'
+    ),
+
     # Test numeric entities
     ('&#39;', '&#39;'),
     ('&#34;', '&#34;'),
