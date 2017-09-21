@@ -153,9 +153,10 @@ class Cleaner(object):
 
         self.parser = BleachHTMLParser(namespaceHTMLElements=False)
         self.walker = html5lib.getTreeWalker('etree')
-        self.serializer = HTMLSerializer(
+        self.serializer = BleachHTMLSerializer(
             quote_attr_values='always',
             omit_optional_tags=False,
+            escape_lt_in_attrs=True,
 
             # We want to leave entities as they are without escaping or
             # resolving or expanding
@@ -248,6 +249,79 @@ def attribute_filter_factory(attributes):
         return _attr_filter
 
     raise ValueError('attributes needs to be a callable, a list or a dict')
+
+
+def match_entity(stream):
+    """Returns first entity in stream or None if no entity exists
+
+    Note: For Bleach purposes, entities must start with a "&" and end with
+    a ";".
+
+    :arg stream: the character stream
+
+    :returns: ``None`` or the entity string without "&" or ";"
+
+    """
+    # Nix the & at the beginning
+    if stream[0] != '&':
+        raise ValueError('Stream should begin with "&"')
+
+    stream = stream[1:]
+
+    stream = list(stream)
+    possible_entity = ''
+    end_characters = '<&=;' + string.whitespace
+
+    # Handle number entities
+    if stream and stream[0] == '#':
+        possible_entity = '#'
+        stream.pop(0)
+
+        if stream and stream[0] in ('x', 'X'):
+            allowed = '0123456789abcdefABCDEF'
+            possible_entity += stream.pop(0)
+        else:
+            allowed = '0123456789'
+
+        # FIXME(willkg): Do we want to make sure these are valid number
+        # entities? This doesn't do that currently.
+        while stream and stream[0] not in end_characters:
+            c = stream.pop(0)
+            if c not in allowed:
+                break
+            possible_entity += c
+
+        if possible_entity and stream and stream[0] == ';':
+            return possible_entity
+        return None
+
+    # Handle character entities
+    while stream and stream[0] not in end_characters:
+        c = stream.pop(0)
+        if not ENTITIES_TRIE.has_keys_with_prefix(possible_entity):
+            break
+        possible_entity += c
+
+    if possible_entity and stream and stream[0] == ';':
+        return possible_entity
+
+    return None
+
+
+def next_possible_entity(text):
+    """Takes a text and generates a list of possible entities
+
+    :arg text: the text to look at
+
+    :returns: generator where each part (except the first) starts with an
+        "&"
+
+    """
+    for i, part in enumerate(AMP_SPLIT_RE.split(text)):
+        if i == 0:
+            yield part
+        elif i % 2 == 0:
+            yield '&' + part
 
 
 class BleachSanitizerFilter(sanitizer.Filter):
@@ -344,77 +418,6 @@ class BleachSanitizerFilter(sanitizer.Filter):
         else:
             return token
 
-    def match_entity(self, stream):
-        """Returns first entity in stream or None if no entity exists
-
-        Note: For Bleach purposes, entities must start with a "&" and end with
-        a ";".
-
-        :arg stream: the character stream
-
-        :returns: ``None`` or the entity string without "&" or ";"
-
-        """
-        # Nix the & at the beginning
-        if stream[0] != '&':
-            raise ValueError('Stream should begin with "&"')
-
-        stream = stream[1:]
-
-        stream = list(stream)
-        possible_entity = ''
-        end_characters = '<&=;' + string.whitespace
-
-        # Handle number entities
-        if stream and stream[0] == '#':
-            possible_entity = '#'
-            stream.pop(0)
-
-            if stream and stream[0] in ('x', 'X'):
-                allowed = '0123456789abcdefABCDEF'
-                possible_entity += stream.pop(0)
-            else:
-                allowed = '0123456789'
-
-            # FIXME(willkg): Do we want to make sure these are valid number
-            # entities? This doesn't do that currently.
-            while stream and stream[0] not in end_characters:
-                c = stream.pop(0)
-                if c not in allowed:
-                    break
-                possible_entity += c
-
-            if possible_entity and stream and stream[0] == ';':
-                return possible_entity
-            return None
-
-        # Handle character entities
-        while stream and stream[0] not in end_characters:
-            c = stream.pop(0)
-            if not ENTITIES_TRIE.has_keys_with_prefix(possible_entity):
-                break
-            possible_entity += c
-
-        if possible_entity and stream and stream[0] == ';':
-            return possible_entity
-
-        return None
-
-    def next_possible_entity(self, text):
-        """Takes a text and generates a list of possible entities
-
-        :arg text: the text to look at
-
-        :returns: generator where each part (except the first) starts with an
-            "&"
-
-        """
-        for i, part in enumerate(AMP_SPLIT_RE.split(text)):
-            if i == 0:
-                yield part
-            elif i % 2 == 0:
-                yield '&' + part
-
     def sanitize_characters(self, token):
         """Handles Characters tokens
 
@@ -440,12 +443,12 @@ class BleachSanitizerFilter(sanitizer.Filter):
 
         # For each possible entity that starts with a "&", we try to extract an
         # actual entity and re-tokenize accordingly
-        for part in self.next_possible_entity(data):
+        for part in next_possible_entity(data):
             if not part:
                 continue
 
             if part.startswith('&'):
-                entity = self.match_entity(part)
+                entity = match_entity(part)
                 if entity is not None:
                     new_tokens.append({'type': 'Entity', 'name': entity})
                     # Length of the entity plus 2--one for & at the beginning
@@ -588,3 +591,57 @@ class BleachSanitizerFilter(sanitizer.Filter):
                 clean.append(prop + ': ' + value + ';')
 
         return ' '.join(clean)
+
+
+class BleachHTMLSerializer(HTMLSerializer):
+    """Wraps the HTMLSerializer and undoes & -> &amp; in attributes"""
+    def escape_base_amp(self, stoken):
+        """Escapes bare & in HTML attribute values"""
+        # First, undo what the HTMLSerializer did
+        stoken = stoken.replace('&amp;', '&')
+
+        # Then, escape any bare &
+        for part in next_possible_entity(stoken):
+            if not part:
+                continue
+
+            if part.startswith('&'):
+                entity = match_entity(part)
+                if entity is not None:
+                    yield '&' + entity + ';'
+
+                    # Length of the entity plus 2--one for & at the beginning
+                    # and and one for ; at the end
+                    part = part[len(entity) + 2:]
+                    if part:
+                        yield part
+                    continue
+
+            yield part.replace('&', '&amp;')
+
+    def serialize(self, treewalker, encoding=None):
+        """Wrap HTMLSerializer.serialize and escape bare & in attributes"""
+        in_tag = False
+        after_equals = False
+
+        for stoken in super(BleachHTMLSerializer, self).serialize(treewalker, encoding):
+            if in_tag:
+                if stoken == '>':
+                    in_tag = False
+
+                elif after_equals:
+                    if stoken != '"':
+                        for part in self.escape_base_amp(stoken):
+                            yield part
+
+                        after_equals = False
+                        continue
+
+                elif stoken == '=':
+                    after_equals = True
+
+                yield stoken
+            else:
+                if stoken.startswith('<'):
+                    in_tag = True
+                yield stoken
