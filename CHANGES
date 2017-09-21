@@ -21,6 +21,9 @@ Version 2.1 (in development)
 
 **Bug fixes**
 
+* ``bleach.clean()`` no longer unescapes entities including ones that are missing
+  a ``;`` at the end which can happen in urls and other places. (#143)
+
 * linkify: fix http links inside of mailto links; thank you, sedrubal! (#300)
 
 * clarify security policy in docs (#303)
@@ -35,7 +38,6 @@ Version 2.1 (in development)
 
 * add test website and scripts to test ``bleach.clean()`` output in browser;
   thank you, Greg Guthe!
-
 
 Version 2.0 (March 8th, 2017)
 -----------------------------

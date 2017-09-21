@@ -8,6 +8,17 @@ import six
 from bleach import clean
 
 
+def test_escaped_entities():
+    # html5lib unescapes character entities, so these would become ' and "
+    # which makes it possible to break out of html attributes.
+    #
+    # Verify that bleach.clean() doesn't unescape entities.
+    assert (
+        clean('&#39;&#34;') ==
+        '&#39;&#34;'
+    )
+
+
 def test_nested_script_tag():
     assert (
         clean('<<script>script>evil()<</script>/script>') ==
@@ -105,7 +116,7 @@ def test_invalid_tag_char():
 def test_unclosed_tag():
     assert (
         clean('<script src=http://xx.com/xss.js<b>') ==
-        '&lt;script src="http://xx.com/xss.js&amp;lt;b"&gt;&lt;/script&gt;'
+        '&lt;script src="http://xx.com/xss.js&lt;b"&gt;&lt;/script&gt;'
     )
     assert (
         clean('<script src="http://xx.com/xss.js"<b>') in
@@ -175,26 +186,3 @@ def test_regressions(fn, text):
     # maintain the files. If there comes a time when the input needs whitespace
     # at the beginning or end, then we'll have to figure out something else.
     assert clean(text.strip()) == expected.strip()
-
-
-def test_regression_manually():
-    """Regression tests for clean so we can see if there are issues"""
-    # NOTE(willkg): Have to do this one by hand because of the \r
-    s = """<IMG SRC="jav&#x0D;ascript:alert(<WBR>'XSS');">"""
-    expected = """&lt;img src="jav\rascript:alert(&amp;lt;WBR&amp;gt;'XSS');"&gt;"""
-
-    assert clean(s) == expected
-
-
-def test_only_text_is_cleaned():
-    some_text = 'text'
-    some_type = int
-    no_type = None
-
-    assert clean(some_text) == some_text
-
-    with pytest.raises(TypeError):
-        clean(some_type)
-
-    with pytest.raises(TypeError):
-        clean(no_type)
