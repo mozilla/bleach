@@ -23,16 +23,16 @@ return ``unicode``.
 .. Warning::
 
    :py:func:`bleach.clean` is for sanitising HTML fragments to use in an HTML
-   context--not for HTML attributes.
+   context--not for HTML attributes, CSS, JSON, xhtml, SVG, or other contexts.
 
-   For example, this is safe::
+   For example, this is a safe use of ``clean`` output in an HTML context::
 
      <p>
        {{ bleach.clean(user_bio) }}
      </p>
 
 
-   This is **not safe**::
+   This is a **not safe** use of ``clean`` output in an HTML attribute::
 
      <body data-bio="{{ bleach.clean(user_bio} }}">
 
@@ -40,6 +40,10 @@ return ``unicode``.
    If you need to use the output of ``bleach.clean()`` in an HTML attribute, you
    need to pass it through your template library's escape function. For example,
    Jinja2's ``escape`` or ``django.utils.html.escape`` or something like that.
+
+   If you need to use the output of ``bleach.clean()`` in any other context,
+   you need to pass it through an appropriate sanitizer/escaper for that
+   context.
 
 
 .. autofunction:: bleach.clean
