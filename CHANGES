@@ -6,6 +6,15 @@ Version 2.1 (in development)
 
 **Security fixes**
 
+* Convert control characters (backspace particularly) to "?" preventing
+  malicious copy-and-paste situations. (#298)
+
+  See `<https://github.com/mozilla/bleach/issues/298>`_ for more details.
+
+  This affects all previous versions of Bleach. Check the comments on that
+  issue for ways to alleviate the issue if you can't upgrade to Bleach 2.1.
+
+
 **Backwards incompatible changes**
 
 * Redid versioning. ``bleach.VERSION`` is no longer available. Use the string
@@ -17,7 +26,9 @@ Version 2.1 (in development)
 
 * clean, linkify: accept only unicode or utf-8-encoded str (#176)
 
+
 **Features**
+
 
 **Bug fixes**
 
@@ -39,12 +50,14 @@ Version 2.1 (in development)
 * add test website and scripts to test ``bleach.clean()`` output in browser;
   thank you, Greg Guthe!
 
+
 Version 2.0 (March 8th, 2017)
 -----------------------------
 
 **Security fixes**
 
 * None
+
 
 **Backwards incompatible changes**
 
