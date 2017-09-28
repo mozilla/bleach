@@ -76,7 +76,7 @@ approach (e.g. forbidding ``<script>`` or ``<object>``) may be more appropriate.
 
 
 Sanitize for use in HTML attributes, CSS, JSON, xhtml, SVG, or other contexts
-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
 Bleach's ``clean`` is used for sanitizing content to be used in an HTML
 context--not for HTML attributes, CSS, JSON, xhtml, SVG, or other contexts.
