@@ -156,6 +156,26 @@ def test_feed_protocol():
     assert clean('<a href="feed:file:///tmp/foo">foo</a>') == '<a>foo</a>'
 
 
+@pytest.mark.parametrize('data, expected', [
+    # Convert bell
+    ('1\a23', '1?23'),
+
+    # Convert backpsace
+    ('1\b23', '1?23'),
+
+    # Convert formfeed
+    ('1\v23', '1?23'),
+
+    # Convert vertical tab
+    ('1\f23', '1?23'),
+
+    # Convert a bunch of characters in a string
+    ('import y\bose\bm\bi\bt\be\b', 'import y?ose?m?i?t?e?'),
+])
+def test_invisible_characters(data, expected):
+    assert clean(data) == expected
+
+
 def get_tests():
     """Retrieves regression tests from data/ directory
 

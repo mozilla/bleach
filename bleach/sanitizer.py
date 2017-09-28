@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from itertools import chain
 import re
 import string
 
@@ -59,6 +60,19 @@ ALLOWED_PROTOCOLS = ['http', 'https', 'mailto']
 
 
 AMP_SPLIT_RE = re.compile('(&)')
+
+#: Invisible characters--0 to and including 31 except 9 (tab), 10 (lf), and 13 (cr)
+INVISIBLE_CHARACTERS = ''.join([chr(c) for c in chain(range(0, 9), range(11, 13), range(14, 32))])
+
+#: Regexp for characters that are invisible
+INVISIBLE_CHARACTERS_RE = re.compile(
+    '[' + INVISIBLE_CHARACTERS + ']',
+    re.UNICODE
+)
+
+#: String to replace invisible characters with. This can be a character, a
+#: string, or even a function that takes a Python re matchobj
+INVISIBLE_REPLACEMENT_CHAR = '?'
 
 
 class BleachHTMLTokenizer(HTMLTokenizer):
@@ -434,6 +448,12 @@ class BleachSanitizerFilter(sanitizer.Filter):
 
         """
         data = token.get('data', '')
+
+        if not data:
+            return token
+
+        data = INVISIBLE_CHARACTERS_RE.sub(INVISIBLE_REPLACEMENT_CHAR, data)
+        token['data'] = data
 
         # If there isn't a & in the data, we can return now
         if '&' not in data:
