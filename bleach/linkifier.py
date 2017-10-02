@@ -138,7 +138,7 @@ class Linker(object):
 
         """
         if not isinstance(text, six.string_types):
-            raise TypeError('argument must of text type')
+            raise TypeError('argument must be of text type')
 
         text = force_unicode(text)
 
