@@ -1,8 +1,8 @@
 Bleach Changes
 ==============
 
-Version 2.1.1 (in development)
-------------------------------
+Version 2.1.1 (October 2nd, 2017)
+---------------------------------
 
 **Security fixes**
 
@@ -18,7 +18,7 @@ None
 
 **Bug fixes**
 
-None
+* Fix ``setup.py`` opening files when ``LANG=``. (#324)
 
 
 Version 2.1 (September 28th, 2017)
