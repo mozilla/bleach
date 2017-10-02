@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import codecs
 import os
 import re
 import sys
@@ -25,16 +26,16 @@ install_requires = [
 
 
 def get_long_desc():
-    desc = open('README.rst').read()
+    desc = codecs.open('README.rst', encoding='utf-8').read()
     desc += '\n\n'
-    desc += open('CHANGES').read()
+    desc += codecs.open('CHANGES', encoding='utf-8').read()
     return desc
 
 
 def get_version():
     fn = os.path.join('bleach', '__init__.py')
     vsre = r"""^__version__ = ['"]([^'"]*)['"]"""
-    version_file = open(fn, 'rt').read()
+    version_file = codecs.open(fn, mode='r', encoding='utf-8').read()
     return re.search(vsre, version_file, re.M).group(1)
 
 
