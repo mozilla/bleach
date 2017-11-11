@@ -432,11 +432,13 @@ def test_only_text_is_cleaned():
 
     assert bleach.clean(some_text) == some_text
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as e:
         bleach.clean(some_type)
+    assert "argument cannot be of 'type' type" in str(e)
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as e:
         bleach.clean(no_type)
+    assert "NoneType" in str(e)
 
 
 class TestCleaner:
