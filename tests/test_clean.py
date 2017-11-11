@@ -427,14 +427,14 @@ def test_clean_idempotent():
 
 def test_only_text_is_cleaned():
     some_text = 'text'
-    some_type = 42
+    some_type = int
     no_type = None
 
     assert bleach.clean(some_text) == some_text
 
     with pytest.raises(TypeError) as e:
         bleach.clean(some_type)
-    assert "int" in str(e)
+    assert "argument cannot be of 'type' type" in str(e)
 
     with pytest.raises(TypeError) as e:
         bleach.clean(no_type)

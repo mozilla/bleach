@@ -194,7 +194,7 @@ class Cleaner(object):
 
         """
         if not isinstance(text, six.string_types):
-            message = 'argument cannot be of {name} type, must be of text type'.format(
+            message = "argument cannot be of '{name}' type, must be of text type".format(
                 name=text.__class__.__name__)
             raise TypeError(message)
 
