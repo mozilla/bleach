@@ -9,11 +9,15 @@ from xml.sax.saxutils import unescape
 import html5lib
 from html5lib.constants import (
     entities,
-    ReparseException,
     namespaces,
     prefixes,
     tokenTypes,
 )
+try:
+    from html5lib.constants import ReparseException
+except ImportError:
+    # html5lib-python 1.0 changed the name
+    from html5lib.constants import _ReparseException as ReparseException
 from html5lib.filters.base import Filter
 from html5lib.filters import sanitizer
 from html5lib.serializer import HTMLSerializer
