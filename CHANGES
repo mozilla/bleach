@@ -22,6 +22,8 @@ None
 
 * Add deprecation warning for supporting html5lib-python < 1.0.
 
+* Switch to semver.
+
 
 Version 2.1.1 (October 2nd, 2017)
 ---------------------------------
