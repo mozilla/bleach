@@ -611,6 +611,9 @@ class BleachSanitizerFilter(sanitizer.Filter):
                 continue
 
             if prop.lower() in self.allowed_css_properties:
+                if type(self.allowed_css_properties) is dict and\
+                        not re.match(self.allowed_css_properties.get(prop.lower(), '.*'), value):
+                    continue
                 clean.append(prop + ': ' + value + ';')
 
             elif prop.lower() in self.allowed_svg_properties:

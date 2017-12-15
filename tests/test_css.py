@@ -64,6 +64,16 @@ clean = partial(clean, tags=['p'], attributes=['style'])
         ['font-family'],
         'font-family: "Arial";'
     ),
+    (
+        'font-family: "Arial";',
+        {'font-family': '.*'},
+        'font-family: "Arial";'
+    ),
+    (
+        'border: 1px solid blue; color: black;',
+        {'font-family': '1px', 'color': 'black'},
+        'color: black;'
+    ),
 ])
 def test_allowed_css(data, styles, expected):
 
