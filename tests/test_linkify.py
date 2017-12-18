@@ -410,7 +410,7 @@ def test_end_of_clause():
     )
 
 
-@pytest.mark.xfail(reason='html5lib >= 0.99999999: changed API')
+@pytest.mark.xfail(reason='html5lib >= 1.0: changed API')
 def test_sarcasm():
     """Jokes should crash.<sarcasm/>"""
     assert linkify('Yeah right <sarcasm/>') == 'Yeah right &lt;sarcasm/&gt;'
