@@ -1,6 +1,30 @@
 Bleach Changes
 ==============
 
+Version 2.1.2 (December 7th, 2017)
+----------------------------------
+
+**Security fixes**
+
+None
+
+**Backwards incompatible changes**
+
+None
+
+**Features**
+
+None
+
+**Bug fixes**
+
+* Support html5lib-python 1.0.1. (#337)
+
+* Add deprecation warning for supporting html5lib-python < 1.0.
+
+* Switch to semver.
+
+
 Version 2.1.1 (October 2nd, 2017)
 ---------------------------------
 
