@@ -79,6 +79,13 @@ INVISIBLE_CHARACTERS_RE = re.compile(
 INVISIBLE_REPLACEMENT_CHAR = '?'
 
 
+# A special symbol to let attribute filters indicate that they have inspected
+# the value of the attributed and deemed it safe. No further sanitization should
+# be applied to the attribute value.
+class VALUE_SAFE:
+    pass
+
+
 class BleachHTMLTokenizer(HTMLTokenizer):
     def consumeEntity(self, allowedChar=None, fromAttribute=False):
         # We don't want to consume and convert entities, so this overrides the
@@ -505,11 +512,14 @@ class BleachSanitizerFilter(sanitizer.Filter):
                 #
                 # NOTE(willkg): We pass in the attribute name--not a namespaced
                 # name.
-                if not self.attr_filter(token['name'], name, val):
+                attr_filter_result = self.attr_filter(token['name'], name, val)
+                if not attr_filter_result:
                     continue
 
+                attr_value_safe = attr_filter_result is VALUE_SAFE
+
                 # Look at attributes that have uri values
-                if namespaced_name in self.attr_val_is_uri:
+                if not attr_value_safe and namespaced_name in self.attr_val_is_uri:
                     val_unescaped = re.sub(
                         "[`\000-\040\177-\240\s]+",
                         '',
@@ -525,7 +535,7 @@ class BleachSanitizerFilter(sanitizer.Filter):
                         continue
 
                 # Drop values in svg attrs with non-local IRIs
-                if namespaced_name in self.svg_attr_val_allows_ref:
+                if not attr_value_safe and namespaced_name in self.svg_attr_val_allows_ref:
                     new_val = re.sub(r'url\s*\(\s*[^#\s][^)]+?\)',
                                      ' ',
                                      unescape(val))
@@ -539,13 +549,13 @@ class BleachSanitizerFilter(sanitizer.Filter):
                         val = new_val
 
                 # Drop href and xlink:href attr for svg elements with non-local IRIs
-                if (None, token['name']) in self.svg_allow_local_href:
+                if not attr_value_safe and (None, token['name']) in self.svg_allow_local_href:
                     if namespaced_name in [(None, 'href'), (namespaces['xlink'], 'href')]:
                         if re.search(r'^\s*[^#\s]', val):
                             continue
 
                 # If it's a style attribute, sanitize it
-                if namespaced_name == (None, u'style'):
+                if not attr_value_safe and namespaced_name == (None, u'style'):
                     val = self.sanitize_css(val)
 
                 # At this point, we want to keep the attribute, so add it in

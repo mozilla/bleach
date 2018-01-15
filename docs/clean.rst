@@ -147,6 +147,8 @@ Using functions
 
 You can also use callables that take the tag, attribute name and attribute value
 and returns ``True`` to keep the attribute or ``False`` to drop it.
+If they return :data:`bleach.sanitizer.VALUE_SAFE`, not only will the value be kept,
+:mod:`bleach.clean` will also refrain from further filtering the attribute value.
 
 You can pass a callable as the attributes argument value and it'll run for
 every tag/attr.
@@ -193,13 +195,15 @@ attributes for specified tags:
    ... )
    u'<img alt="an example">'
 
-
 .. versionchanged:: 2.0
 
    In previous versions of Bleach, the callable took an attribute name and a
    attribute value. Now it takes a tag, an attribute name and an attribute
    value.
 
+.. versionchanged:: 2.2
+
+    The :data:`bleach.sanitizer.VALUE_SAFE` return value was added.
 
 Allowed styles (``styles``)
 ===========================
