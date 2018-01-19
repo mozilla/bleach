@@ -375,7 +375,7 @@ def test_svg_allow_local_href_nonlocal(text, expected):
     assert bleach.clean(text, tags=TAGS, attributes=ATTRS) == expected
 
 
-@pytest.mark.xfail(reason='html5lib >= 0.99999999: changed API')
+@pytest.mark.xfail(reason='html5lib >= 1.0: changed API')
 def test_sarcasm():
     """Jokes should crash.<sarcasm/>"""
     dirty = 'Yeah right <sarcasm/>'

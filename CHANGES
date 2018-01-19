@@ -1,6 +1,26 @@
 Bleach Changes
 ==============
 
+Version 3.0.0 (unreleased)
+----------------------------------
+
+**Security fixes**
+
+None
+
+**Backwards incompatible changes**
+
+* Bleach no longer supports html5lib-python < 1.0.
+
+**Features**
+
+None
+
+**Bug fixes**
+
+None
+
+
 Version 2.1.2 (December 7th, 2017)
 ----------------------------------
 
