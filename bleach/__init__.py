@@ -11,6 +11,7 @@ from bleach.linkifier import (
 )
 from bleach.sanitizer import (
     ALLOWED_ATTRIBUTES,
+    ALLOWED_CONTENT_TYPES,
     ALLOWED_PROTOCOLS,
     ALLOWED_STYLES,
     ALLOWED_TAGS,
@@ -43,7 +44,8 @@ __all__ = ['clean', 'linkify']
 
 
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
-          styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
+          styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS,
+          content_types=ALLOWED_CONTENT_TYPES, strip=False,
           strip_comments=True):
     """Clean an HTML fragment of malicious content and return it
 
@@ -93,6 +95,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
         attributes=attributes,
         styles=styles,
         protocols=protocols,
+        content_types=content_types,
         strip=strip,
         strip_comments=strip_comments,
     )

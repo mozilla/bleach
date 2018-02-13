@@ -4,6 +4,7 @@ import re
 import string
 
 import six
+from six.moves import urllib_parse as urlparse
 from xml.sax.saxutils import unescape
 
 import html5lib
@@ -60,7 +61,10 @@ ALLOWED_STYLES = []
 
 
 #: List of allowed protocols
-ALLOWED_PROTOCOLS = ['http', 'https', 'mailto']
+ALLOWED_PROTOCOLS = ['http', 'https', 'mailto', 'data']
+
+#: List of allowed data
+ALLOWED_CONTENT_TYPES = []
 
 
 AMP_SPLIT_RE = re.compile('(&)')
@@ -131,7 +135,8 @@ class Cleaner(object):
     """
 
     def __init__(self, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
-                 styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
+                 styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS,
+                 content_types=ALLOWED_CONTENT_TYPES, strip=False,
                  strip_comments=True, filters=None):
         """Initializes a Cleaner
 
@@ -146,6 +151,9 @@ class Cleaner(object):
 
         :arg list protocols: allowed list of protocols for links; defaults
             to ``bleach.sanitizer.ALLOWED_PROTOCOLS``
+
+        :arg list content_types: allowed list of content types for ``data`` URIs;
+            defaults to ``bleach.sanitizer.ALLOWED_CONTENT_TYPES``
 
         :arg bool strip: whether or not to strip disallowed elements
 
@@ -165,6 +173,7 @@ class Cleaner(object):
         self.attributes = attributes
         self.styles = styles
         self.protocols = protocols
+        self.content_types = content_types
         self.strip = strip
         self.strip_comments = strip_comments
         self.filters = filters or []
@@ -220,6 +229,7 @@ class Cleaner(object):
             allowed_elements=self.tags,
             allowed_css_properties=self.styles,
             allowed_protocols=self.protocols,
+            allowed_content_types=self.content_types,
             allowed_svg_properties=[],
         )
 
@@ -518,11 +528,20 @@ class BleachSanitizerFilter(sanitizer.Filter):
                     # Remove replacement characters from unescaped characters.
                     val_unescaped = val_unescaped.replace("\ufffd", "")
 
-                    # Drop attributes with uri values that have protocols that
-                    # aren't allowed
-                    if (re.match(r'^[a-z0-9][-+.a-z0-9]*:', val_unescaped) and
-                            (val_unescaped.split(':')[0] not in self.allowed_protocols)):
-                        continue
+                    try:
+                        uri = urlparse.urlparse(val_unescaped)
+                    except ValueError:
+                        pass
+                    else:
+                        if uri.scheme:
+                            if uri.scheme not in self.allowed_protocols:
+                                continue
+                            if uri.scheme == 'data':
+                                m = sanitizer.data_content_type.match(uri.path)
+                                if not m:
+                                    continue
+                                elif m.group('content_type') not in self.allowed_content_types:
+                                    continue
 
                 # Drop values in svg attrs with non-local IRIs
                 if namespaced_name in self.svg_attr_val_allows_ref:
