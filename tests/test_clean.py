@@ -394,6 +394,21 @@ def test_user_defined_protocols_invalid():
     assert bleach.clean(invalid_href, protocols=['my_protocol']) == cleaned_href
 
 
+def test_data_uri_allowed_content_type():
+    TAGS = ['img']
+    ATTRS = {'img': ['src']}
+    valid_img = '<img src="data:image/jpeg;base64,abc">'
+    assert bleach.clean(valid_img, tags=TAGS, attributes=ATTRS, content_types=['image/jpeg']) == valid_img
+
+
+def test_data_uri_disallowed_content_type():
+    TAGS = ['img']
+    ATTRS = {'img': ['src']}
+    invalid_img = '<img src="data:image/jpeg;base64,abc">'
+    cleaned_img = '<img>'
+    assert bleach.clean(invalid_img, tags=TAGS, attributes=ATTRS) == cleaned_img
+
+
 def test_filters():
     # Create a Filter that changes all the attr values to "moo"
     class MooFilter(Filter):
