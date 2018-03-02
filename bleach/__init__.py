@@ -33,9 +33,9 @@ if _html5lib_version < ['1', '0'] or 'b' in _html5lib_version[1]:
 
 
 # yyyymmdd
-__releasedate__ = '20171207'
+__releasedate__ = ''
 # x.y.z or x.y.z.dev0 -- semver
-__version__ = '2.1.2'
+__version__ = '2.1.3.dev0'
 VERSION = parse_version(__version__)
 
 

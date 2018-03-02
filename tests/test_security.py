@@ -197,12 +197,15 @@ def get_tests():
     return testcases
 
 
-@pytest.mark.parametrize('fn, text', get_tests())
-def test_regressions(fn, text):
+@pytest.mark.parametrize('fn, test_case', get_tests())
+def test_regressions(fn, test_case):
     """Regression tests for clean so we can see if there are issues"""
-    expected = six.text_type(open(fn + '.out', 'r').read())
+    test_data, expected = test_case.split('\n--\n')
 
     # NOTE(willkg): This strips input and expected which makes it easier to
     # maintain the files. If there comes a time when the input needs whitespace
     # at the beginning or end, then we'll have to figure out something else.
-    assert clean(text.strip()) == expected.strip()
+    test_data = test_data.strip()
+    expected = expected.strip()
+
+    assert clean(test_data) == expected
