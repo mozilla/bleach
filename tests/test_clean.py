@@ -608,13 +608,12 @@ def test_svg_allow_local_href_nonlocal(text, expected):
     assert clean(text, tags=TAGS, attributes=ATTRS) == expected
 
 
-@pytest.mark.xfail(reason='regression from bleach 1.4')
 def test_weird_strings():
     s = '</3'
-    assert clean(s) == '</3'
+    assert clean(s) == ''
 
 
-@pytest.mark.xfail(reason='regression from bleach 1.4')
+@pytest.mark.xfail(reason='regression from bleach 1.5')
 def test_sarcasm():
     """Jokes should crash.<sarcasm/>"""
     assert (
