@@ -1,96 +1,210 @@
+import os
+
 from html5lib.filters.base import Filter
 import pytest
 
-import bleach
+from bleach import clean
 from bleach.sanitizer import Cleaner
 
 
+def test_clean_idempotent():
+    """Make sure that applying the filter twice doesn't change anything."""
+    dirty = '<span>invalid & </span> < extra http://link.com<em>'
+    assert clean(clean(dirty)) == clean(dirty)
+
+
+def test_only_text_is_cleaned():
+    some_text = 'text'
+    some_type = int
+    no_type = None
+
+    assert clean(some_text) == some_text
+
+    with pytest.raises(TypeError) as e:
+        clean(some_type)
+    assert "argument cannot be of 'type' type" in str(e)
+
+    with pytest.raises(TypeError) as e:
+        clean(no_type)
+    assert "NoneType" in str(e)
+
+
 def test_empty():
-    assert bleach.clean('') == ''
+    assert clean('') == ''
 
 
-def test_nbsp():
-    assert bleach.clean('&nbsp;test string&nbsp;') == '&nbsp;test string&nbsp;'
+def test_content_has_no_html():
+    assert clean('no html string') == 'no html string'
 
 
-def test_comments_only():
-    comment = '<!-- this is a comment -->'
-    assert bleach.clean(comment) == ''
-    assert bleach.clean(comment, strip_comments=False) == comment
-
-    open_comment = '<!-- this is an open comment'
-    assert bleach.clean(open_comment) == ''
-    assert (
-        bleach.clean(open_comment, strip_comments=False) ==
-        '{0!s}-->'.format(open_comment)
-    )
-
-
-def test_with_comments():
-    text = '<!-- comment -->Just text'
-    assert bleach.clean(text) == 'Just text'
-    assert bleach.clean(text, strip_comments=False) == text
-
-
-def test_no_html():
-    assert bleach.clean('no html string') == 'no html string'
-
-
-def test_allowed_html():
-    assert (
-        bleach.clean('an <strong>allowed</strong> tag') ==
+@pytest.mark.parametrize('data, expected', [
+    (
+        'an <strong>allowed</strong> tag',
         'an <strong>allowed</strong> tag'
-    )
-    assert (
-        bleach.clean('another <em>good</em> tag') ==
+    ),
+
+    (
+        'another <em>good</em> tag',
         'another <em>good</em> tag'
     )
+])
+def test_content_has_allowed_html(data, expected):
+    assert clean(data) == expected
 
 
-def test_bad_html():
+def test_html_is_lowercased():
     assert (
-        bleach.clean('a <em>fixed tag') ==
+        clean('<A HREF="http://example.com">foo</A>') ==
+        '<a href="http://example.com">foo</a>'
+    )
+
+
+@pytest.mark.parametrize('data, should_strip, expected', [
+    # Regular comment
+    (
+        '<!-- this is a comment -->',
+        True,
+        ''
+    ),
+
+    # Open comment with no close comment bit
+    (
+        '<!-- open comment',
+        True,
+        ''
+    ),
+    (
+        '<!--open comment',
+        True,
+        ''
+    ),
+    (
+        '<!-- open comment',
+        False,
+        '<!-- open comment-->'
+    ),
+    (
+        '<!--open comment',
+        False,
+        '<!--open comment-->'
+    ),
+
+    # Comment with text to the right
+    (
+        '<!-- comment -->text',
+        True,
+        'text'
+    ),
+    (
+        '<!--comment-->text',
+        True,
+        'text'
+    ),
+    (
+        '<!-- comment -->text',
+        False,
+        '<!-- comment -->text'
+    ),
+    (
+        '<!--comment-->text',
+        False,
+        '<!--comment-->text'
+    ),
+
+    # Comment with text to the left
+    (
+        'text<!-- comment -->',
+        True,
+        'text'
+    ),
+    (
+        'text<!--comment-->',
+        True,
+        'text'
+    ),
+    (
+        'text<!-- comment -->',
+        False,
+        'text<!-- comment -->'
+    ),
+    (
+        'text<!--comment-->',
+        False,
+        'text<!--comment-->'
+    )
+])
+def test_comments(data, should_strip, expected):
+    assert clean(data, strip_comments=should_strip) == expected
+
+
+@pytest.mark.parametrize('data, expected', [
+    # Disallowed tag is escaped
+    ('<img src="javascript:alert(\'XSS\');">', '&lt;img src="javascript:alert(\'XSS\');"&gt;'),
+
+    # Test with parens
+    ('a <script>safe()</script> test', 'a &lt;script&gt;safe()&lt;/script&gt; test'),
+
+    # Test with braces
+    ('a <style>body{}</style> test', 'a &lt;style&gt;body{}&lt;/style&gt; test'),
+])
+def test_disallowed_tags(data, expected):
+    assert clean(data) == expected
+
+
+def test_invalid_char_in_tag():
+    # NOTE(willkg): Two possible outcomes because attrs aren't ordered
+    assert (
+        clean('<script/xss src="http://xx.com/xss.js"></script>') in
+        [
+            '&lt;script src="http://xx.com/xss.js" xss=""&gt;&lt;/script&gt;',
+            '&lt;script xss="" src="http://xx.com/xss.js"&gt;&lt;/script&gt;'
+        ]
+    )
+    assert (
+        clean('<script/src="http://xx.com/xss.js"></script>') ==
+        '&lt;script src="http://xx.com/xss.js"&gt;&lt;/script&gt;'
+    )
+
+
+def test_unclosed_tag():
+    assert (
+        clean('a <em>fixed tag') ==
         'a <em>fixed tag</em>'
     )
-
-
-def test_function_arguments():
-    TAGS = ['span', 'br']
-    ATTRS = {'span': ['style']}
-
-    text = 'a <br/><span style="color:red">test</span>'
     assert (
-        bleach.clean(text, tags=TAGS, attributes=ATTRS) ==
-        'a <br><span style="">test</span>'
+        clean('<script src=http://xx.com/xss.js<b>') ==
+        '&lt;script src="http://xx.com/xss.js&lt;b"&gt;&lt;/script&gt;'
+    )
+    # NOTE(willkg): Two possible outcomes because attrs aren't ordered
+    assert (
+        clean('<script src="http://xx.com/xss.js"<b>') in
+        [
+            '&lt;script src="http://xx.com/xss.js" &lt;b=""&gt;&lt;/script&gt;',
+            '&lt;script &lt;b="" src="http://xx.com/xss.js"&gt;&lt;/script&gt;'
+        ]
+    )
+    # NOTE(willkg): Two possible outcomes because attrs aren't ordered
+    assert (
+        clean('<script src="http://xx.com/xss.js" <b>') in
+        [
+            '&lt;script src="http://xx.com/xss.js" &lt;b=""&gt;&lt;/script&gt;',
+            '&lt;script &lt;b="" src="http://xx.com/xss.js"&gt;&lt;/script&gt;'
+        ]
     )
 
 
-def test_named_arguments():
-    ATTRS = {'a': ['rel', 'href']}
-
-    text = '<a href="http://xx.com" rel="alternate">xx.com</a>'
-    assert bleach.clean(text) == '<a href="http://xx.com">xx.com</a>'
+def test_nested_script_tag():
     assert (
-        bleach.clean(text, attributes=ATTRS) ==
-        '<a href="http://xx.com" rel="alternate">xx.com</a>'
-    )
-
-
-def test_disallowed_html():
-    assert (
-        bleach.clean('a <script>safe()</script> test') ==
-        'a &lt;script&gt;safe()&lt;/script&gt; test'
+        clean('<<script>script>evil()<</script>/script>') ==
+        '&lt;&lt;script&gt;script&gt;evil()&lt;&lt;/script&gt;/script&gt;'
     )
     assert (
-        bleach.clean('a <style>body{}</style> test') ==
-        'a &lt;style&gt;body{}&lt;/style&gt; test'
+        clean('<<x>script>evil()<</x>/script>') ==
+        '&lt;&lt;x&gt;script&gt;evil()&lt;&lt;/x&gt;/script&gt;'
     )
-
-
-def test_bad_href():
     assert (
-        bleach.clean('<em href="fail">no link</em>') ==
-        '<em>no link</em>'
+        clean('<script<script>>evil()</script</script>>') ==
+        '&lt;script&lt;script&gt;&gt;evil()&gt;&lt;/script&lt;script&gt;'
     )
 
 
@@ -100,13 +214,14 @@ def test_bad_href():
     ('tag < <em>and</em> entity', 'tag &lt; <em>and</em> entity'),
 ])
 def test_bare_entities(text, expected):
-    assert bleach.clean(text) == expected
+    assert clean(text) == expected
 
 
 @pytest.mark.parametrize('text, expected', [
     # Test character entities
     ('&amp;', '&amp;'),
     ('&nbsp;', '&nbsp;'),
+    ('&nbsp; test string &nbsp;', '&nbsp; test string &nbsp;'),
     ('&lt;em&gt;strong&lt;/em&gt;', '&lt;em&gt;strong&lt;/em&gt;'),
 
     # Test character entity at beginning of string
@@ -154,73 +269,158 @@ def test_bare_entities(text, expected):
 
     # Test non-numeric entities
     ('&#', '&amp;#'),
-    ('&#<', '&amp;#&lt;')
+    ('&#<', '&amp;#&lt;'),
+
+    # html5lib tokenizer unescapes character entities, so these would become '
+    # and " which makes it possible to break out of html attributes.
+    #
+    # Verify that clean() doesn't unescape entities.
+    ('&#39;&#34;', '&#39;&#34;'),
 ])
 def test_character_entities(text, expected):
-    assert bleach.clean(text) == expected
+    assert clean(text) == expected
 
 
-def test_weird_strings():
-    s = '</3'
-    assert bleach.clean(s) == ''
-
-
-def test_stripping():
-    text = 'a test <em>with</em> <b>html</b> tags'
-    assert (
-        bleach.clean(text, strip=True) ==
+@pytest.mark.parametrize('data, kwargs, expected', [
+    # All tags are allowed, so it strips nothing
+    (
+        'a test <em>with</em> <b>html</b> tags',
+        {'strip': True},
         'a test <em>with</em> <b>html</b> tags'
-    )
+    ),
 
-    text = 'a test <em>with</em> <img src="http://example.com/"> <b>html</b> tags'
-    assert (
-        bleach.clean(text, strip=True) ==
+    # img tag is disallowed, so it's stripped
+    (
+        'a test <em>with</em> <img src="http://example.com/"> <b>html</b> tags',
+        {'strip': True},
         'a test <em>with</em>  <b>html</b> tags'
-    )
+    ),
 
-    text = '<p><a href="http://example.com/">link text</a></p>'
-    assert (
-        bleach.clean(text, tags=['p'], strip=True) ==
+    # a tag is disallowed, so it's stripped
+    (
+        '<p><a href="http://example.com/">link text</a></p>',
+        {'tags': ['p'], 'strip': True},
         '<p>link text</p>'
-    )
-    text = '<p><span>multiply <span>nested <span>text</span></span></span></p>'
-    assert (
-        bleach.clean(text, tags=['p'], strip=True) ==
-        '<p>multiply nested text</p>'
-    )
+    ),
 
-    text = '<p><a href="http://example.com/"><img src="http://example.com/"></a></p>'
-    assert (
-        bleach.clean(text, tags=['p', 'a'], strip=True) ==
+    # handle nested disallowed tag
+    (
+        '<p><span>multiply <span>nested <span>text</span></span></span></p>',
+        {'tags': ['p'], 'strip': True},
+        '<p>multiply nested text</p>'
+    ),
+
+    # handle disallowed tag that's deep in the tree
+    (
+        '<p><a href="http://example.com/"><img src="http://example.com/"></a></p>',
+        {'tags': ['a', 'p'], 'strip': True},
         '<p><a href="http://example.com/"></a></p>'
-    )
+    ),
+])
+def test_stripping_tags(data, kwargs, expected):
+    assert clean(data, **kwargs) == expected
+
+
+@pytest.mark.parametrize('data, expected', [
+    (
+        '<scri<script>pt>alert(1)</scr</script>ipt>',
+        'pt&gt;alert(1)ipt&gt;'
+    ),
+    (
+        '<scri<scri<script>pt>pt>alert(1)</script>',
+        'pt&gt;pt&gt;alert(1)'
+    ),
+])
+def test_stripping_tags_is_safe(data, expected):
+    """Test stripping tags shouldn't result in malicious content"""
+    assert clean(data, strip=True) == expected
 
 
 def test_allowed_styles():
+    """Test allowed styles"""
     ATTRS = ['style']
     STYLE = ['color']
 
     assert (
-        bleach.clean('<b style="top:0"></b>', attributes=ATTRS) ==
+        clean('<b style="top:0"></b>', attributes=ATTRS) ==
         '<b style=""></b>'
     )
 
     text = '<b style="color: blue;"></b>'
-    assert bleach.clean(text, attributes=ATTRS, styles=STYLE) == text
+    assert clean(text, attributes=ATTRS, styles=STYLE) == text
 
     text = '<b style="top: 0; color: blue;"></b>'
     assert (
-        bleach.clean(text, attributes=ATTRS, styles=STYLE) ==
+        clean(text, attributes=ATTRS, styles=STYLE) ==
         '<b style="color: blue;"></b>'
     )
 
 
-def test_lowercase_html():
-    """We should output lowercase HTML."""
+def test_href_with_wrong_tag():
     assert (
-        bleach.clean('<EM CLASS="FOO">BAR</EM>', attributes=['class']) ==
-        '<em class="FOO">BAR</em>'
+        clean('<em href="fail">no link</em>') ==
+        '<em>no link</em>'
     )
+
+
+def test_disallowed_attr():
+    IMG = ['img', ]
+    IMG_ATTR = ['src']
+
+    assert (
+        clean('<a onclick="evil" href="test">test</a>') ==
+        '<a href="test">test</a>'
+    )
+    assert (
+        clean('<img onclick="evil" src="test" />', tags=IMG, attributes=IMG_ATTR) ==
+        '<img src="test">'
+    )
+    assert (
+        clean('<img href="invalid" src="test" />', tags=IMG, attributes=IMG_ATTR) ==
+        '<img src="test">'
+    )
+
+
+def test_unquoted_attr_values_are_quoted():
+    assert (
+        clean('<abbr title=mytitle>myabbr</abbr>') ==
+        '<abbr title="mytitle">myabbr</abbr>'
+    )
+
+
+def test_unquoted_event_handler_attr_value():
+    assert (
+        clean('<a href="http://xx.com" onclick=foo()>xx.com</a>') ==
+        '<a href="http://xx.com">xx.com</a>'
+    )
+
+
+def test_invalid_filter_attr():
+    IMG = ['img', ]
+    IMG_ATTR = {
+        'img': lambda tag, name, val: name == 'src' and val == "http://example.com/"
+    }
+
+    assert (
+        clean('<img onclick="evil" src="http://example.com/" />', tags=IMG, attributes=IMG_ATTR) ==
+        '<img src="http://example.com/">'
+    )
+    assert (
+        clean('<img onclick="evil" src="http://badhost.com/" />', tags=IMG, attributes=IMG_ATTR) ==
+        '<img>'
+    )
+
+
+def test_poster_attribute():
+    """Poster attributes should not allow javascript."""
+    tags = ['video']
+    attrs = {'video': ['poster']}
+
+    test = '<video poster="javascript:alert(1)"></video>'
+    assert clean(test, tags=tags, attributes=attrs) == '<video></video>'
+
+    ok = '<video poster="/foo.png"></video>'
+    assert clean(ok, tags=tags, attributes=attrs) == ok
 
 
 def test_attributes_callable():
@@ -230,7 +430,7 @@ def test_attributes_callable():
 
     text = u'<a href="/foo" title="blah">example</a>'
     assert (
-        bleach.clean(text, tags=TAGS, attributes=ATTRS) ==
+        clean(text, tags=TAGS, attributes=ATTRS) ==
         u'<a title="blah">example</a>'
     )
 
@@ -245,7 +445,7 @@ def test_attributes_wildcard():
 
     text = 'both <em id="foo" style="color: black">can</em> have <img id="bar" src="foo"/>'
     assert (
-        bleach.clean(text, tags=TAGS, attributes=ATTRS) ==
+        clean(text, tags=TAGS, attributes=ATTRS) ==
         'both <em id="foo">can</em> have <img id="bar" src="foo">'
     )
 
@@ -258,7 +458,7 @@ def test_attributes_wildcard_callable():
     TAGS = ['a']
 
     assert (
-        bleach.clean(u'<a href="/foo" title="blah">example</a>', tags=TAGS, attributes=ATTRS) ==
+        clean(u'<a href="/foo" title="blah">example</a>', tags=TAGS, attributes=ATTRS) ==
         u'<a title="blah">example</a>'
     )
 
@@ -275,12 +475,12 @@ def test_attributes_tag_callable():
 
     text = 'foo <img src="http://example.com" alt="blah"> baz'
     assert (
-        bleach.clean(text, tags=TAGS, attributes=ATTRS) ==
+        clean(text, tags=TAGS, attributes=ATTRS) ==
         u'foo <img> baz'
     )
     text = 'foo <img src="https://example.com" alt="blah"> baz'
     assert (
-        bleach.clean(text, tags=TAGS, attributes=ATTRS) ==
+        clean(text, tags=TAGS, attributes=ATTRS) ==
         u'foo <img src="https://example.com"> baz'
     )
 
@@ -293,7 +493,7 @@ def test_attributes_tag_list():
     TAGS = ['a']
 
     assert (
-        bleach.clean(u'<a href="/foo" title="blah">example</a>', tags=TAGS, attributes=ATTRS) ==
+        clean(u'<a href="/foo" title="blah">example</a>', tags=TAGS, attributes=ATTRS) ==
         u'<a title="blah">example</a>'
     )
 
@@ -305,9 +505,42 @@ def test_attributes_list():
 
     text = u'<a href="/foo" title="blah">example</a>'
     assert (
-        bleach.clean(text, tags=TAGS, attributes=ATTRS) ==
+        clean(text, tags=TAGS, attributes=ATTRS) ==
         u'<a title="blah">example</a>'
     )
+
+
+@pytest.mark.parametrize('data, kwargs, expected', [
+    # javascript: is not allowed by default
+    (
+        '<a href="javascript:alert(\'XSS\')">xss</a>',
+        {},
+        '<a>xss</a>'
+    ),
+
+    # File protocol is not allowed by default
+    (
+        '<a href="file:///tmp/foo">foo</a>',
+        {},
+        '<a>foo</a>'
+    ),
+
+    # Specified protocols are allowed
+    (
+        '<a href="myprotocol://more_text">allowed href</a>',
+        {'protocols': ['myprotocol']},
+        '<a href="myprotocol://more_text">allowed href</a>'
+    ),
+
+    # Unspecified protocols are not allowed
+    (
+        '<a href="http://xx.com">invalid href</a>',
+        {'protocols': ['myprotocol']},
+        '<a>invalid href</a>'
+    )
+])
+def test_uri_value_allowed_protocols(data, kwargs, expected):
+    assert clean(data, **kwargs) == expected
 
 
 def test_svg_attr_val_allows_ref():
@@ -320,7 +553,7 @@ def test_svg_attr_val_allows_ref():
 
     text = '<svg><rect fill="url(#foo)" /></svg>'
     assert (
-        bleach.clean(text, tags=TAGS, attributes=ATTRS) ==
+        clean(text, tags=TAGS, attributes=ATTRS) ==
         '<svg><rect fill="url(#foo)"></rect></svg>'
     )
 
@@ -331,7 +564,7 @@ def test_svg_attr_val_allows_ref():
     }
     text = '<svg><rect fill="url(http://example.com#foo)" /></svg>'
     assert (
-        bleach.clean(text, tags=TAGS, attributes=ATTRS) ==
+        clean(text, tags=TAGS, attributes=ATTRS) ==
         '<svg><rect></rect></svg>'
     )
 
@@ -353,7 +586,7 @@ def test_svg_allow_local_href(text, expected):
     ATTRS = {
         'pattern': ['id', 'href'],
     }
-    assert bleach.clean(text, tags=TAGS, attributes=ATTRS) == expected
+    assert clean(text, tags=TAGS, attributes=ATTRS) == expected
 
 
 @pytest.mark.parametrize('text, expected', [
@@ -372,73 +605,77 @@ def test_svg_allow_local_href_nonlocal(text, expected):
     ATTRS = {
         'pattern': ['id', 'href'],
     }
-    assert bleach.clean(text, tags=TAGS, attributes=ATTRS) == expected
+    assert clean(text, tags=TAGS, attributes=ATTRS) == expected
 
 
-@pytest.mark.xfail(reason='html5lib >= 0.99999999: changed API')
+@pytest.mark.xfail(reason='regression from bleach 1.4')
+def test_weird_strings():
+    s = '</3'
+    assert clean(s) == '</3'
+
+
+@pytest.mark.xfail(reason='regression from bleach 1.4')
 def test_sarcasm():
     """Jokes should crash.<sarcasm/>"""
-    dirty = 'Yeah right <sarcasm/>'
-    clean = 'Yeah right &lt;sarcasm/&gt;'
-    assert bleach.clean(dirty) == clean
-
-
-def test_user_defined_protocols_valid():
-    valid_href = '<a href="myprotocol://more_text">allowed href</a>'
-    assert bleach.clean(valid_href, protocols=['myprotocol']) == valid_href
-
-
-def test_user_defined_protocols_invalid():
-    invalid_href = '<a href="http://xx.com">invalid href</a>'
-    cleaned_href = '<a>invalid href</a>'
-    assert bleach.clean(invalid_href, protocols=['my_protocol']) == cleaned_href
-
-
-def test_filters():
-    # Create a Filter that changes all the attr values to "moo"
-    class MooFilter(Filter):
-        def __iter__(self):
-            for token in Filter.__iter__(self):
-                if token['type'] in ['StartTag', 'EmptyTag'] and token['data']:
-                    for attr, value in token['data'].items():
-                        token['data'][attr] = 'moo'
-
-                yield token
-
-    ATTRS = {
-        'img': ['rel', 'src']
-    }
-    TAGS = ['img']
-
-    cleaner = Cleaner(tags=TAGS, attributes=ATTRS, filters=[MooFilter])
-
-    dirty = 'this is cute! <img src="http://example.com/puppy.jpg" rel="nofollow">'
     assert (
-        cleaner.clean(dirty) ==
-        'this is cute! <img rel="moo" src="moo">'
+        clean('Yeah right <sarcasm/>') ==
+        'Yeah right &lt;sarcasm/&gt;'
     )
 
 
-def test_clean_idempotent():
-    """Make sure that applying the filter twice doesn't change anything."""
-    dirty = '<span>invalid & </span> < extra http://link.com<em>'
-    assert bleach.clean(bleach.clean(dirty)) == bleach.clean(dirty)
+@pytest.mark.parametrize('data, expected', [
+    # Convert bell
+    ('1\a23', '1?23'),
+
+    # Convert backpsace
+    ('1\b23', '1?23'),
+
+    # Convert formfeed
+    ('1\v23', '1?23'),
+
+    # Convert vertical tab
+    ('1\f23', '1?23'),
+
+    # Convert a bunch of characters in a string
+    ('import y\bose\bm\bi\bt\be\b', 'import y?ose?m?i?t?e?'),
+])
+def test_invisible_characters(data, expected):
+    assert clean(data) == expected
 
 
-def test_only_text_is_cleaned():
-    some_text = 'text'
-    some_type = int
-    no_type = None
+def get_tests():
+    """Retrieves regression tests from data/ directory
 
-    assert bleach.clean(some_text) == some_text
+    :returns: list of ``(filename, filedata)`` tuples
 
-    with pytest.raises(TypeError) as e:
-        bleach.clean(some_type)
-    assert "argument cannot be of 'type' type" in str(e)
+    """
+    datadir = os.path.join(os.path.dirname(__file__), 'data')
+    tests = [
+        os.path.join(datadir, fn) for fn in os.listdir(datadir)
+        if fn.endswith('.test')
+    ]
+    # Sort numerically which makes it easier to iterate through them
+    tests.sort(key=lambda x: int(os.path.basename(x).split('.', 1)[0]))
 
-    with pytest.raises(TypeError) as e:
-        bleach.clean(no_type)
-    assert "NoneType" in str(e)
+    testcases = [
+        (fn, open(fn, 'r').read()) for fn in tests
+    ]
+
+    return testcases
+
+
+@pytest.mark.parametrize('fn, test_case', get_tests())
+def test_regressions(fn, test_case):
+    """Regression tests for clean so we can see if there are issues"""
+    test_data, expected = test_case.split('\n--\n')
+
+    # NOTE(willkg): This strips input and expected which makes it easier to
+    # maintain the files. If there comes a time when the input needs whitespace
+    # at the beginning or end, then we'll have to figure out something else.
+    test_data = test_data.strip()
+    expected = expected.strip()
+
+    assert clean(test_data) == expected
 
 
 class TestCleaner:
@@ -451,4 +688,28 @@ class TestCleaner:
         assert (
             cleaner.clean('a <br/><span style="color:red">test</span>') ==
             'a <br><span style="">test</span>'
+        )
+
+    def test_filters(self):
+        # Create a Filter that changes all the attr values to "moo"
+        class MooFilter(Filter):
+            def __iter__(self):
+                for token in Filter.__iter__(self):
+                    if token['type'] in ['StartTag', 'EmptyTag'] and token['data']:
+                        for attr, value in token['data'].items():
+                            token['data'][attr] = 'moo'
+
+                    yield token
+
+        ATTRS = {
+            'img': ['rel', 'src']
+        }
+        TAGS = ['img']
+
+        cleaner = Cleaner(tags=TAGS, attributes=ATTRS, filters=[MooFilter])
+
+        dirty = 'this is cute! <img src="http://example.com/puppy.jpg" rel="nofollow">'
+        assert (
+            cleaner.clean(dirty) ==
+            'this is cute! <img rel="moo" src="moo">'
         )
