@@ -2,12 +2,12 @@
 
 """
 Util to write a directory of test cases with input filenames
-<testcase>.test and output filenames <testcase>.test.out as JSON to
-stdout.
+<testcase>.test as JSON to stdout.
 
-example:
+example::
 
-python tests/data_to_json.py tests/data > testcases.json
+    $ python tests/data_to_json.py tests/data > testcases.json
+
 """
 
 import argparse
@@ -21,29 +21,33 @@ import bleach
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('data_dir',
-                        help='directory containing test cases with input files'
-                        ' named <testcase>.test and output <testcase>.test.out')
+    parser.add_argument(
+        'data_dir',
+        help=(
+            'directory containing test cases with names like <testcase>.test'
+        )
+    )
 
     args = parser.parse_args()
 
     filenames = os.listdir(args.data_dir)
     ins = [os.path.join(args.data_dir, f) for f in filenames if fnmatch.fnmatch(f, '*.test')]
-    outs = [os.path.join(args.data_dir, f) for f in filenames if fnmatch.fnmatch(f, '*.test.out')]
 
     testcases = []
-    for infn, outfn in zip(ins, outs):
+    for infn in ins:
         case_name = infn.rsplit('.test', 1)[0]
 
-        with open(infn, 'r') as fin, open(outfn, 'r') as fout:
-            payload = fin.read()[:-1]
+        with open(infn, 'r') as fin:
+            data, expected = fin.read().split('\n--\n')
+            data = data.strip()
+            expected = expected.strip()
+
             testcases.append({
-                "title": case_name,
-                "input_filename": infn,
-                "output_filename": outfn,
-                "payload": payload,
-                "actual": bleach.clean(payload),
-                "expected": fout.read(),
+                'title': case_name,
+                'input_filename': infn,
+                'payload': data,
+                'actual': bleach.clean(data),
+                'expected': expected,
             })
 
     print(json.dumps(testcases, indent=4, sort_keys=True))

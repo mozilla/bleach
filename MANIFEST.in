@@ -12,6 +12,6 @@ include docs/Makefile
 
 recursive-include docs *.rst
 
-recursive-include tests *.py *.test *.out
+recursive-include tests *.py *.test
 
 recursive-include tests_website *.html *.py *.rst
