@@ -213,7 +213,7 @@ def test_nested_script_tag():
     ('an < entity', 'an &lt; entity'),
     ('tag < <em>and</em> entity', 'tag &lt; <em>and</em> entity'),
 ])
-def test_bare_entities(text, expected):
+def test_bare_entities_get_escaped_correctly(text, expected):
     assert clean(text) == expected
 
 
@@ -277,7 +277,7 @@ def test_bare_entities(text, expected):
     # Verify that clean() doesn't unescape entities.
     ('&#39;&#34;', '&#39;&#34;'),
 ])
-def test_character_entities(text, expected):
+def test_character_entities_handling(text, expected):
     assert clean(text) == expected
 
 
@@ -534,10 +534,100 @@ def test_attributes_list():
 
     # Unspecified protocols are not allowed
     (
-        '<a href="http://xx.com">invalid href</a>',
+        '<a href="http://example.com">invalid href</a>',
         {'protocols': ['myprotocol']},
         '<a>invalid href</a>'
-    )
+    ),
+
+    # Anchors are ok
+    (
+        '<a href="#example.com">foo</a>',
+        {'protocols': []},
+        '<a href="#example.com">foo</a>'
+    ),
+
+    # Allow implicit http if allowed
+    (
+        '<a href="example.com">valid</a>',
+        {'protocols': ['http']},
+        '<a href="example.com">valid</a>'
+    ),
+    (
+        '<a href="example.com:8000">valid</a>',
+        {'protocols': ['http']},
+        '<a href="example.com:8000">valid</a>'
+    ),
+    (
+        '<a href="localhost">valid</a>',
+        {'protocols': ['http']},
+        '<a href="localhost">valid</a>'
+    ),
+    (
+        '<a href="localhost:8000">valid</a>',
+        {'protocols': ['http']},
+        '<a href="localhost:8000">valid</a>'
+    ),
+    (
+        '<a href="192.168.100.100">valid</a>',
+        {'protocols': ['http']},
+        '<a href="192.168.100.100">valid</a>'
+    ),
+    (
+        '<a href="192.168.100.100:8000">valid</a>',
+        {'protocols': ['http']},
+        '<a href="192.168.100.100:8000">valid</a>'
+    ),
+
+    # Disallow implicit http if disallowed
+    (
+        '<a href="example.com">foo</a>',
+        {'protocols': []},
+        '<a>foo</a>'
+    ),
+    (
+        '<a href="example.com:8000">foo</a>',
+        {'protocols': []},
+        '<a>foo</a>'
+    ),
+    (
+        '<a href="localhost">foo</a>',
+        {'protocols': []},
+        '<a>foo</a>'
+    ),
+    (
+        '<a href="localhost:8000">foo</a>',
+        {'protocols': []},
+        '<a>foo</a>'
+    ),
+    (
+        '<a href="192.168.100.100">foo</a>',
+        {'protocols': []},
+        '<a>foo</a>'
+    ),
+    (
+        '<a href="192.168.100.100:8000">foo</a>',
+        {'protocols': []},
+        '<a>foo</a>'
+    ),
+
+    # Disallowed protocols with sneaky character entities
+    (
+        '<a href="javas&#x09;cript:alert(1)">alert</a>',
+        {},
+        '<a>alert</a>'
+    ),
+    (
+        '<a href="&#14;javascript:alert(1)">alert</a>',
+        {},
+        '<a>alert</a>'
+    ),
+
+    # Checking the uri should change it at all
+    (
+        '<a href="http://example.com/?foo&nbsp;bar">foo</a>',
+        {},
+        '<a href="http://example.com/?foo&nbsp;bar">foo</a>'
+    ),
 ])
 def test_uri_value_allowed_protocols(data, kwargs, expected):
     assert clean(data, **kwargs) == expected
