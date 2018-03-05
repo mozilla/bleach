@@ -74,7 +74,7 @@ Release process
    3. Run the doctests::
 
          $ cd docs/
-         $ make doctests
+         $ make doctest
 
    4. Verify everything works
 
