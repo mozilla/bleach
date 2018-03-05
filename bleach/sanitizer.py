@@ -556,7 +556,7 @@ class BleachSanitizerFilter(sanitizer.Filter):
         # Convert all character entities in the value
         new_value = convert_entities(value)
 
-        # Nix single quote, whitespace, and non-printable charcters
+        # Nix backtick, space characters, and control characters
         new_value = re.sub(
             "[`\000-\040\177-\240\s]+",
             '',
