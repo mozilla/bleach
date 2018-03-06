@@ -684,10 +684,10 @@ class BleachSanitizerFilter(sanitizer.Filter):
 
     def sanitize_css(self, style):
         """Sanitizes css in style tags"""
-        # disallow urls
+        # Drop any url values
         style = re.compile('url\s*\(\s*[^\s)]+?\s*\)\s*').sub(' ', style)
 
-        # gauntlet
+        # The gauntlet of sanitization
 
         # Validate the css in the style tag and if it's not valid, then drop
         # the whole thing.
