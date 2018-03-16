@@ -90,7 +90,8 @@ def convert_entity(value):
 
     :arg value: the string (minus the ``&`` and ``;`` part) to convert
 
-    :returns: unicode character
+    :returns: unicode character or None if it's an ambiguous ampersand that
+        doesn't match a character entity
 
     """
     if value[0] == '#':
@@ -98,7 +99,7 @@ def convert_entity(value):
             return six.unichr(int(value[2:], 16))
         return six.unichr(int(value[1:], 10))
 
-    return ENTITIES[value]
+    return ENTITIES.get(value, None)
 
 
 def convert_entities(text):
@@ -120,11 +121,16 @@ def convert_entities(text):
         if part.startswith('&'):
             entity = match_entity(part)
             if entity is not None:
-                new_text.append(convert_entity(entity))
-                remainder = part[len(entity) + 2:]
-                if part:
-                    new_text.append(remainder)
-                continue
+                converted = convert_entity(entity)
+
+                # If it's not an ambiguous ampersand, then replace with the
+                # unicode character. Otherwise, we leave the entity in.
+                if converted is not None:
+                    new_text.append(converted)
+                    remainder = part[len(entity) + 2:]
+                    if part:
+                        new_text.append(remainder)
+                    continue
 
         new_text.append(part)
 
@@ -731,7 +737,9 @@ class BleachHTMLSerializer(HTMLSerializer):
 
             if part.startswith('&'):
                 entity = match_entity(part)
-                if entity is not None:
+                # Only leave entities in that are not ambiguous. If they're
+                # ambiguous, then we escape the ampersand.
+                if entity is not None and convert_entity(entity) is not None:
                     yield '&' + entity + ';'
 
                     # Length of the entity plus 2--one for & at the beginning
