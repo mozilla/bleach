@@ -759,6 +759,19 @@ def test_convert_entities(data, expected):
     assert convert_entities(data) == expected
 
 
+def test_nonexistent_namespace():
+    """Verify if the namespace doesn't exist, it doesn't fail with a KeyError
+
+    The tokenizer creates "c" as a namespace and that doesn't exist in the map
+    of namespaces, so then it fails with a KeyError. I don't understand why the
+    tokenizer makes "c" into a namespace in this string.
+
+    Issue #352.
+
+    """
+    assert clean('<d {c}>') == '&lt;d c=""&gt;&lt;/d&gt;'
+
+
 def get_tests():
     """Retrieves regression tests from data/ directory
 

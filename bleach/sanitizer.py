@@ -668,8 +668,20 @@ class BleachSanitizerFilter(sanitizer.Filter):
             assert token_type in ("StartTag", "EmptyTag")
             attrs = []
             for (ns, name), v in token["data"].items():
+                # If we end up with a namespace, but no name, switch them so we
+                # have a valid name to use.
+                if ns and not name:
+                    ns, name = name, ns
+
+                # Figure out namespaced name if the namespace is appropriate
+                # and exists; if the ns isn't in prefixes, then drop it.
+                if ns is None or ns not in prefixes:
+                    namespaced_name = name
+                else:
+                    namespaced_name = '%s:%s' % (prefixes[ns], name)
+
                 attrs.append(' %s="%s"' % (
-                    name if ns is None else "%s:%s" % (prefixes[ns], name),
+                    namespaced_name,
                     # NOTE(willkg): HTMLSerializer escapes attribute values
                     # already, so if we do it here (like HTMLSerializer does),
                     # then we end up double-escaping.
