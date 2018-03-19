@@ -4,7 +4,7 @@ from html5lib.filters.base import Filter
 import pytest
 
 from bleach import clean
-from bleach.sanitizer import Cleaner
+from bleach.sanitizer import convert_entities, Cleaner
 
 
 def test_clean_idempotent():
@@ -246,7 +246,7 @@ def test_bare_entities_get_escaped_correctly(text, expected):
         'http://example.com?active=true&amp;current=true'
     ),
 
-    # Test entities in HTML attributes
+    # Test character entities in attribute values are left alone
     (
         '<a href="?art&amp;copy">foo</a>',
         '<a href="?art&amp;copy">foo</a>'
@@ -255,10 +255,19 @@ def test_bare_entities_get_escaped_correctly(text, expected):
         '<a href="?this=&gt;that">foo</a>',
         '<a href="?this=&gt;that">foo</a>'
     ),
+
+    # Ambiguous ampersands get escaped in attributes
+    (
+        '<a href="http://example.com/&xx;">foo</a>',
+        '<a href="http://example.com/&amp;xx;">foo</a>'
+    ),
     (
         '<a href="http://example.com?active=true&current=true">foo</a>',
         '<a href="http://example.com?active=true&amp;current=true">foo</a>'
     ),
+
+    # Ambiguous ampersands in text are not escaped
+    ('&xx;', '&xx;'),
 
     # Test numeric entities
     ('&#39;', '&#39;'),
@@ -730,6 +739,24 @@ def test_sarcasm():
 ])
 def test_invisible_characters(data, expected):
     assert clean(data) == expected
+
+
+@pytest.mark.parametrize('data, expected', [
+    # Strings without character entities pass through as is
+    ('', ''),
+    ('abc', 'abc'),
+
+    # Handles character entities--both named and numeric
+    ('&nbsp;', u'\xa0'),
+    ('&#32;', ' '),
+    ('&#x20;', ' '),
+
+    # Handles ambiguous ampersand
+    ('&xx;', '&xx;'),
+])
+def test_convert_entities(data, expected):
+    print(repr(convert_entities(data)))
+    assert convert_entities(data) == expected
 
 
 def get_tests():
