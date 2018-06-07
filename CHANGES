@@ -10,7 +10,7 @@ None
 
 **Backwards incompatible changes**
 
-None
+* Dropped support for Python 3.3. (#328)
 
 **Features**
 
