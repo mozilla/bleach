@@ -2,7 +2,7 @@
 Bleach
 ======
 
-.. image:: https://travis-ci.org/mozilla/bleach.png?branch=master
+.. image:: https://travis-ci.org/mozilla/bleach.svg?branch=master
    :target: https://travis-ci.org/mozilla/bleach
 
 .. image:: https://badge.fury.io/py/bleach.svg

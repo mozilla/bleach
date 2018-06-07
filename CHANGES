@@ -1,5 +1,54 @@
-Bleach Changes
+Bleach changes
 ==============
+
+Version 2.1.4 (In development)
+------------------------------
+
+**Security fixes**
+
+None
+
+**Backwards incompatible changes**
+
+None
+
+**Features**
+
+None
+
+**Bug fixes**
+
+* Handle ambiguous ampersands in correctly. (#359)
+
+
+Version 2.1.3 (March 5th, 2018)
+-------------------------------
+
+**Security fixes**
+
+* Attributes that have URI values weren't properly sanitized if the
+  values contained character entities. Using character entities, it
+  was possible to construct a URI value with a scheme that was not
+  allowed that would slide through unsanitized.
+
+  This security issue was introduced in Bleach 2.1. Anyone using
+  Bleach 2.1 is highly encouraged to upgrade.
+
+  https://bugzilla.mozilla.org/show_bug.cgi?id=1442745
+
+**Backwards incompatible changes**
+
+None
+
+**Features**
+
+None
+
+**Bug fixes**
+
+* Fixed some other edge cases for attribute URI value sanitizing and
+  improved testing of this code.
+
 
 Version 2.1.2 (December 7th, 2017)
 ----------------------------------

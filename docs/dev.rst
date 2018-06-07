@@ -55,7 +55,7 @@ Release process
 
 3. Update version numbers in ``bleach/__init__.py``.
 
-   1. Set ``__version__`` to something like ``2.0``.
+   1. Set ``__version__`` to something like ``2.0.0``. Use semver.
    2. Set ``__releasedate__`` to something like ``20120731``.
 
 4. Update ``CONTRIBUTORS``, ``CHANGES`` and ``MANIFEST.in``.
@@ -74,7 +74,7 @@ Release process
    3. Run the doctests::
 
          $ cd docs/
-         $ make doctests
+         $ make doctest
 
    4. Verify everything works
 
@@ -84,7 +84,7 @@ Release process
 
 8. After Travis is happy, create a signed tag for the release::
 
-     $ git tag -s v0.4
+     $ git tag -s v0.4.0
 
    Copy the details from ``CHANGES`` into the tag comment.
 

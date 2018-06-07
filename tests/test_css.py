@@ -66,7 +66,6 @@ clean = partial(clean, tags=['p'], attributes=['style'])
     ),
 ])
 def test_allowed_css(data, styles, expected):
-
     p_single = '<p style="{0!s}">bar</p>'
     p_double = "<p style='{0!s}'>bar</p>"
 
@@ -87,6 +86,56 @@ def test_valid_css():
         clean('<p style="color: float: left;">foo</p>', styles=styles) ==
         '<p style="">foo</p>'
     )
+
+
+@pytest.mark.parametrize('data, expected', [
+    # No url--unchanged
+    (
+        '<p style="background: #00D;">foo</p>',
+        '<p style="background: #00D;">foo</p>'
+    ),
+
+    # Verify urls with no quotes, single quotes, and double quotes are all dropped
+    (
+        '<p style="background: url(topbanner.png) #00D;">foo</p>',
+        '<p style="background: #00D;">foo</p>'
+    ),
+    (
+        '<p style="background: url(\'topbanner.png\') #00D;">foo</p>',
+        '<p style="background: #00D;">foo</p>'
+    ),
+    (
+        '<p style=\'background: url("topbanner.png") #00D;\'>foo</p>',
+        '<p style="background: #00D;">foo</p>'
+    ),
+
+    # Verify urls with spacing
+    (
+        '<p style="background: url(  \'topbanner.png\') #00D;">foo</p>',
+        '<p style="background: #00D;">foo</p>'
+    ),
+    (
+        '<p style="background: url(\'topbanner.png\'  ) #00D;">foo</p>',
+        '<p style="background: #00D;">foo</p>'
+    ),
+    (
+        '<p style="background: url(  \'topbanner.png\'  ) #00D;">foo</p>',
+        '<p style="background: #00D;">foo</p>'
+    ),
+    (
+        '<p style="background: url (  \'topbanner.png\'  ) #00D;">foo</p>',
+        '<p style="background: #00D;">foo</p>'
+    ),
+
+    # Verify urls with character entities
+    (
+        '<p style="background: url&#x09;(\'topbanner.png\') #00D;">foo</p>',
+        '<p style="background: #00D;">foo</p>'
+    ),
+
+])
+def test_urls(data, expected):
+    assert clean(data, styles=['background']) == expected
 
 
 def test_style_hang():
@@ -151,3 +200,20 @@ def test_style_hang():
     )
 
     assert clean(html, styles=styles) == expected
+
+
+@pytest.mark.parametrize('data, styles, expected', [
+    (
+        '<p style="font-family: Droid Sans, serif; white-space: pre-wrap;">text</p>',
+        ['font-family', 'white-space'],
+        '<p style="font-family: Droid Sans, serif; white-space: pre-wrap;">text</p>'
+    ),
+    (
+        '<p style="font-family: &quot;Droid Sans&quot;, serif; white-space: pre-wrap;">text</p>',
+        ['font-family', 'white-space'],
+        '<p style=\'font-family: "Droid Sans", serif; white-space: pre-wrap;\'>text</p>'
+    ),
+])
+def test_css_parsing_with_entities(data, styles, expected):
+    """The sanitizer should be ok with character entities"""
+    assert clean(data, tags=['p'], attributes={'p': ['style']}, styles=styles) == expected

@@ -1,1 +1,3 @@
 "><STYLE>@import"javascript:alert('XSS')";</STYLE>
+--
+"&gt;&lt;style&gt;@import"javascript:alert('XSS')";&lt;/style&gt;
