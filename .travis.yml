@@ -15,7 +15,7 @@ env:
 install:
   # html5lib 0.99999999 (8 9s) requires at least setuptools 18.5
   - pip install -U pip setuptools>=18.5
-  - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
   # stomp on html5lib install with the specified one
   - pip install html5lib==$HTML5LIB
 script:

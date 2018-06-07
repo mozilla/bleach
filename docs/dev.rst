@@ -50,7 +50,7 @@ Release process
 
 1. Checkout master tip.
 
-2. Check to make sure ``setup.py`` and ``requirements.txt`` are
+2. Check to make sure ``setup.py`` and ``requirements-dev.txt`` are
    correct and match requirements-wise.
 
 3. Update version numbers in ``bleach/__init__.py``.
