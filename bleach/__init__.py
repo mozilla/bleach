@@ -2,7 +2,6 @@
 
 from __future__ import unicode_literals
 
-import warnings
 from pkg_resources import parse_version
 
 from bleach.linkifier import (
@@ -16,20 +15,6 @@ from bleach.sanitizer import (
     ALLOWED_TAGS,
     Cleaner,
 )
-
-
-import html5lib
-try:
-    _html5lib_version = html5lib.__version__.split('.')
-    if len(_html5lib_version) < 2:
-        _html5lib_version = _html5lib_version + ['0']
-except Exception:
-    _h5ml5lib_version = ['unknown', 'unknown']
-
-
-# Bleach 3.0.0 won't support html5lib-python < 1.0.0.
-if _html5lib_version < ['1', '0'] or 'b' in _html5lib_version[1]:
-    warnings.warn('Support for html5lib-python < 1.0.0 is deprecated.', DeprecationWarning)
 
 
 # yyyymmdd
