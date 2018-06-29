@@ -576,9 +576,14 @@ class BleachSanitizerFilter(sanitizer.Filter):
         # against
         new_value = new_value.lower()
 
-        # Drop attributes with uri values that have protocols that aren't
-        # allowed
-        parsed = urlparse(new_value)
+        try:
+            # Drop attributes with uri values that have protocols that aren't
+            # allowed
+            parsed = urlparse(new_value)
+        except ValueError:
+            # URI is impossible to parse, therefore it's not allowed
+            return None
+
         if parsed.scheme:
             # If urlparse found a scheme, check that
             if parsed.scheme in allowed_protocols:
