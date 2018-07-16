@@ -58,6 +58,9 @@ def test_html_is_lowercased():
         '<a href="http://example.com">foo</a>'
     )
 
+def test_invalid_uri_does_not_raise_error():
+    assert clean('<a href="http://example.com]">text</a>') == '<a>text</a>'
+
 
 @pytest.mark.parametrize('data, should_strip, expected', [
     # Regular comment
