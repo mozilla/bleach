@@ -10,18 +10,9 @@ python:
   - "3.5"
   - "3.6"
   - "pypy"
-env:
-  - HTML5LIB=0.99999999   # 8
-  - HTML5LIB=0.999999999  # 9
-  - HTML5LIB=1.0b9
-  - HTML5LIB=1.0b10
-  - HTML5LIB=1.0.1
 install:
-  # html5lib 0.99999999 (8 9s) requires at least setuptools 18.5
   - pip install -U pip setuptools>=18.5
   - pip install -r requirements-dev.txt
-  # stomp on html5lib install with the specified one
-  - pip install html5lib==$HTML5LIB
 script:
   - py.test
   - flake8 bleach/
