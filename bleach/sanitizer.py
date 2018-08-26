@@ -7,23 +7,19 @@ import six
 from six.moves.urllib.parse import urlparse
 from xml.sax.saxutils import unescape
 
-import html5lib
-from html5lib.constants import (
+from bleach._vendor import html5lib
+from bleach._vendor.html5lib.constants import (
     entities,
     namespaces,
     prefixes,
     tokenTypes,
 )
-try:
-    from html5lib.constants import ReparseException
-except ImportError:
-    # html5lib-python 1.0 changed the name
-    from html5lib.constants import _ReparseException as ReparseException
-from html5lib.filters.base import Filter
-from html5lib.filters import sanitizer
-from html5lib.serializer import HTMLSerializer
-from html5lib._tokenizer import HTMLTokenizer
-from html5lib._trie import Trie
+from bleach._vendor.html5lib.constants import _ReparseException as ReparseException
+from bleach._vendor.html5lib.filters.base import Filter
+from bleach._vendor.html5lib.filters import sanitizer
+from bleach._vendor.html5lib.serializer import HTMLSerializer
+from bleach._vendor.html5lib._tokenizer import HTMLTokenizer
+from bleach._vendor.html5lib._trie import Trie
 
 from bleach.utils import alphabetize_attributes, force_unicode
 

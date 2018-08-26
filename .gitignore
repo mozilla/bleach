@@ -4,10 +4,14 @@ pip-log.txt
 .coverage
 dist
 *.egg-info
-.noseids
 build
 .tox
 docs/_build/
 .cache/
 .eggs/
 .*env*/
+.pytest_cache/
+.python-version
+*~
+*.swp
+__pycache__

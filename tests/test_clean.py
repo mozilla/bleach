@@ -1,6 +1,6 @@
 import os
 
-from html5lib.filters.base import Filter
+from bleach._vendor.html5lib.filters.base import Filter
 import pytest
 
 from bleach import clean

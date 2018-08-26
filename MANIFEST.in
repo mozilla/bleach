@@ -10,8 +10,7 @@ include README.rst
 include docs/conf.py
 include docs/Makefile
 
+recursive-include bleach *.py *.json *.rst *.sh *.txt INSTALLER METADATA RECORD WHEEL
 recursive-include docs *.rst
-
 recursive-include tests *.py *.test
-
 recursive-include tests_website *.html *.py *.rst

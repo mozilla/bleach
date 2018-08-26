@@ -1,10 +1,7 @@
 import re
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-    from urllib import quote_plus
 
 import pytest
+from six.moves.urllib_parse import quote_plus
 
 from bleach import linkify, DEFAULT_CALLBACKS as DC
 from bleach.linkifier import Linker

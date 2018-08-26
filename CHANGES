@@ -14,7 +14,8 @@ None
 
 **Features**
 
-None
+* No longer depends on html5lib. html5lib==1.0.1 was vendored into Bleach.
+  (#386)
 
 **Bug fixes**
 
