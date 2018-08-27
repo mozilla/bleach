@@ -58,10 +58,6 @@ Bleach is available on PyPI_, so you can install it with ``pip``::
 
     $ pip install bleach
 
-Or with ``easy_install``::
-
-    $ easy_install bleach
-
 
 Upgrading Bleach
 ================
