@@ -2,10 +2,10 @@ from __future__ import unicode_literals
 import re
 import six
 
-import html5lib
-from html5lib.filters.base import Filter
-from html5lib.filters.sanitizer import allowed_protocols
-from html5lib.serializer import HTMLSerializer
+from bleach._vendor import html5lib
+from bleach._vendor.html5lib.filters.base import Filter
+from bleach._vendor.html5lib.filters.sanitizer import allowed_protocols
+from bleach._vendor.html5lib.serializer import HTMLSerializer
 
 from bleach import callbacks as linkify_callbacks
 from bleach.utils import alphabetize_attributes, force_unicode
