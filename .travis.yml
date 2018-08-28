@@ -4,18 +4,30 @@ language: python
 cache:
   directories:
   - "~/.cache/pip"
+
 python:
   - "2.7"
   - "3.4"
   - "3.5"
   - "3.6"
   - "pypy"
+
 install:
   - pip install -U pip setuptools>=18.5
   - pip install -r requirements-dev.txt
+
+matrix:
+  include:
+    - python: 2.7
+      env: MODE=lint
+    - python: 2.7
+      env: MODE=vendorverify
+    - python: 3.4
+      env: MODE=lint
+
 script:
-  - py.test
-  - flake8 bleach/
+  - ./scripts/run_tests.sh $MODE
+
 deploy:
   provider: pypi
   user: jezdez
