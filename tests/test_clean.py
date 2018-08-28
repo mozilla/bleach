@@ -1,10 +1,10 @@
 import os
 
-from bleach._vendor.html5lib.filters.base import Filter
 import pytest
 
 from bleach import clean
-from bleach.sanitizer import convert_entities, Cleaner
+from bleach.html5lib_shim import Filter
+from bleach.sanitizer import Cleaner
 
 
 def test_clean_idempotent():
@@ -742,24 +742,6 @@ def test_sarcasm():
 ])
 def test_invisible_characters(data, expected):
     assert clean(data) == expected
-
-
-@pytest.mark.parametrize('data, expected', [
-    # Strings without character entities pass through as is
-    ('', ''),
-    ('abc', 'abc'),
-
-    # Handles character entities--both named and numeric
-    ('&nbsp;', u'\xa0'),
-    ('&#32;', ' '),
-    ('&#x20;', ' '),
-
-    # Handles ambiguous ampersand
-    ('&xx;', '&xx;'),
-])
-def test_convert_entities(data, expected):
-    print(repr(convert_entities(data)))
-    assert convert_entities(data) == expected
 
 
 def test_nonexistent_namespace():

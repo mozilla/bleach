@@ -2,12 +2,8 @@ from __future__ import unicode_literals
 import re
 import six
 
-from bleach._vendor import html5lib
-from bleach._vendor.html5lib.filters.base import Filter
-from bleach._vendor.html5lib.filters.sanitizer import allowed_protocols
-from bleach._vendor.html5lib.serializer import HTMLSerializer
-
 from bleach import callbacks as linkify_callbacks
+from bleach import html5lib_shim
 from bleach.utils import alphabetize_attributes, force_unicode
 
 
@@ -33,7 +29,7 @@ TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
 TLDS.reverse()
 
 
-def build_url_re(tlds=TLDS, protocols=allowed_protocols):
+def build_url_re(tlds=TLDS, protocols=html5lib_shim.allowed_protocols):
     """Builds the url regex used by linkifier
 
    If you want a different set of tlds or allowed protocols, pass those in
@@ -114,9 +110,9 @@ class Linker(object):
         self.url_re = url_re
         self.email_re = email_re
 
-        self.parser = html5lib.HTMLParser(namespaceHTMLElements=False)
-        self.walker = html5lib.getTreeWalker('etree')
-        self.serializer = HTMLSerializer(
+        self.parser = html5lib_shim.HTMLParser(namespaceHTMLElements=False)
+        self.walker = html5lib_shim.getTreeWalker('etree')
+        self.serializer = html5lib_shim.HTMLSerializer(
             quote_attr_values='always',
             omit_optional_tags=False,
 
@@ -157,7 +153,7 @@ class Linker(object):
         return self.serializer.render(filtered)
 
 
-class LinkifyFilter(Filter):
+class LinkifyFilter(html5lib_shim.Filter):
     """html5lib filter that linkifies text
 
     This will do the following:

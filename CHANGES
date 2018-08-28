@@ -1,7 +1,7 @@
 Bleach changes
 ==============
 
-Version 2.1.5 (in development)
+Version 3.0.0 (in development)
 ------------------------------
 
 **Security fixes**
@@ -10,12 +10,25 @@ None
 
 **Backwards incompatible changes**
 
-None
+* A bunch of things were moved:
+
+  ``bleach.sanitizer`` -> ``bleach.html5lib_shim``:
+
+  * ``convert_entity``
+  * ``convert_entities``
+  * ``match_entity``
+  * ``next_possible_entity``
+  * ``BleachHTMLSerializer``
+  * ``BleachHTMLTokenizer``
+  * ``BleachHTMLParser``
+
+  These weren't documented and aren't part of the public API, but people
+  read code so we're considering it an incompatible API change anyhow.
 
 **Features**
 
 * No longer depends on html5lib. html5lib==1.0.1 was vendored into Bleach.
-  (#386)
+  Bleach will work fine with other libraries that depend on html5lib. (#386)
 
 **Bug fixes**
 
