@@ -62,9 +62,6 @@ class Cleaner(object):
     malicious content from a string such that it can be displayed as content in
     a web page.
 
-    This cleaner is not designed to use to transform content to be used in
-    non-web-page contexts.
-
     To use::
 
         from bleach.sanitizer import Cleaner
@@ -73,6 +70,17 @@ class Cleaner(object):
 
         for text in all_the_yucky_things:
             sanitized = cleaner.clean(text)
+
+    .. Note::
+
+       This cleaner is not designed to use to transform content to be used in
+       non-web-page contexts.
+
+    .. Warning::
+
+       This cleaner is not thread-safe--the html parser has internal state.
+       Create a separate cleaner per thread!
+
 
     """
 
@@ -115,7 +123,11 @@ class Cleaner(object):
         self.strip_comments = strip_comments
         self.filters = filters or []
 
-        self.parser = html5lib_shim.BleachHTMLParser(namespaceHTMLElements=False)
+        self.parser = html5lib_shim.BleachHTMLParser(
+            tags=self.tags,
+            strip=self.strip,
+            namespaceHTMLElements=False
+        )
         self.walker = html5lib_shim.getTreeWalker('etree')
         self.serializer = html5lib_shim.BleachHTMLSerializer(
             quote_attr_values='always',

@@ -1,3 +1,3 @@
 <IMG SRC=javascript:alert('XSS')>
 --
-&lt;img src="javascript:alert('XSS')"&gt;
+&lt;IMG SRC=javascript:alert('XSS')&gt;

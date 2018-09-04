@@ -59,7 +59,11 @@ def test_convert_entities(data, expected):
 ])
 def test_serializer(data, expected):
     # Build a parser, walker, and serializer just like we do in clean()
-    parser = html5lib_shim.BleachHTMLParser(namespaceHTMLElements=False)
+    parser = html5lib_shim.BleachHTMLParser(
+        tags=None,
+        strip=True,
+        namespaceHTMLElements=False
+    )
     walker = html5lib_shim.getTreeWalker('etree')
     serializer = html5lib_shim.BleachHTMLSerializer(
         quote_attr_values='always',
@@ -75,3 +79,16 @@ def test_serializer(data, expected):
     serialized = serializer.render(walker(dom))
 
     assert serialized == expected
+
+
+def test_get_recent_tag_string():
+    history = list('  <img src="javascript:alert(\'XSS\');">')
+    token = {
+        'type': 3,
+        'name': 'img',
+        'data': [['src', "javascript:alert('XSS');"]],
+        'selfClosing': False,
+        'selfClosingAcknowledged': False
+    }
+
+    assert html5lib_shim.get_recent_tag_string(history, token) == '<img src="javascript:alert(\'XSS\');">'
