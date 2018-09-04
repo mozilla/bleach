@@ -54,7 +54,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
 class BleachHTMLParser(HTMLParser):
     """Parser that uses BleachHTMLTokenizer"""
-    def _parse(self, stream, innerHTML=False, container="div", scripting=False, **kwargs):
+    def _parse(self, stream, innerHTML=False, container='div', scripting=False, **kwargs):
         # Override HTMLParser so we can swap out the tokenizer for our own.
         self.innerHTMLMode = innerHTML
         self.container = container
@@ -203,13 +203,16 @@ def next_possible_entity(text):
 class BleachHTMLSerializer(HTMLSerializer):
     """HTMLSerializer that undoes & -> &amp; in attributes"""
     def escape_base_amp(self, stoken):
-        """Escapes bare & in HTML attribute values"""
-        # First, undo what the HTMLSerializer did. We need to do this because
-        # html5lib's HTMLSerializer expected the tokenizer to consume all the
-        # character entities, but the BleachHTMLTokenizer doesn't.
+        """Escapes just bare & in HTML attribute values"""
+        # First, undo escaping of &. We need to do this because html5lib's
+        # HTMLSerializer expected the tokenizer to consume all the character
+        # entities and convert them to their respective characters, but the
+        # BleachHTMLTokenizer doesn't do that. For example, this fixes
+        # &amp;entity; back to &entity; .
         stoken = stoken.replace('&amp;', '&')
 
-        # Then, escape any bare &
+        # However, we do want all bare & that are not marking character
+        # entities to be changed to &amp;, so let's do that carefully here.
         for part in next_possible_entity(stoken):
             if not part:
                 continue
@@ -231,7 +234,12 @@ class BleachHTMLSerializer(HTMLSerializer):
             yield part.replace('&', '&amp;')
 
     def serialize(self, treewalker, encoding=None):
-        """Wrap HTMLSerializer.serialize and escape bare & in attributes"""
+        """Wrap HTMLSerializer.serialize and conver & to &amp; in attribute values
+
+        Note that this converts & to &amp; in attribute values where the & isn't
+        already part of an unambiguous character entity.
+
+        """
         in_tag = False
         after_equals = False
 

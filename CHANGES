@@ -10,7 +10,7 @@ None
 
 **Backwards incompatible changes**
 
-* A bunch of things were moved:
+* A bunch of functions were moved from one module to another:
 
   ``bleach.sanitizer`` -> ``bleach.html5lib_shim``:
 
@@ -23,12 +23,19 @@ None
   * ``BleachHTMLParser``
 
   These weren't documented and aren't part of the public API, but people
-  read code so we're considering it an incompatible API change anyhow.
+  read code and might be using them so we're considering it an incompatible
+  API change.
+
+  If you're using them, you'll need to update your code.
 
 **Features**
 
-* No longer depends on html5lib. html5lib==1.0.1 was vendored into Bleach.
-  Bleach will work fine with other libraries that depend on html5lib. (#386)
+* Bleach no longer depends on html5lib. html5lib==1.0.1 is now vendored into
+  Bleach. You can remove it from your requirements file if none of your other
+  requirements require html5lib.
+
+  This means Bleach will now work fine with other libraries that depend on
+  html5lib regardless of what version of html5lib they require. (#386)
 
 **Bug fixes**
 
