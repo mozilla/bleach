@@ -757,10 +757,10 @@ def test_nonexistent_namespace():
     assert clean('<d {c}>') == '&lt;d c=""&gt;&lt;/d&gt;'
 
 
-def get_tests():
+def get_ids_and_tests():
     """Retrieves regression tests from data/ directory
 
-    :returns: list of ``(filename, filedata)`` tuples
+    :returns: list of ``(id, filedata)`` tuples
 
     """
     datadir = os.path.join(os.path.dirname(__file__), 'data')
@@ -772,14 +772,20 @@ def get_tests():
     tests.sort(key=lambda x: int(os.path.basename(x).split('.', 1)[0]))
 
     testcases = [
-        (fn, open(fn, 'r').read()) for fn in tests
+        (os.path.basename(fn), open(fn, 'r').read())
+        for fn in tests
     ]
 
     return testcases
 
 
-@pytest.mark.parametrize('fn, test_case', get_tests())
-def test_regressions(fn, test_case):
+_regression_ids_and_tests = get_ids_and_tests()
+_regression_ids = [item[0] for item in _regression_ids_and_tests]
+_regression_tests = [item[1] for item in _regression_ids_and_tests]
+
+
+@pytest.mark.parametrize('test_case', _regression_tests, ids=_regression_ids)
+def test_regressions(test_case):
     """Regression tests for clean so we can see if there are issues"""
     test_data, expected = test_case.split('\n--\n')
 
