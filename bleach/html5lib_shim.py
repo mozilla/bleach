@@ -83,12 +83,16 @@ class InputStreamWithMemory(object):
         return self._buffer
 
 
+#: Set of HTML quote characters
+QUOTEY_THINGS = set(['"', '\''])
+
+
 def get_recent_tag_string(stream_history, token):
     """Find the original text for the tag
 
     This goes back through the stream we've tokenized for the most recent
     complete HTML tag-like thing as it existed in the stream. It assumes that
-    the current character in the stream ias a >.
+    the current character in the stream is a >.
 
     :arg list stream_history: list of characters to look through
     :arg dict token: the tag token we're looking for in the stream
@@ -101,25 +105,27 @@ def get_recent_tag_string(stream_history, token):
         name_reversed.append('/')
     name_reversed_len = len(name_reversed)
 
-    quotey_things = '"\''
     pile = []
     in_quotes = []
     for c in reversed(stream_history):
         if in_quotes:
             if c == in_quotes[-1]:
                 in_quotes.pop(-1)
-            elif c in quotey_things:
+
+            elif c in QUOTEY_THINGS:
                 in_quotes.append(c)
 
             pile.append(c)
 
-        elif c in quotey_things:
+        elif c in QUOTEY_THINGS:
             in_quotes.append(c)
             pile.append(c)
 
         elif c == '<':
             if pile[-name_reversed_len:] == name_reversed:
                 pile.append(c)
+                # This is the beginning of a tag, so break out of the loop
+                # and return
                 break
             else:
                 pile.append(c)
@@ -233,7 +239,7 @@ class BleachHTMLParser(HTMLParser):
     """Parser that uses BleachHTMLTokenizer"""
     def __init__(self, tags, strip, **kwargs):
         """
-        :arg tags: list of allowed tages--everything else is either stripped or
+        :arg tags: list of allowed tags--everything else is either stripped or
             escaped; if None, then this doesn't look at tags at all
         :arg strip: whether to strip disallowed tags (True) or escape them (False);
             if tags=None, then this doesn't have any effect
