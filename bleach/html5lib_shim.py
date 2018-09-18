@@ -37,30 +37,28 @@ ENTITIES = entities
 #: Trie of html entity string -> character representation
 ENTITIES_TRIE = Trie(ENTITIES)
 
+#: Token type constants--these never change
+START_TAG_TYPE = tokenTypes['StartTag']
+END_TAG_TYPE = tokenTypes['EndTag']
+CHARACTERS_TYPE = tokenTypes['Characters']
+
 
 class InputStreamWithMemory(object):
-    """Wraps an HTMLInputStream to remember what characters we've seen
+    """Wraps an HTMLInputStream to remember characters since last <
 
-    It didn't make sense to implement our own HTMLInputStream, so this
-    wraps the existing ones and keeps track of what we've seen so far. We
-    do this so we can provide the original string the stream had in the case
-    where Bleach's cleaner is going to escape a disallowed tag so we can
-    escape the original string.
+    This wraps existing HTMLInputStream classes to keep track of the stream
+    since the last < which marked an open tag state.
 
     """
     def __init__(self, inner_stream):
         self._inner_stream = inner_stream
+        self.reset = self._inner_stream.reset
+        self.position = self._inner_stream.position
         self._buffer = []
 
     @property
     def errors(self):
         return self._inner_stream.errors
-
-    def reset(self):
-        return self._inner_stream.reset()
-
-    def position(self):
-        return self._inner_stream.position()
 
     def char(self):
         c = self._inner_stream.char()
@@ -79,65 +77,24 @@ class InputStreamWithMemory(object):
             self._buffer.pop(-1)
         return self._inner_stream.unget(char)
 
-    def stream_history(self):
-        return self._buffer
+    def get_tag(self):
+        """Returns the stream history since last '<'
 
-    def clear_history(self):
-        self._buffer = []
+        Since the buffer starts at the last '<' as as seen by tagOpenState(),
+        we know that everything from that point to when this method is called
+        is the "tag" that is being tokenized.
 
+        """
+        return six.text_type('').join(self._buffer)
 
-#: Set of HTML quote characters
-QUOTEY_THINGS = set(['"', '\''])
+    def start_tag(self):
+        """Resets stream history to just '<'
 
+        This gets called by tagOpenState() which marks a '<' that denotes an
+        open tag. Any time we see that, we reset the buffer.
 
-def get_recent_tag_string(stream_history, token):
-    """Find the original text for the tag
-
-    This goes back through the stream we've tokenized for the most recent
-    complete HTML tag-like thing as it existed in the stream. It assumes that
-    the current character in the stream is a >.
-
-    :arg list stream_history: list of characters to look through
-    :arg dict token: the tag token we're looking for in the stream
-
-    :returns: original tag from < to >
-
-    """
-    name_reversed = list(reversed(token['name']))
-    if token['type'] == tokenTypes['EndTag']:
-        name_reversed.append('/')
-    name_reversed_len = len(name_reversed)
-
-    pile = []
-    in_quotes = []
-    for c in reversed(stream_history):
-        if in_quotes:
-            if c == in_quotes[-1]:
-                in_quotes.pop(-1)
-
-            elif c in QUOTEY_THINGS:
-                in_quotes.append(c)
-
-            pile.append(c)
-
-        elif c in QUOTEY_THINGS:
-            in_quotes.append(c)
-            pile.append(c)
-
-        elif c == '<':
-            if pile[-name_reversed_len:] == name_reversed:
-                pile.append(c)
-                # This is the beginning of a tag, so break out of the loop
-                # and return
-                break
-            else:
-                pile.append(c)
-        else:
-            pile.append(c)
-
-    pile.reverse()
-    ret = six.text_type('').join(pile)
-    return ret
+        """
+        self._buffer = ['<']
 
 
 class BleachHTMLTokenizer(HTMLTokenizer):
@@ -167,16 +124,8 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                     #
                     # If this is not an allowed tag, then we convert it to
                     # characters and it'll get escaped in the sanitizer.
-
-                    # Create a fake EndTag token so get_recent_tag_string works right
-                    fake_end_tag = {'type': tokenTypes['EndTag'], 'name': token['data']}
-                    token['data'] = get_recent_tag_string(
-                        self.stream.stream_history(), fake_end_tag
-                    )
-                    token['type'] = tokenTypes['Characters']
-
-                    # Clear the stream history up to this point
-                    self.stream.clear_history()
+                    token['data'] = self.stream.get_tag()
+                    token['type'] = CHARACTERS_TYPE
 
                     # Yield the adjusted token
                     yield token
@@ -206,13 +155,21 @@ class BleachHTMLTokenizer(HTMLTokenizer):
             self.currentToken['data'][-1][1] += '&'
 
         else:
-            self.tokenQueue.append({"type": tokenTypes['Characters'], "data": '&'})
+            self.tokenQueue.append({"type": CHARACTERS_TYPE, "data": '&'})
+
+    def tagOpenState(self):
+        # This state marks a < that is either a StartTag, EndTag, or ParseError.
+        # In all cases, we want to drop any stream history we've collected
+        # so far and we do that by calling start_tag() on the input stream
+        # wrapper.
+        self.stream.start_tag()
+        return super(BleachHTMLTokenizer, self).tagOpenState()
 
     def emitCurrentToken(self):
         token = self.currentToken
 
         if ((self.parser.tags is not None and
-             token['type'] in (tokenTypes['StartTag'], tokenTypes['EndTag']) and
+             token['type'] in (START_TAG_TYPE, END_TAG_TYPE) and
              token['name'].lower() not in self.parser.tags)):
             # If this is a start/end tag for a tag that's not in our allowed
             # list, then it gets stripped or escaped. In both of these cases
@@ -228,13 +185,10 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                 # and this is a tag-like thing, we've lost some information.
                 # So we go back through the stream to get the original
                 # string and use that.
-                new_data = get_recent_tag_string(self.stream.stream_history(), token)
-
-                # Clear the history up to this point
-                self.stream.clear_history()
+                new_data = self.stream.get_tag()
 
             new_token = {
-                'type': tokenTypes['Characters'],
+                'type': CHARACTERS_TYPE,
                 'data': new_data
             }
 

@@ -79,16 +79,3 @@ def test_serializer(data, expected):
     serialized = serializer.render(walker(dom))
 
     assert serialized == expected
-
-
-def test_get_recent_tag_string():
-    history = list('  <img src="javascript:alert(\'XSS\');">')
-    token = {
-        'type': 3,
-        'name': 'img',
-        'data': [['src', "javascript:alert('XSS');"]],
-        'selfClosing': False,
-        'selfClosingAcknowledged': False
-    }
-
-    assert html5lib_shim.get_recent_tag_string(history, token) == '<img src="javascript:alert(\'XSS\');">'
