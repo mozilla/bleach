@@ -133,17 +133,11 @@ def get_recent_tag_string(stream_history, token):
 
 class BleachHTMLTokenizer(HTMLTokenizer):
     """Tokenizer that doesn't consume character entities"""
-    def __init__(self, stream, parser=None, **kwargs):
-        # Stomp on the HTMLTokenizer __init__ in order to wrap the stream.
-        self.stream = InputStreamWithMemory(HTMLInputStream(stream, **kwargs))
+    def __init__(self, *args, **kwargs):
+        super(BleachHTMLTokenizer, self).__init__(*args, **kwargs)
 
-        # Do all the things the HTMLTokenizer does in __init__
-        self.parser = parser
-        self.escapeFlag = False
-        self.lastFourChars = []
-        self.state = self.dataState
-        self.escape = False
-        self.currentToken = None
+        # Wrap the stream with one that remembers the history
+        self.stream = InputStreamWithMemory(self.stream)
 
     def __iter__(self):
         last_error_token = None
