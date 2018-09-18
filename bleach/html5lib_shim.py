@@ -82,6 +82,9 @@ class InputStreamWithMemory(object):
     def stream_history(self):
         return self._buffer
 
+    def clear_history(self):
+        self._buffer = []
+
 
 #: Set of HTML quote characters
 QUOTEY_THINGS = set(['"', '\''])
@@ -171,6 +174,11 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                         self.stream.stream_history(), fake_end_tag
                     )
                     token['type'] = tokenTypes['Characters']
+
+                    # Clear the stream history up to this point
+                    self.stream.clear_history()
+
+                    # Yield the adjusted token
                     yield token
 
                 else:
@@ -221,6 +229,9 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                 # So we go back through the stream to get the original
                 # string and use that.
                 new_data = get_recent_tag_string(self.stream.stream_history(), token)
+
+                # Clear the history up to this point
+                self.stream.clear_history()
 
             new_token = {
                 'type': tokenTypes['Characters'],
