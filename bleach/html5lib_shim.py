@@ -25,6 +25,7 @@ from bleach._vendor.html5lib.constants import _ReparseException as ReparseExcept
 from bleach._vendor.html5lib.filters.base import Filter
 from bleach._vendor.html5lib.filters.sanitizer import allowed_protocols
 from bleach._vendor.html5lib.filters.sanitizer import Filter as SanitizerFilter
+from bleach._vendor.html5lib._inputstream import HTMLInputStream
 from bleach._vendor.html5lib.serializer import HTMLSerializer
 from bleach._vendor.html5lib._tokenizer import HTMLTokenizer
 from bleach._vendor.html5lib._trie import Trie
@@ -36,9 +37,114 @@ ENTITIES = entities
 #: Trie of html entity string -> character representation
 ENTITIES_TRIE = Trie(ENTITIES)
 
+#: Token type constants--these never change
+START_TAG_TYPE = tokenTypes['StartTag']
+END_TAG_TYPE = tokenTypes['EndTag']
+CHARACTERS_TYPE = tokenTypes['Characters']
+
+
+class InputStreamWithMemory(object):
+    """Wraps an HTMLInputStream to remember characters since last <
+
+    This wraps existing HTMLInputStream classes to keep track of the stream
+    since the last < which marked an open tag state.
+
+    """
+    def __init__(self, inner_stream):
+        self._inner_stream = inner_stream
+        self.reset = self._inner_stream.reset
+        self.position = self._inner_stream.position
+        self._buffer = []
+
+    @property
+    def errors(self):
+        return self._inner_stream.errors
+
+    def char(self):
+        c = self._inner_stream.char()
+        # char() can return None if EOF, so ignore that
+        if c:
+            self._buffer.append(c)
+        return c
+
+    def charsUntil(self, characters, opposite=False):
+        chars = self._inner_stream.charsUntil(characters, opposite=opposite)
+        self._buffer.extend(list(chars))
+        return chars
+
+    def unget(self, char):
+        if self._buffer:
+            self._buffer.pop(-1)
+        return self._inner_stream.unget(char)
+
+    def get_tag(self):
+        """Returns the stream history since last '<'
+
+        Since the buffer starts at the last '<' as as seen by tagOpenState(),
+        we know that everything from that point to when this method is called
+        is the "tag" that is being tokenized.
+
+        """
+        return six.text_type('').join(self._buffer)
+
+    def start_tag(self):
+        """Resets stream history to just '<'
+
+        This gets called by tagOpenState() which marks a '<' that denotes an
+        open tag. Any time we see that, we reset the buffer.
+
+        """
+        self._buffer = ['<']
+
 
 class BleachHTMLTokenizer(HTMLTokenizer):
     """Tokenizer that doesn't consume character entities"""
+    def __init__(self, *args, **kwargs):
+        super(BleachHTMLTokenizer, self).__init__(*args, **kwargs)
+
+        # Wrap the stream with one that remembers the history
+        self.stream = InputStreamWithMemory(self.stream)
+
+    def __iter__(self):
+        last_error_token = None
+
+        for token in super(BleachHTMLTokenizer, self).__iter__():
+            if last_error_token is not None:
+                token_name = token['data'].lower().strip()
+                if ((last_error_token['data'] == 'expected-closing-tag-but-got-char' and
+                     token_name not in self.parser.tags)):
+                    # We've got either a malformed tag or a pseudo-tag or
+                    # something that html5lib wants to turn into a malformed
+                    # comment which Bleach clean() will drop so we interfere
+                    # with the token stream to handle it more correctly.
+                    #
+                    # If this is an allowed tag, it's malformed and we just let
+                    # the html5lib parser deal with it--we don't enter into this
+                    # block.
+                    #
+                    # If this is not an allowed tag, then we convert it to
+                    # characters and it'll get escaped in the sanitizer.
+                    token['data'] = self.stream.get_tag()
+                    token['type'] = CHARACTERS_TYPE
+
+                    # Yield the adjusted token
+                    yield token
+
+                else:
+                    yield last_error_token
+                    yield token
+
+                last_error_token = None
+                continue
+
+            # If the token is a ParseError, we hold on to it so we can get the
+            # next token and potentially fix it.
+            if token['type'] == tokenTypes['ParseError']:
+                last_error_token = token
+                continue
+
+            yield token
+
     def consumeEntity(self, allowedChar=None, fromAttribute=False):
         # We don't want to consume and convert entities, so this overrides the
         # html5lib tokenizer's consumeEntity so that it's now a no-op.
@@ -49,11 +155,65 @@ class BleachHTMLTokenizer(HTMLTokenizer):
             self.currentToken['data'][-1][1] += '&'
 
         else:
-            self.tokenQueue.append({"type": tokenTypes['Characters'], "data": '&'})
+            self.tokenQueue.append({"type": CHARACTERS_TYPE, "data": '&'})
+
+    def tagOpenState(self):
+        # This state marks a < that is either a StartTag, EndTag, or ParseError.
+        # In all cases, we want to drop any stream history we've collected
+        # so far and we do that by calling start_tag() on the input stream
+        # wrapper.
+        self.stream.start_tag()
+        return super(BleachHTMLTokenizer, self).tagOpenState()
+
+    def emitCurrentToken(self):
+        token = self.currentToken
+
+        if ((self.parser.tags is not None and
+             token['type'] in (START_TAG_TYPE, END_TAG_TYPE) and
+             token['name'].lower() not in self.parser.tags)):
+            # If this is a start/end tag for a tag that's not in our allowed
+            # list, then it gets stripped or escaped. In both of these cases
+            # it gets converted to a Characters token.
+            if self.parser.strip:
+                # If we're stripping the token, we just throw in an empty
+                # string token.
+                new_data = ''
+
+            else:
+                # If we're escaping the token, we want to escape the exact
+                # original string. Since tokenizing also normalizes data
+                # and this is a tag-like thing, we've lost some information.
+                # So we go back through the stream to get the original
+                # string and use that.
+                new_data = self.stream.get_tag()
+
+            new_token = {
+                'type': CHARACTERS_TYPE,
+                'data': new_data
+            }
+
+            self.currentToken = new_token
+            self.tokenQueue.append(new_token)
+            self.state = self.dataState
+            return
+
+        super(BleachHTMLTokenizer, self).emitCurrentToken()
 
 
 class BleachHTMLParser(HTMLParser):
     """Parser that uses BleachHTMLTokenizer"""
+    def __init__(self, tags, strip, **kwargs):
+        """
+        :arg tags: list of allowed tags--everything else is either stripped or
+            escaped; if None, then this doesn't look at tags at all
+        :arg strip: whether to strip disallowed tags (True) or escape them (False);
+            if tags=None, then this doesn't have any effect
+
+        """
+        self.tags = [tag.lower() for tag in tags] if tags is not None else None
+        self.strip = strip
+        super(BleachHTMLParser, self).__init__(**kwargs)
+
     def _parse(self, stream, innerHTML=False, container='div', scripting=False, **kwargs):
         # Override HTMLParser so we can swap out the tokenizer for our own.
         self.innerHTMLMode = innerHTML

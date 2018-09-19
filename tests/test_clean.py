@@ -140,32 +140,14 @@ def test_comments(data, should_strip, expected):
     assert clean(data, strip_comments=should_strip) == expected
 
 
-@pytest.mark.parametrize('data, expected', [
-    # Disallowed tag is escaped
-    ('<img src="javascript:alert(\'XSS\');">', '&lt;img src="javascript:alert(\'XSS\');"&gt;'),
-
-    # Test with parens
-    ('a <script>safe()</script> test', 'a &lt;script&gt;safe()&lt;/script&gt; test'),
-
-    # Test with braces
-    ('a <style>body{}</style> test', 'a &lt;style&gt;body{}&lt;/style&gt; test'),
-])
-def test_disallowed_tags(data, expected):
-    assert clean(data) == expected
-
-
 def test_invalid_char_in_tag():
-    # NOTE(willkg): Two possible outcomes because attrs aren't ordered
     assert (
-        clean('<script/xss src="http://xx.com/xss.js"></script>') in
-        [
-            '&lt;script src="http://xx.com/xss.js" xss=""&gt;&lt;/script&gt;',
-            '&lt;script xss="" src="http://xx.com/xss.js"&gt;&lt;/script&gt;'
-        ]
+        clean('<script/xss src="http://xx.com/xss.js"></script>') ==
+        '&lt;script/xss src="http://xx.com/xss.js"&gt;&lt;/script&gt;'
     )
     assert (
         clean('<script/src="http://xx.com/xss.js"></script>') ==
-        '&lt;script src="http://xx.com/xss.js"&gt;&lt;/script&gt;'
+        '&lt;script/src="http://xx.com/xss.js"&gt;&lt;/script&gt;'
     )
 
 
@@ -176,23 +158,15 @@ def test_unclosed_tag():
     )
     assert (
         clean('<script src=http://xx.com/xss.js<b>') ==
-        '&lt;script src="http://xx.com/xss.js&lt;b"&gt;&lt;/script&gt;'
+        '&lt;script src=http://xx.com/xss.js&lt;b&gt;'
     )
-    # NOTE(willkg): Two possible outcomes because attrs aren't ordered
     assert (
-        clean('<script src="http://xx.com/xss.js"<b>') in
-        [
-            '&lt;script src="http://xx.com/xss.js" &lt;b=""&gt;&lt;/script&gt;',
-            '&lt;script &lt;b="" src="http://xx.com/xss.js"&gt;&lt;/script&gt;'
-        ]
+        clean('<script src="http://xx.com/xss.js"<b>') ==
+        '&lt;script src="http://xx.com/xss.js"&lt;b&gt;'
     )
-    # NOTE(willkg): Two possible outcomes because attrs aren't ordered
     assert (
-        clean('<script src="http://xx.com/xss.js" <b>') in
-        [
-            '&lt;script src="http://xx.com/xss.js" &lt;b=""&gt;&lt;/script&gt;',
-            '&lt;script &lt;b="" src="http://xx.com/xss.js"&gt;&lt;/script&gt;'
-        ]
+        clean('<script src="http://xx.com/xss.js" <b>') ==
+        '&lt;script src="http://xx.com/xss.js" &lt;b&gt;'
     )
 
 
@@ -207,7 +181,7 @@ def test_nested_script_tag():
     )
     assert (
         clean('<script<script>>evil()</script</script>>') ==
-        '&lt;script&lt;script&gt;&gt;evil()&gt;&lt;/script&lt;script&gt;'
+        '&lt;script&lt;script&gt;&gt;evil()&lt;/script&lt;/script&gt;&gt;'
     )
 
 
@@ -297,40 +271,96 @@ def test_character_entities_handling(text, expected):
     # All tags are allowed, so it strips nothing
     (
         'a test <em>with</em> <b>html</b> tags',
-        {'strip': True},
+        {},
         'a test <em>with</em> <b>html</b> tags'
     ),
 
     # img tag is disallowed, so it's stripped
     (
         'a test <em>with</em> <img src="http://example.com/"> <b>html</b> tags',
-        {'strip': True},
+        {},
         'a test <em>with</em>  <b>html</b> tags'
     ),
 
     # a tag is disallowed, so it's stripped
     (
         '<p><a href="http://example.com/">link text</a></p>',
-        {'tags': ['p'], 'strip': True},
+        {'tags': ['p']},
         '<p>link text</p>'
     ),
 
-    # handle nested disallowed tag
+    # Test nested disallowed tag
     (
         '<p><span>multiply <span>nested <span>text</span></span></span></p>',
-        {'tags': ['p'], 'strip': True},
+        {'tags': ['p']},
         '<p>multiply nested text</p>'
     ),
+    # (#271)
+    (
+        '<ul><li><script></li></ul>',
+        {'tags': ['ul', 'li']},
+        '<ul><li></li></ul>'
+    ),
 
-    # handle disallowed tag that's deep in the tree
+    # Test disallowed tag that's deep in the tree
     (
         '<p><a href="http://example.com/"><img src="http://example.com/"></a></p>',
-        {'tags': ['a', 'p'], 'strip': True},
+        {'tags': ['a', 'p']},
         '<p><a href="http://example.com/"></a></p>'
     ),
+
+    # Test isindex -- the parser expands this to a prompt (#279)
+    ('<isindex>', {}, ''),
+
+    # Test non-tags that are well-formed HTML (#280)
+    ('Yeah right <sarcasm/>', {}, 'Yeah right '),
+    ('<sarcasm>', {}, ''),
+    ('</sarcasm>', {}, ''),
+
+    # These are non-tags, but also "malformed" so they don't get treated like
+    # tags and stripped
+    ('</ sarcasm>', {}, '&lt;/ sarcasm&gt;'),
+    ('</ sarcasm >', {}, '&lt;/ sarcasm &gt;'),
+    ('Foo <bar@example.com>', {}, 'Foo '),
+    ('Favorite movie: <name of movie>', {}, 'Favorite movie: '),
+    ('</3', {}, '&lt;/3'),
 ])
 def test_stripping_tags(data, kwargs, expected):
-    assert clean(data, **kwargs) == expected
+    assert clean(data, strip=True, **kwargs) == expected
+    assert clean('  ' + data + '  ', strip=True, **kwargs) == '  ' + expected + '  '
+    assert clean('abc ' + data + ' def', strip=True, **kwargs) == 'abc ' + expected + ' def'
+
+
+@pytest.mark.parametrize('data, expected', [
+    # Disallowed tag is escaped
+    ('<img src="javascript:alert(\'XSS\');">', '&lt;img src="javascript:alert(\'XSS\');"&gt;'),
+
+    # Test with parens
+    ('<script>safe()</script>', '&lt;script&gt;safe()&lt;/script&gt;'),
+
+    # Test with braces
+    ('<style>body{}</style>', '&lt;style&gt;body{}&lt;/style&gt;'),
+
+    # Test nested disallow tags (#271)
+    ('<ul><li><script></li></ul>', '<ul><li>&lt;script&gt;</li></ul>'),
+
+    # Test isindex -- the parser expands this to a prompt (#279)
+    ('<isindex>', '&lt;isindex&gt;'),
+
+    # Test non-tags (#280)
+    ('<sarcasm/>', '&lt;sarcasm/&gt;'),
+    ('<sarcasm>', '&lt;sarcasm&gt;'),
+    ('</sarcasm>', '&lt;/sarcasm&gt;'),
+    ('</ sarcasm>', '&lt;/ sarcasm&gt;'),
+    ('</ sarcasm >', '&lt;/ sarcasm &gt;'),
+    ('</3', '&lt;/3'),
+    ('<bar@example.com>', '&lt;bar@example.com&gt;'),
+    ('Favorite movie: <name of movie>', 'Favorite movie: &lt;name of movie&gt;'),
+])
+def test_escaping_tags(data, expected):
+    assert clean(data, strip=False) == expected
+    assert clean('  ' + data + '  ', strip=False) == '  ' + expected + '  '
+    assert clean('abc ' + data + ' def', strip=False) == 'abc ' + expected + ' def'
 
 
 @pytest.mark.parametrize('data, expected', [
@@ -710,20 +740,6 @@ def test_svg_allow_local_href_nonlocal(text, expected):
     assert clean(text, tags=TAGS, attributes=ATTRS) == expected
 
 
-def test_weird_strings():
-    s = '</3'
-    assert clean(s) == ''
-
-
-@pytest.mark.xfail(reason='regression from bleach 1.5')
-def test_sarcasm():
-    """Jokes should crash.<sarcasm/>"""
-    assert (
-        clean('Yeah right <sarcasm/>') ==
-        'Yeah right &lt;sarcasm/&gt;'
-    )
-
-
 @pytest.mark.parametrize('data, expected', [
     # Convert bell
     ('1\a23', '1?23'),
@@ -745,16 +761,11 @@ def test_invisible_characters(data, expected):
 
 
 def test_nonexistent_namespace():
-    """Verify if the namespace doesn't exist, it doesn't fail with a KeyError
-
-    The tokenizer creates "c" as a namespace and that doesn't exist in the map
-    of namespaces, so then it fails with a KeyError. I don't understand why the
-    tokenizer makes "c" into a namespace in this string.
-
-    Issue #352.
-
-    """
-    assert clean('<d {c}>') == '&lt;d c=""&gt;&lt;/d&gt;'
+    # Issue #352 involved this string kicking up a KeyError since the "c"
+    # namespace didn't exist. After the fixes for Bleach 3.0, this no longer
+    # goes through the HTML parser as a tag, so it doesn't tickle the bad
+    # namespace code.
+    assert clean('<d {c}>') == '&lt;d {c}&gt;'
 
 
 def get_ids_and_tests():

@@ -59,7 +59,11 @@ def test_convert_entities(data, expected):
 ])
 def test_serializer(data, expected):
     # Build a parser, walker, and serializer just like we do in clean()
-    parser = html5lib_shim.BleachHTMLParser(namespaceHTMLElements=False)
+    parser = html5lib_shim.BleachHTMLParser(
+        tags=None,
+        strip=True,
+        namespaceHTMLElements=False
+    )
     walker = html5lib_shim.getTreeWalker('etree')
     serializer = html5lib_shim.BleachHTMLSerializer(
         quote_attr_values='always',
