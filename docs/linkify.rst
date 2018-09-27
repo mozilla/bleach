@@ -312,7 +312,7 @@ instance.
 Using ``bleach.linkifier.LinkifyFilter``
 ========================================
 
-``bleach.linkify`` works by paring an HTML fragment and then running it through
+``bleach.linkify`` works by parsing an HTML fragment and then running it through
 the ``bleach.linkifier.LinkifyFilter`` when walking the tree and serializing it
 back into text.
 
