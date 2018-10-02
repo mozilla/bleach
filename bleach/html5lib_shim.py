@@ -15,11 +15,10 @@ from bleach._vendor.html5lib import (
     HTMLParser,
     getTreeWalker,
 )
+from bleach._vendor.html5lib import constants
 from bleach._vendor.html5lib.constants import (
-    entities,
     namespaces,
     prefixes,
-    tokenTypes,
 )
 from bleach._vendor.html5lib.constants import _ReparseException as ReparseException
 from bleach._vendor.html5lib.filters.base import Filter
@@ -32,16 +31,18 @@ from bleach._vendor.html5lib._trie import Trie
 
 
 #: Map of entity name to expanded entity
-ENTITIES = entities
+ENTITIES = constants.entities
 
 #: Trie of html entity string -> character representation
 ENTITIES_TRIE = Trie(ENTITIES)
 
 #: Token type constants--these never change
 TAG_TOKEN_TYPES = set([
-    tokenTypes['StartTag'], tokenTypes['EndTag'], tokenTypes['EmptyTag']
+    constants.tokenTypes['StartTag'],
+    constants.tokenTypes['EndTag'],
+    constants.tokenTypes['EmptyTag']
 ])
-CHARACTERS_TYPE = tokenTypes['Characters']
+CHARACTERS_TYPE = constants.tokenTypes['Characters']
 
 
 class InputStreamWithMemory(object):
@@ -140,7 +141,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
             # If the token is a ParseError, we hold on to it so we can get the
             # next token and potentially fix it.
-            if token['type'] == tokenTypes['ParseError']:
+            if token['type'] == constants.tokenTypes['ParseError']:
                 last_error_token = token
                 continue
 
