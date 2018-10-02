@@ -407,7 +407,6 @@ def test_end_of_clause():
     )
 
 
-@pytest.mark.xfail(reason='html5lib >= 0.99999999: changed API')
 def test_sarcasm():
     """Jokes should crash.<sarcasm/>"""
     assert linkify('Yeah right <sarcasm/>') == 'Yeah right &lt;sarcasm/&gt;'
@@ -581,7 +580,7 @@ def test_hang():
     """This string would hang linkify. Issue #200"""
     assert (
         linkify("an@email.com<mailto:an@email.com>", parse_email=True) ==
-        '<a href="mailto:an@email.com">an@email.com</a><mailto:an@email.com></mailto:an@email.com>'
+        '<a href="mailto:an@email.com">an@email.com</a>&lt;mailto:<a href="mailto:an@email.com">an@email.com</a>&gt;'  # noqa
     )
 
 

@@ -15,11 +15,10 @@ from bleach._vendor.html5lib import (
     HTMLParser,
     getTreeWalker,
 )
+from bleach._vendor.html5lib import constants
 from bleach._vendor.html5lib.constants import (
-    entities,
     namespaces,
     prefixes,
-    tokenTypes,
 )
 from bleach._vendor.html5lib.constants import _ReparseException as ReparseException
 from bleach._vendor.html5lib.filters.base import Filter
@@ -32,15 +31,31 @@ from bleach._vendor.html5lib._trie import Trie
 
 
 #: Map of entity name to expanded entity
-ENTITIES = entities
+ENTITIES = constants.entities
 
 #: Trie of html entity string -> character representation
 ENTITIES_TRIE = Trie(ENTITIES)
 
 #: Token type constants--these never change
-START_TAG_TYPE = tokenTypes['StartTag']
-END_TAG_TYPE = tokenTypes['EndTag']
-CHARACTERS_TYPE = tokenTypes['Characters']
+TAG_TOKEN_TYPES = set([
+    constants.tokenTypes['StartTag'],
+    constants.tokenTypes['EndTag'],
+    constants.tokenTypes['EmptyTag']
+])
+CHARACTERS_TYPE = constants.tokenTypes['Characters']
+
+
+#: List of HTML tags
+HTML_TAGS = [
+    tag for namespace, tag in
+    (
+        list(constants.scopingElements) +
+        list(constants.formattingElements) +
+        list(constants.specialElements) +
+        list(constants.htmlIntegrationPointElements) +
+        list(constants.mathmlTextIntegrationPointElements)
+    )
+]
 
 
 class InputStreamWithMemory(object):
@@ -99,8 +114,10 @@ class InputStreamWithMemory(object):
 
 class BleachHTMLTokenizer(HTMLTokenizer):
     """Tokenizer that doesn't consume character entities"""
-    def __init__(self, *args, **kwargs):
-        super(BleachHTMLTokenizer, self).__init__(*args, **kwargs)
+    def __init__(self, consume_entities=False, **kwargs):
+        super(BleachHTMLTokenizer, self).__init__(**kwargs)
+
+        self.consume_entities = consume_entities
 
         # Wrap the stream with one that remembers the history
         self.stream = InputStreamWithMemory(self.stream)
@@ -139,17 +156,23 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
             # If the token is a ParseError, we hold on to it so we can get the
             # next token and potentially fix it.
-            if token['type'] == tokenTypes['ParseError']:
+            if token['type'] == constants.tokenTypes['ParseError']:
                 last_error_token = token
                 continue
 
             yield token
 
     def consumeEntity(self, allowedChar=None, fromAttribute=False):
-        # We don't want to consume and convert entities, so this overrides the
-        # html5lib tokenizer's consumeEntity so that it's now a no-op.
+        # If this tokenizer is set to consume entities, then we can let the
+        # superclass do its thing.
+        if self.consume_entities:
+            return super(BleachHTMLTokenizer, self).consumeEntity(allowedChar, fromAttribute)
+
+        # If this tokenizer is set to not consume entities, then we don't want
+        # to consume and convert them, so this overrides the html5lib tokenizer's
+        # consumeEntity so that it's now a no-op.
         #
-        # However, when that gets called, it's consumed an &, so we put that in
+        # However, when that gets called, it's consumed an &, so we put that back in
         # the stream.
         if fromAttribute:
             self.currentToken['data'][-1][1] += '&'
@@ -158,10 +181,10 @@ class BleachHTMLTokenizer(HTMLTokenizer):
             self.tokenQueue.append({"type": CHARACTERS_TYPE, "data": '&'})
 
     def tagOpenState(self):
-        # This state marks a < that is either a StartTag, EndTag, or ParseError.
-        # In all cases, we want to drop any stream history we've collected
-        # so far and we do that by calling start_tag() on the input stream
-        # wrapper.
+        # This state marks a < that is either a StartTag, EndTag, EmptyTag,
+        # or ParseError. In all cases, we want to drop any stream history
+        # we've collected so far and we do that by calling start_tag() on
+        # the input stream wrapper.
         self.stream.start_tag()
         return super(BleachHTMLTokenizer, self).tagOpenState()
 
@@ -169,11 +192,11 @@ class BleachHTMLTokenizer(HTMLTokenizer):
         token = self.currentToken
 
         if ((self.parser.tags is not None and
-             token['type'] in (START_TAG_TYPE, END_TAG_TYPE) and
+             token['type'] in TAG_TOKEN_TYPES and
              token['name'].lower() not in self.parser.tags)):
-            # If this is a start/end tag for a tag that's not in our allowed
-            # list, then it gets stripped or escaped. In both of these cases
-            # it gets converted to a Characters token.
+            # If this is a start/end/empty tag for a tag that's not in our
+            # allowed list, then it gets stripped or escaped. In both of these
+            # cases it gets converted to a Characters token.
             if self.parser.strip:
                 # If we're stripping the token, we just throw in an empty
                 # string token.
@@ -202,16 +225,19 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
 class BleachHTMLParser(HTMLParser):
     """Parser that uses BleachHTMLTokenizer"""
-    def __init__(self, tags, strip, **kwargs):
+    def __init__(self, tags, strip, consume_entities, **kwargs):
         """
         :arg tags: list of allowed tags--everything else is either stripped or
             escaped; if None, then this doesn't look at tags at all
         :arg strip: whether to strip disallowed tags (True) or escape them (False);
             if tags=None, then this doesn't have any effect
+        :arg consume_entities: whether to consume entities (default behavior) or
+            leave them as is when tokenizing (BleachHTMLTokenizer-added behavior)
 
         """
         self.tags = [tag.lower() for tag in tags] if tags is not None else None
         self.strip = strip
+        self.consume_entities = consume_entities
         super(BleachHTMLParser, self).__init__(**kwargs)
 
     def _parse(self, stream, innerHTML=False, container='div', scripting=False, **kwargs):
@@ -219,7 +245,12 @@ class BleachHTMLParser(HTMLParser):
         self.innerHTMLMode = innerHTML
         self.container = container
         self.scripting = scripting
-        self.tokenizer = BleachHTMLTokenizer(stream, parser=self, **kwargs)
+        self.tokenizer = BleachHTMLTokenizer(
+            stream=stream,
+            consume_entities=self.consume_entities,
+            parser=self,
+            **kwargs
+        )
         self.reset()
 
         try:
