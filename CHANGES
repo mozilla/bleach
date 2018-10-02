@@ -1,8 +1,8 @@
 Bleach changes
 ==============
 
-Version 3.0.0 (in development)
-------------------------------
+Version 3.0.0 (October 3rd, 2018)
+---------------------------------
 
 **Security fixes**
 
@@ -10,9 +10,9 @@ None
 
 **Backwards incompatible changes**
 
-* A bunch of functions were moved from one module to another:
+* A bunch of functions were moved from one module to another.
 
-  ``bleach.sanitizer`` -> ``bleach.html5lib_shim``:
+  These were moved from ``bleach.sanitizer`` to ``bleach.html5lib_shim``:
 
   * ``convert_entity``
   * ``convert_entities``
@@ -22,9 +22,9 @@ None
   * ``BleachHTMLTokenizer``
   * ``BleachHTMLParser``
 
-  These weren't documented and aren't part of the public API, but people
-  read code and might be using them so we're considering it an incompatible
-  API change.
+  These functions and classes weren't documented and aren't part of the
+  public API, but people read code and might be using them so we're
+  considering it an incompatible API change.
 
   If you're using them, you'll need to update your code.
 
@@ -39,7 +39,11 @@ None
 
 **Bug fixes**
 
-None
+* Fixed tags getting added when using clean or linkify. This was a
+  long-standing regression from the Bleach 2.0 rewrite. (#280, #392)
+
+* Fixed ``<isindex>`` getting replaced with a string. Now it gets escaped or
+  stripped depending on whether it's in the allowed tags or not. (#279)
 
 
 Version 2.1.4 (August 16th, 2018)
