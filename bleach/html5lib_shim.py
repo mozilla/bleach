@@ -38,8 +38,9 @@ ENTITIES = entities
 ENTITIES_TRIE = Trie(ENTITIES)
 
 #: Token type constants--these never change
-START_TAG_TYPE = tokenTypes['StartTag']
-END_TAG_TYPE = tokenTypes['EndTag']
+TAG_TOKEN_TYPES = set([
+    tokenTypes['StartTag'], tokenTypes['EndTag'], tokenTypes['EmptyTag']
+])
 CHARACTERS_TYPE = tokenTypes['Characters']
 
 
@@ -158,10 +159,10 @@ class BleachHTMLTokenizer(HTMLTokenizer):
             self.tokenQueue.append({"type": CHARACTERS_TYPE, "data": '&'})
 
     def tagOpenState(self):
-        # This state marks a < that is either a StartTag, EndTag, or ParseError.
-        # In all cases, we want to drop any stream history we've collected
-        # so far and we do that by calling start_tag() on the input stream
-        # wrapper.
+        # This state marks a < that is either a StartTag, EndTag, EmptyTag,
+        # or ParseError. In all cases, we want to drop any stream history
+        # we've collected so far and we do that by calling start_tag() on
+        # the input stream wrapper.
         self.stream.start_tag()
         return super(BleachHTMLTokenizer, self).tagOpenState()
 
@@ -169,11 +170,11 @@ class BleachHTMLTokenizer(HTMLTokenizer):
         token = self.currentToken
 
         if ((self.parser.tags is not None and
-             token['type'] in (START_TAG_TYPE, END_TAG_TYPE) and
+             token['type'] in TAG_TOKEN_TYPES and
              token['name'].lower() not in self.parser.tags)):
-            # If this is a start/end tag for a tag that's not in our allowed
-            # list, then it gets stripped or escaped. In both of these cases
-            # it gets converted to a Characters token.
+            # If this is a start/end/empty tag for a tag that's not in our
+            # allowed list, then it gets stripped or escaped. In both of these
+            # cases it gets converted to a Characters token.
             if self.parser.strip:
                 # If we're stripping the token, we just throw in an empty
                 # string token.
