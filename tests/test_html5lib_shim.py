@@ -62,6 +62,7 @@ def test_serializer(data, expected):
     parser = html5lib_shim.BleachHTMLParser(
         tags=None,
         strip=True,
+        consume_entities=False,
         namespaceHTMLElements=False
     )
     walker = html5lib_shim.getTreeWalker('etree')

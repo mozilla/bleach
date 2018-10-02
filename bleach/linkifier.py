@@ -110,9 +110,16 @@ class Linker(object):
         self.url_re = url_re
         self.email_re = email_re
 
-        self.parser = html5lib_shim.HTMLParser(namespaceHTMLElements=False)
+        # Create a parser/tokenizer that allows all HTML tags and escapes
+        # anything not in that list.
+        self.parser = html5lib_shim.BleachHTMLParser(
+            tags=html5lib_shim.HTML_TAGS,
+            strip=False,
+            consume_entities=True,
+            namespaceHTMLElements=False,
+        )
         self.walker = html5lib_shim.getTreeWalker('etree')
-        self.serializer = html5lib_shim.HTMLSerializer(
+        self.serializer = html5lib_shim.BleachHTMLSerializer(
             quote_attr_values='always',
             omit_optional_tags=False,
 

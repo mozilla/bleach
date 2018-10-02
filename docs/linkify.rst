@@ -5,12 +5,20 @@
 Linkifying text fragments
 =========================
 
-:py:func:`bleach.linkify` searches text for links, URLs, and email addresses and
-lets you control how and when those links are rendered.
+Bleach comes with several tools for searching text for links, URLs, and email
+addresses and letting you specify how those links are rendered in HTML.
 
-It works by building a document tree, so it's guaranteed never to do weird
-things to URLs in attribute values, can modify the value of attributes on
-``<a>`` tags and can even do things like skip ``<pre>`` sections.
+For example, you could pass in text and have all URL things converted into
+HTML links.
+
+It works by parsing the text as HTML and building a document tree. In this
+way, it's guaranteed never to do weird things to URLs in attribute values,
+can modify the value of attributes on ``<a>`` tags and can even do things
+like skip ``<pre>`` sections.
+
+If you plan to sanitize/clean the text and linkify it, you should do that
+in a single pass using :ref:`LinkifyFilter <linkify-LinkifyFilter>`. This
+is faster and it'll use the list of allowed tags from clean.
 
 .. note::
 
@@ -308,6 +316,7 @@ instance.
 
 .. versionadded:: 2.0
 
+.. _linkify-LinkifyFilter:
 
 Using ``bleach.linkifier.LinkifyFilter``
 ========================================

@@ -126,6 +126,7 @@ class Cleaner(object):
         self.parser = html5lib_shim.BleachHTMLParser(
             tags=self.tags,
             strip=self.strip,
+            consume_entities=False,
             namespaceHTMLElements=False
         )
         self.walker = html5lib_shim.getTreeWalker('etree')

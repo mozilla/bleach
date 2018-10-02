@@ -45,6 +45,19 @@ TAG_TOKEN_TYPES = set([
 CHARACTERS_TYPE = constants.tokenTypes['Characters']
 
 
+#: List of HTML tags
+HTML_TAGS = [
+    tag for namespace, tag in
+    (
+        list(constants.scopingElements) +
+        list(constants.formattingElements) +
+        list(constants.specialElements) +
+        list(constants.htmlIntegrationPointElements) +
+        list(constants.mathmlTextIntegrationPointElements)
+    )
+]
+
+
 class InputStreamWithMemory(object):
     """Wraps an HTMLInputStream to remember characters since last <
 
@@ -101,8 +114,10 @@ class InputStreamWithMemory(object):
 
 class BleachHTMLTokenizer(HTMLTokenizer):
     """Tokenizer that doesn't consume character entities"""
-    def __init__(self, *args, **kwargs):
-        super(BleachHTMLTokenizer, self).__init__(*args, **kwargs)
+    def __init__(self, consume_entities=False, **kwargs):
+        super(BleachHTMLTokenizer, self).__init__(**kwargs)
+
+        self.consume_entities = consume_entities
 
         # Wrap the stream with one that remembers the history
         self.stream = InputStreamWithMemory(self.stream)
@@ -148,10 +163,16 @@ class BleachHTMLTokenizer(HTMLTokenizer):
             yield token
 
     def consumeEntity(self, allowedChar=None, fromAttribute=False):
-        # We don't want to consume and convert entities, so this overrides the
-        # html5lib tokenizer's consumeEntity so that it's now a no-op.
+        # If this tokenizer is set to consume entities, then we can let the
+        # superclass do its thing.
+        if self.consume_entities:
+            return super(BleachHTMLTokenizer, self).consumeEntity(allowedChar, fromAttribute)
+
+        # If this tokenizer is set to not consume entities, then we don't want
+        # to consume and convert them, so this overrides the html5lib tokenizer's
+        # consumeEntity so that it's now a no-op.
         #
-        # However, when that gets called, it's consumed an &, so we put that in
+        # However, when that gets called, it's consumed an &, so we put that back in
         # the stream.
         if fromAttribute:
             self.currentToken['data'][-1][1] += '&'
@@ -204,16 +225,19 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
 class BleachHTMLParser(HTMLParser):
     """Parser that uses BleachHTMLTokenizer"""
-    def __init__(self, tags, strip, **kwargs):
+    def __init__(self, tags, strip, consume_entities, **kwargs):
         """
         :arg tags: list of allowed tags--everything else is either stripped or
             escaped; if None, then this doesn't look at tags at all
         :arg strip: whether to strip disallowed tags (True) or escape them (False);
             if tags=None, then this doesn't have any effect
+        :arg consume_entities: whether to consume entities (default behavior) or
+            leave them as is when tokenizing (BleachHTMLTokenizer-added behavior)
 
         """
         self.tags = [tag.lower() for tag in tags] if tags is not None else None
         self.strip = strip
+        self.consume_entities = consume_entities
         super(BleachHTMLParser, self).__init__(**kwargs)
 
     def _parse(self, stream, innerHTML=False, container='div', scripting=False, **kwargs):
@@ -221,7 +245,12 @@ class BleachHTMLParser(HTMLParser):
         self.innerHTMLMode = innerHTML
         self.container = container
         self.scripting = scripting
-        self.tokenizer = BleachHTMLTokenizer(stream, parser=self, **kwargs)
+        self.tokenizer = BleachHTMLTokenizer(
+            stream=stream,
+            consume_entities=self.consume_entities,
+            parser=self,
+            **kwargs
+        )
         self.reset()
 
         try:
