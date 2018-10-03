@@ -71,7 +71,7 @@ Release process
          $ cd docs
          $ make html
 
-   3. Run the doctests::
+   3. Run the doctests (in Python 3)::
 
          $ cd docs/
          $ make doctest
