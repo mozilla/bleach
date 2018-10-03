@@ -27,14 +27,3 @@ matrix:
 
 script:
   - ./scripts/run_tests.sh $MODE
-
-deploy:
-  provider: pypi
-  user: jezdez
-  distributions: sdist bdist_wheel
-  password:
-    secure: TTLpnNBAmRBPe4qITwtM6MRXw3CvGpflnkG6V97oKYL1RJhDXmxIxxImkGyVoT2IR4Oy/jqEikWUCCC3aDoqDnIkkDVriTPmo5PGnS2WgvEmYdcaTIp+RXdKwKhpCVX8ITEuye0iCXYu28vDaySGjnxjlYAP4S0PGPUzh/tn4DY=
-  on:
-    tags: true
-    repo: mozilla/bleach
-    python: "2.7"
