@@ -127,9 +127,8 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
         for token in super(BleachHTMLTokenizer, self).__iter__():
             if last_error_token is not None:
-                token_name = token['data'].lower().strip()
                 if ((last_error_token['data'] == 'expected-closing-tag-but-got-char' and
-                     token_name not in self.parser.tags)):
+                     token['data'].lower().strip() not in self.parser.tags)):
                     # We've got either a malformed tag or a pseudo-tag or
                     # something that html5lib wants to turn into a malformed
                     # comment which Bleach clean() will drop so we interfere
