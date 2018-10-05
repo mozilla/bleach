@@ -21,3 +21,7 @@ diff -r \
     --exclude="pip_install_vendor.sh" \
     --exclude="__pycache__" \
     bleach/_vendor/ "${DEST}"
+
+if [ $? == 0 ]; then
+    rm -rf "${DEST}"
+fi
