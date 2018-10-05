@@ -56,6 +56,8 @@ HTML_TAGS = [
         list(constants.mathmlTextIntegrationPointElements)
     )
 ]
+# Add tags that aren't in html5lib.constants
+HTML_TAGS.extend(['abbr'])
 
 
 class InputStreamWithMemory(object):
