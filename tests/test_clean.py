@@ -821,6 +821,20 @@ class TestCleaner:
             'a <br><span style="">test</span>'
         )
 
+    def test_dynamic_tags(self):
+        TAGS = ['br']
+        ATTRS = {'span': ['style']}
+
+        cleaner = Cleaner(tags=TAGS, attributes=ATTRS)
+
+        # modify cleaner.tags dynamically.
+        cleaner.tags.append('span')
+
+        assert (
+            cleaner.clean('a <br/><span style="color:red">test</span>') ==
+            'a <br><span style="">test</span>'
+        )
+
     def test_filters(self):
         # Create a Filter that changes all the attr values to "moo"
         class MooFilter(Filter):
