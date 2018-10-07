@@ -123,12 +123,6 @@ class Cleaner(object):
         self.strip_comments = strip_comments
         self.filters = filters or []
 
-        self.parser = html5lib_shim.BleachHTMLParser(
-            tags=self.tags,
-            strip=self.strip,
-            consume_entities=False,
-            namespaceHTMLElements=False
-        )
         self.walker = html5lib_shim.getTreeWalker('etree')
         self.serializer = html5lib_shim.BleachHTMLSerializer(
             quote_attr_values='always',
@@ -144,6 +138,15 @@ class Cleaner(object):
 
             # Bleach sanitizer alphabetizes already, so don't use the html5lib one
             alphabetical_attributes=False,
+        )
+
+    @property
+    def parser(self):
+        return html5lib_shim.BleachHTMLParser(
+            tags=self.tags,
+            strip=self.strip,
+            consume_entities=False,
+            namespaceHTMLElements=False
         )
 
     def clean(self, text):
