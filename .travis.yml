@@ -18,12 +18,15 @@ install:
 
 matrix:
   include:
-    - python: 2.7
+    - python: "2.7"
       env: MODE=lint
-    - python: 2.7
+    - python: "2.7"
       env: MODE=vendorverify
-    - python: 3.4
+    - python: "3.4"
       env: MODE=lint
+    - python: "3.7"
+      sudo: required
+      dist: xenial
 
 script:
   - ./scripts/run_tests.sh $MODE

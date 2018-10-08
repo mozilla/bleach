@@ -1,6 +1,27 @@
 Bleach changes
 ==============
 
+Version 3.0.1 (in development)
+------------------------------
+
+**Security fixes**
+
+None
+
+**Backwards incompatible changes**
+
+None
+
+**Features**
+
+* Support Python 3.7. (#377)
+
+**Bug fixes**
+
+* Fix `'list' object has no attribute 'lower'` in clean. (#398)
+* Fix `abbr` getting escaped in linkify. (#400)
+ 
+
 Version 3.0.0 (October 3rd, 2018)
 ---------------------------------
 
