@@ -88,10 +88,18 @@ Release process
 
    Copy the details from ``CHANGES`` into the tag comment.
 
-9. Push the new tag::
+9. Generate distribution files::
 
-     $ git push --tags official master
+     $ python setup.py sdist bdist_wheel
 
-   That will push the release to PyPI.
+10. Upload them to PyPI::
 
-10. Blog posts, twitter, update topic in ``#bleach``, etc.
+      $ twine upload dist/*
+
+11. Push the new tag::
+
+      $ git push --tags official master
+
+    That will push the release to PyPI.
+
+12. Blog posts, twitter, update topic in ``#bleach``, etc.
