@@ -45,7 +45,7 @@ setup(
     long_description=get_long_desc(),
     maintainer='Will Kahn-Greene',
     maintainer_email='willkg@mozilla.com',
-    url='http://github.com/mozilla/bleach',
+    url='https://github.com/mozilla/bleach',
     license='Apache Software License',
     packages=find_packages(),
     include_package_data=True,
