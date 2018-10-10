@@ -292,12 +292,12 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
                 else:
                     # Merge all the characters tokens together into one and then
                     # operate on it.
-                    char_token = {
+                    new_token = {
                         'data': ''.join([char_token['data'] for char_token in characters_buffer]),
                         'type': 'Characters'
                     }
                     characters_buffer = []
-                    yield char_token
+                    yield new_token
 
             elif token['type'] == 'Characters':
                 characters_buffer.append(token)
@@ -305,11 +305,11 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
 
             yield token
 
-        token = {
+        new_token = {
             'data': ''.join([char_token['data'] for char_token in characters_buffer]),
             'type': 'Characters'
         }
-        yield token
+        yield new_token
 
     def __iter__(self):
         return self.merge_characters(self.sanitize_stream(html5lib_shim.Filter.__iter__(self)))
