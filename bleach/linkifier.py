@@ -499,13 +499,11 @@ class LinkifyFilter(html5lib_shim.Filter):
                     # the tokens we're going to yield
                     in_a = False
                     token_buffer = []
-                    continue
-
                 else:
                     token_buffer.append(token)
-                    continue
+                continue
 
-            elif token['type'] in ['StartTag', 'EmptyTag']:
+            if token['type'] in ['StartTag', 'EmptyTag']:
                 if token['name'] in self.skip_tags:
                     # Skip tags start a "special mode" where we don't linkify
                     # anything until the end tag.

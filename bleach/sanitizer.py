@@ -267,8 +267,8 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
 
         return super(BleachSanitizerFilter, self).__init__(source, **kwargs)
 
-    def __iter__(self):
-        for token in html5lib_shim.Filter.__iter__(self):
+    def sanitize_stream(self, token_iterator):
+        for token in token_iterator:
             ret = self.sanitize_token(token)
 
             if not ret:
@@ -279,6 +279,40 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
                     yield subtoken
             else:
                 yield ret
+
+    def merge_characters(self, token_iterator):
+        """Merge consecutive Characters tokens in a stream"""
+        characters_buffer = []
+
+        for token in token_iterator:
+            if characters_buffer:
+                if token['type'] == 'Characters':
+                    characters_buffer.append(token)
+                    continue
+                else:
+                    # Merge all the characters tokens together into one and then
+                    # operate on it.
+                    new_token = {
+                        'data': ''.join([char_token['data'] for char_token in characters_buffer]),
+                        'type': 'Characters'
+                    }
+                    characters_buffer = []
+                    yield new_token
+
+            elif token['type'] == 'Characters':
+                characters_buffer.append(token)
+                continue
+
+            yield token
+
+        new_token = {
+            'data': ''.join([char_token['data'] for char_token in characters_buffer]),
+            'type': 'Characters'
+        }
+        yield new_token
+
+    def __iter__(self):
+        return self.merge_characters(self.sanitize_stream(html5lib_shim.Filter.__iter__(self)))
 
     def sanitize_token(self, token):
         """Sanitize a token either by HTML-encoding or dropping.

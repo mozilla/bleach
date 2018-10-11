@@ -4,7 +4,8 @@ import pytest
 from six.moves.urllib_parse import quote_plus
 
 from bleach import linkify, DEFAULT_CALLBACKS as DC
-from bleach.linkifier import Linker
+from bleach.linkifier import Linker, LinkifyFilter
+from bleach.sanitizer import Cleaner
 
 
 def test_empty():
@@ -656,3 +657,20 @@ class TestLinkify:
 
         with pytest.raises(TypeError):
             linkify(no_type)
+
+
+@pytest.mark.parametrize('text, expected', [
+    ('abc', 'abc'),
+    ('example.com', '<a href="http://example.com">example.com</a>'),
+    (
+        'http://example.com?b=1&c=2',
+        '<a href="http://example.com?b=1&amp;c=2">http://example.com?b=1&amp;c=2</a>'
+    ),
+    (
+        'link: https://example.com/watch#anchor',
+        'link: <a href="https://example.com/watch#anchor">https://example.com/watch#anchor</a>'
+    )
+])
+def test_linkify_filter(text, expected):
+    cleaner = Cleaner(filters=[LinkifyFilter])
+    assert cleaner.clean(text) == expected
