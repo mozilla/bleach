@@ -1,6 +1,27 @@
 Bleach changes
 ==============
 
+Version 3.0.2 (October 11th, 2018)
+----------------------------------
+
+**Security fixes**
+
+None
+
+**Backwards incompatible changes**
+
+None
+
+**Features**
+
+None
+
+**Bug fixes**
+
+* Merge ``Characters`` tokens after sanitizing them. This fixes issues in the
+  ``LinkifyFilter`` where it was only linkifying parts of urls. (#374)
+
+
 Version 3.0.1 (October 9th, 2018)
 ---------------------------------
 

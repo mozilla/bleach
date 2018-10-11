@@ -18,9 +18,9 @@ from bleach.sanitizer import (
 
 
 # yyyymmdd
-__releasedate__ = '20181009'
+__releasedate__ = '20181011'
 # x.y.z or x.y.z.dev0 -- semver
-__version__ = '3.0.1'
+__version__ = '3.0.2'
 VERSION = parse_version(__version__)
 
 
