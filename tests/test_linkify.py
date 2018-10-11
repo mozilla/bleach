@@ -666,6 +666,10 @@ class TestLinkify:
         'http://example.com?b=1&c=2',
         '<a href="http://example.com?b=1&amp;c=2">http://example.com?b=1&amp;c=2</a>'
     ),
+    (
+        'link: https://example.com/watch#anchor',
+        'link: <a href="https://example.com/watch#anchor">https://example.com/watch#anchor</a>'
+    )
 ])
 def test_linkify_filter(text, expected):
     cleaner = Cleaner(filters=[LinkifyFilter])
