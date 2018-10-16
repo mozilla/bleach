@@ -16,10 +16,10 @@ class TagTreeFilter(Filter):
     def __init__(self, source, tags_strip_content=TAG_TREE_TAGS):
         """
         Creates a TagTreeFilter instance.
-        
+
         This instance will strip the tag and the content tree of tags appearing
         in ``tags_strip_content``.
-        
+
         :arg Treewalker source: stream
         :arg list tags_strip_content: a list of tags which should be stripped
                                       along with their content/children.
@@ -44,10 +44,11 @@ class TagTreeFilter(Filter):
             yield token
 
 
-def clean_strip_content(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
+def clean_strip_content(
+    text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
     styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
     strip_comments=True, tags_strip_content=TAG_TREE_TAGS, filters=None,
-    ):
+):
     # whitelist the tags we want to strip, so they can be filtered out
     tags = [t.lower() for t in tags]
     tags_strip_content = [t.lower() for t in tags_strip_content]
