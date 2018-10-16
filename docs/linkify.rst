@@ -58,7 +58,7 @@ links will be removed leaving the innerText left in its place.
 The default callback adds ``rel="nofollow"``. See ``bleach.callbacks`` for some
 included callback functions.
 
-This defaults to ``bleach.linkify.DEFAULT_CALLBACKS``.
+This defaults to ``bleach.linkifier.DEFAULT_CALLBACKS``.
 
 
 .. autodata:: bleach.linkifier.DEFAULT_CALLBACKS
