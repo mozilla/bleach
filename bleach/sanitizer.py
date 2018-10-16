@@ -86,7 +86,7 @@ class Cleaner(object):
 
     def __init__(self, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
                  styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
-                 strip_comments=True, filters=None):
+                 strip_comments=True, filters=None, tags_strip_content=None):
         """Initializes a Cleaner
 
         :arg list tags: allowed list of tags; defaults to
@@ -114,6 +114,7 @@ class Cleaner(object):
                Using filters changes the output of ``bleach.Cleaner.clean``.
                Make sure the way the filters change the output are secure.
 
+        :arg list tags_strip_content: list of tags to strip contents of
         """
         self.tags = tags
         self.attributes = attributes
@@ -122,12 +123,14 @@ class Cleaner(object):
         self.strip = strip
         self.strip_comments = strip_comments
         self.filters = filters or []
+        self.tags_strip_content = tags_strip_content
 
         self.parser = html5lib_shim.BleachHTMLParser(
             tags=self.tags,
             strip=self.strip,
             consume_entities=False,
-            namespaceHTMLElements=False
+            namespaceHTMLElements=False,
+            tags_strip_content=self.tags_strip_content,
         )
         self.walker = html5lib_shim.getTreeWalker('etree')
         self.serializer = html5lib_shim.BleachHTMLSerializer(
@@ -174,6 +177,7 @@ class Cleaner(object):
             attributes=self.attributes,
             strip_disallowed_elements=self.strip,
             strip_html_comments=self.strip_comments,
+            tags_strip_content=self.tags_strip_content,
 
             # html5lib-sanitizer things
             allowed_elements=self.tags,
@@ -238,6 +242,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
     """
     def __init__(self, source, attributes=ALLOWED_ATTRIBUTES,
                  strip_disallowed_elements=False, strip_html_comments=True,
+                 tags_strip_content=None,
                  **kwargs):
         """Creates a BleachSanitizerFilter instance
 
@@ -260,15 +265,30 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
 
         :arg bool strip_html_comments: whether or not to strip HTML comments
 
+        :art list tags_strip_content: strip content of these tags, along with the tag
         """
         self.attr_filter = attribute_filter_factory(attributes)
         self.strip_disallowed_elements = strip_disallowed_elements
         self.strip_html_comments = strip_html_comments
+        self.tags_strip_content = [t.lower() for t in tags_strip_content] if tags_strip_content else None
+        self._in_strip_content = 0  # depth of tag
 
         return super(BleachSanitizerFilter, self).__init__(source, **kwargs)
 
     def sanitize_stream(self, token_iterator):
         for token in token_iterator:
+            _name = token.get('name', '').lower()
+            if self.tags_strip_content and (_name in self.tags_strip_content):
+                if token.get('type') == 'StartTag':
+                    self._in_strip_content += 1
+
+                elif token.get('type') == 'EndTag':
+                    self._in_strip_content -= 1
+                continue
+
+            if self._in_strip_content:
+                continue
+
             ret = self.sanitize_token(token)
 
             if not ret:

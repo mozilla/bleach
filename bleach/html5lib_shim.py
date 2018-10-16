@@ -194,7 +194,11 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
         if ((self.parser.tags is not None and
              token['type'] in TAG_TOKEN_TYPES and
-             token['name'].lower() not in self.parser.tags)):
+             token['name'].lower() not in self.parser.tags)
+             and
+             # this bit pushes the token into the sanitizer for cleaning
+             (not self.parser.tags_strip_content or token['name'].lower() not in self.parser.tags_strip_content)
+             ):
             # If this is a start/end/empty tag for a tag that's not in our
             # allowed list, then it gets stripped or escaped. In both of these
             # cases it gets converted to a Characters token.
@@ -219,6 +223,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
             self.currentToken = new_token
             self.tokenQueue.append(new_token)
             self.state = self.dataState
+
             return
 
         super(BleachHTMLTokenizer, self).emitCurrentToken()
@@ -226,17 +231,18 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
 class BleachHTMLParser(HTMLParser):
     """Parser that uses BleachHTMLTokenizer"""
-    def __init__(self, tags, strip, consume_entities, **kwargs):
+    def __init__(self, tags, strip, consume_entities, tags_strip_content=None, **kwargs):
         """
         :arg tags: list of allowed tags--everything else is either stripped or
             escaped; if None, then this doesn't look at tags at all
+        :arg tags_strip_content: list of excluded tags which will be stripped along with their content
         :arg strip: whether to strip disallowed tags (True) or escape them (False);
             if tags=None, then this doesn't have any effect
         :arg consume_entities: whether to consume entities (default behavior) or
             leave them as is when tokenizing (BleachHTMLTokenizer-added behavior)
-
         """
         self.tags = [tag.lower() for tag in tags] if tags is not None else None
+        self.tags_strip_content = [tag.lower() for tag in tags_strip_content] if tags_strip_content is not None else None
         self.strip = strip
         self.consume_entities = consume_entities
         super(BleachHTMLParser, self).__init__(**kwargs)

@@ -29,7 +29,7 @@ __all__ = ['clean', 'linkify']
 
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
           styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
-          strip_comments=True):
+          strip_comments=True, tags_strip_content=None, ):
     """Clean an HTML fragment of malicious content and return it
 
     This function is a security-focused function whose sole purpose is to
@@ -70,6 +70,8 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
     :arg bool strip_comments: whether or not to strip HTML comments
 
+    :arg list tags_strip_content: list of tags to strip contents of.
+
     :returns: cleaned text as unicode
 
     """
@@ -80,6 +82,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
         protocols=protocols,
         strip=strip,
         strip_comments=strip_comments,
+        tags_strip_content=tags_strip_content
     )
     return cleaner.clean(text)
 
