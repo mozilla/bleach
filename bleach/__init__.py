@@ -29,7 +29,7 @@ __all__ = ['clean', 'linkify']
 
 def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
           styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
-          strip_comments=True):
+          strip_comments=True, filters=None):
     """Clean an HTML fragment of malicious content and return it
 
     This function is a security-focused function whose sole purpose is to
@@ -70,6 +70,15 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
 
     :arg bool strip_comments: whether or not to strip HTML comments
 
+    :arg list filters: list of html5lib Filter classes to pass streamed content through
+
+        .. seealso:: http://html5lib.readthedocs.io/en/latest/movingparts.html#filters
+
+        .. Warning::
+
+           Using filters changes the output of ``bleach.Cleaner.clean``.
+           Make sure the way the filters change the output are secure.
+
     :returns: cleaned text as unicode
 
     """
@@ -80,6 +89,7 @@ def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
         protocols=protocols,
         strip=strip,
         strip_comments=strip_comments,
+        filters=filters,
     )
     return cleaner.clean(text)
 
