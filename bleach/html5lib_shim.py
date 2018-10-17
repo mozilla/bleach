@@ -45,7 +45,8 @@ TAG_TOKEN_TYPES = set([
 CHARACTERS_TYPE = constants.tokenTypes['Characters']
 
 
-#: List of valid HTML tags
+#: List of valid HTML tags, from WHATWG HTML Living Standard as of 2018-10-17
+#: https://html.spec.whatwg.org/multipage/indices.html#elements-3
 HTML_TAGS = [
     'a',
     'abbr',
@@ -68,7 +69,6 @@ HTML_TAGS = [
     'code',
     'col',
     'colgroup',
-    'command',
     'data',
     'datalist',
     'dd',
@@ -122,6 +122,7 @@ HTML_TAGS = [
     'output',
     'p',
     'param',
+    'picture',
     'pre',
     'progress',
     'q',
@@ -133,6 +134,7 @@ HTML_TAGS = [
     'script',
     'section',
     'select',
+    'slot',
     'small',
     'source',
     'span',
@@ -144,6 +146,7 @@ HTML_TAGS = [
     'table',
     'tbody',
     'td',
+    'template',
     'textarea',
     'tfoot',
     'th',
