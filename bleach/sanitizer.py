@@ -425,7 +425,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
 
         # Nix backtick, space characters, and control characters
         new_value = re.sub(
-            "[`\000-\040\177-\240\s]+",
+            r"[`\000-\040\177-\240\s]+",
             '',
             new_value
         )
@@ -574,7 +574,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
         style = html5lib_shim.convert_entities(style)
 
         # Drop any url values before we do anything else
-        style = re.compile('url\s*\(\s*[^\s)]+?\s*\)\s*').sub(' ', style)
+        style = re.compile(r'url\s*\(\s*[^\s)]+?\s*\)\s*').sub(' ', style)
 
         # The gauntlet of sanitization
 
@@ -589,11 +589,11 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
             if not gauntlet.match(part):
                 return ''
 
-        if not re.match("^\s*([-\w]+\s*:[^:;]*(;\s*|$))*$", style):
+        if not re.match(r"^\s*([-\w]+\s*:[^:;]*(;\s*|$))*$", style):
             return ''
 
         clean = []
-        for prop, value in re.findall('([-\w]+)\s*:\s*([^:;]*)', style):
+        for prop, value in re.findall(r'([-\w]+)\s*:\s*([^:;]*)', style):
             if not value:
                 continue
 
