@@ -1,6 +1,7 @@
 # Note: If you update this, make sure to update tox.ini, too.
 sudo: false
 language: python
+dist: xenial
 cache:
   directories:
   - "~/.cache/pip"
@@ -10,6 +11,7 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
+  - "3.7"
   - "pypy"
 
 install:
@@ -24,9 +26,6 @@ matrix:
       env: MODE=vendorverify
     - python: "3.4"
       env: MODE=lint
-    - python: "3.7"
-      sudo: required
-      dist: xenial
 
 script:
   - ./scripts/run_tests.sh $MODE
