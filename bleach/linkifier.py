@@ -85,7 +85,7 @@ class Linker(object):
 
     """
     def __init__(self, callbacks=DEFAULT_CALLBACKS, skip_tags=None, parse_email=False,
-                 url_re=URL_RE, email_re=EMAIL_RE):
+                 url_re=URL_RE, email_re=EMAIL_RE, recognized_tags=html5lib_shim.HTML_TAGS):
         """Creates a Linker instance
 
         :arg list callbacks: list of callbacks to run when adjusting tag attributes;
@@ -101,6 +101,9 @@ class Linker(object):
 
         :arg re email_re: email matching regex
 
+        :arg list-of-strings recognized_tags: the list of tags that linkify knows about;
+            everything else gets escaped
+
         :returns: linkified text as unicode
 
         """
@@ -113,7 +116,7 @@ class Linker(object):
         # Create a parser/tokenizer that allows all HTML tags and escapes
         # anything not in that list.
         self.parser = html5lib_shim.BleachHTMLParser(
-            tags=html5lib_shim.HTML_TAGS,
+            tags=recognized_tags,
             strip=False,
             consume_entities=True,
             namespaceHTMLElements=False,
