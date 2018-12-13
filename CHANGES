@@ -1,6 +1,28 @@
 Bleach changes
 ==============
 
+Version 3.0.3 (In development)
+------------------------------
+
+**Security fixes**
+
+None
+
+**Backwards incompatible changes**
+
+None
+
+**Features**
+
+* Add ``recognized_tags`` argument to the linkify ``Linker`` class. This
+  fixes issues when linkifying on its own and having some tags get escaped.
+  It defaults to a list of HTML5 tags. Thank you, Chad Birch! (#409)
+
+**Bug fixes**
+
+* Add ``six>=1.9`` to requirements. Thank you, Dave Shawley (#416)
+
+
 Version 3.0.2 (October 11th, 2018)
 ----------------------------------
 
