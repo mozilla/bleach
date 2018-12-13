@@ -625,6 +625,23 @@ def test_email_re_arg():
     )
 
 
+def test_recognized_tags_arg():
+    """Verifies that recognized_tags works"""
+    # The html parser doesn't recognize "sarcasm" as a tag, so it escapes it
+    linker = Linker(recognized_tags=['p'])
+    assert (
+        linker.linkify('<p>http://example.com/</p><sarcasm>') ==
+        '<p><a href="http://example.com/" rel="nofollow">http://example.com/</a></p>&lt;sarcasm&gt;'  # noqa
+    )
+
+    # The html parser recognizes "sarcasm" as a tag and fixes it
+    linker = Linker(recognized_tags=['p', 'sarcasm'])
+    assert (
+        linker.linkify('<p>http://example.com/</p><sarcasm>') ==
+        '<p><a href="http://example.com/" rel="nofollow">http://example.com/</a></p><sarcasm></sarcasm>'  # noqa
+    )
+
+
 def test_linkify_idempotent():
     dirty = '<span>invalid & </span> < extra http://link.com<em>'
     assert linkify(linkify(dirty)) == linkify(dirty)

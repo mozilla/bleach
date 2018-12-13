@@ -12,13 +12,14 @@ For example, you could pass in text and have all URL things converted into
 HTML links.
 
 It works by parsing the text as HTML and building a document tree. In this
-way, it's guaranteed never to do weird things to URLs in attribute values,
-can modify the value of attributes on ``<a>`` tags and can even do things
-like skip ``<pre>`` sections.
+way, you're guaranteed to get valid HTML back without weird things like
+having URLs in tag attributes getting linkified.
 
-If you plan to sanitize/clean the text and linkify it, you should do that
-in a single pass using :ref:`LinkifyFilter <linkify-LinkifyFilter>`. This
-is faster and it'll use the list of allowed tags from clean.
+.. note::
+
+   If you plan to sanitize/clean the text and linkify it, you should do that
+   in a single pass using :ref:`LinkifyFilter <linkify-LinkifyFilter>`. This
+   is faster and it'll use the list of allowed tags from clean.
 
 .. note::
 
@@ -297,8 +298,8 @@ writing callbacks that may need to behave differently if the protocol is
 Using ``bleach.linkifier.Linker``
 =================================
 
-If you're linking a lot of text and passing the same argument values or you want
-more configurability, consider using a :py:class:`bleach.linkifier.Linker`
+If you're linking a lot of text and passing the same argument values or you
+need more configurability, consider using a :py:class:`bleach.linkifier.Linker`
 instance.
 
 .. doctest::
@@ -325,8 +326,8 @@ Using ``bleach.linkifier.LinkifyFilter``
 the ``bleach.linkifier.LinkifyFilter`` when walking the tree and serializing it
 back into text.
 
-You can use this filter wherever you can use an html5lib Filter. For example, you
-could use it with ``bleach.Cleaner`` to clean and linkify in one step.
+You can use this filter wherever you can use an html5lib Filter. This lets you
+use it with ``bleach.Cleaner`` to clean and linkify in one step.
 
 For example, using all the defaults:
 
