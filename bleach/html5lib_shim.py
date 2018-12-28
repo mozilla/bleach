@@ -43,6 +43,7 @@ TAG_TOKEN_TYPES = set([
     constants.tokenTypes['EmptyTag']
 ])
 CHARACTERS_TYPE = constants.tokenTypes['Characters']
+PARSEERROR_TYPE = constants.tokenTypes['ParseError']
 
 
 #: List of valid HTML tags, from WHATWG HTML Living Standard as of 2018-10-17
@@ -232,7 +233,21 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
         for token in super(BleachHTMLTokenizer, self).__iter__():
             if last_error_token is not None:
-                if ((last_error_token['data'] == 'expected-closing-tag-but-got-char' and
+                if ((last_error_token['data'] == 'invalid-character-in-attribute-name' and
+                     token['type'] in TAG_TOKEN_TYPES and
+                     token.get('data'))):
+                    # Remove attribute names that have ', " or < in them
+                    # because those characters are invalid for attribute names.
+                    token['data'] = [
+                        item for item in token['data']
+                        if ('"' not in item[0] and
+                            "'" not in item[0] and
+                            '<' not in item[0])
+                    ]
+                    last_error_token = None
+                    yield token
+
+                elif ((last_error_token['data'] == 'expected-closing-tag-but-got-char' and
                      token['data'].lower().strip() not in self.parser.tags)):
                     # We've got either a malformed tag or a pseudo-tag or
                     # something that html5lib wants to turn into a malformed
@@ -248,23 +263,32 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                     token['data'] = self.stream.get_tag()
                     token['type'] = CHARACTERS_TYPE
 
-                    # Yield the adjusted token
+                    last_error_token = None
                     yield token
+
+                elif token['type'] == PARSEERROR_TYPE:
+                    # If the token is a parse error, then let the last_error_token
+                    # go, and make token the new last_error_token
+                    yield last_error_token
+                    last_error_token = token
 
                 else:
                     yield last_error_token
                     yield token
+                    last_error_token = None
 
-                last_error_token = None
                 continue
 
             # If the token is a ParseError, we hold on to it so we can get the
             # next token and potentially fix it.
-            if token['type'] == constants.tokenTypes['ParseError']:
+            if token['type'] == PARSEERROR_TYPE:
                 last_error_token = token
                 continue
 
             yield token
+
+        if last_error_token:
+            yield last_error_token
 
     def consumeEntity(self, allowedChar=None, fromAttribute=False):
         # If this tokenizer is set to consume entities, then we can let the
