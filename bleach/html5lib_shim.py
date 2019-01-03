@@ -188,6 +188,10 @@ class InputStreamWithMemory(object):
             self._buffer.append(c)
         return c
 
+    @property
+    def charEncoding(self, *args, **kwargs):
+        return self._inner_stream.charEncoding(*args, **kwargs)
+
     def charsUntil(self, characters, opposite=False):
         chars = self._inner_stream.charsUntil(characters, opposite=opposite)
         self._buffer.extend(list(chars))
