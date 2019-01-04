@@ -695,6 +695,10 @@ class TestLinkify:
         '<a href="http://example.com?b=1&amp;c=2">http://example.com?b=1&amp;c=2</a>'
     ),
     (
+        'http://example.com?b=1&amp;c=2',
+        '<a href="http://example.com?b=1&amp;c=2">http://example.com?b=1&amp;c=2</a>'
+    ),
+    (
         'link: https://example.com/watch#anchor',
         'link: <a href="https://example.com/watch#anchor">https://example.com/watch#anchor</a>'
     )

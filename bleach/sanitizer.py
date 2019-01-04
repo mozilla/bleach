@@ -395,7 +395,18 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
             if part.startswith('&'):
                 entity = html5lib_shim.match_entity(part)
                 if entity is not None:
-                    new_tokens.append({'type': 'Entity', 'name': entity})
+                    if entity == 'amp':
+                        # LinkifyFilter can't match urls across token boundaries
+                        # which is problematic with &amp; since that shows up in
+                        # querystrings all the time. This special-cases &amp;
+                        # and converts it to a & and sticks it in as a
+                        # Characters token. It'll get merged with surrounding
+                        # tokens in the BleachSanitizerfilter.__iter__ and
+                        # escaped in the serializer.
+                        new_tokens.append({'type': 'Characters', 'data': '&'})
+                    else:
+                        new_tokens.append({'type': 'Entity', 'name': entity})
+
                     # Length of the entity plus 2--one for & at the beginning
                     # and and one for ; at the end
                     remainder = part[len(entity) + 2:]
