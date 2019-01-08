@@ -69,17 +69,6 @@ def test_mangle_text():
     )
 
 
-def test_invalid_attribute_names():
-    """Test that "invalid-character-in-attribute-name" errors in tokenizing
-    result in attributes with invalid names get dropped.
-
-    """
-    assert (
-        linkify('<a href="http://example.com/"">') ==
-        '<a href="http://example.com/" rel="nofollow"></a>'
-    )
-
-
 @pytest.mark.parametrize('data,parse_email,expected', [
     (
         'a james@example.com mailto',
