@@ -80,12 +80,12 @@ For example, you could add a ``title`` attribute to all links:
    >>> from bleach.linkifier import Linker
 
    >>> def set_title(attrs, new=False):
-   ...     attrs[(None, u'title')] = u'link in user text'
+   ...     attrs[(None, 'title')] = 'link in user text'
    ...     return attrs
    ...
    >>> linker = Linker(callbacks=[set_title])
    >>> linker.linkify('abc http://example.com def')
-   u'abc <a href="http://example.com" title="link in user text">http://example.com</a> def'
+   'abc <a href="http://example.com" title="link in user text">http://example.com</a> def'
 
 
 This would set the value of the ``rel`` attribute, stomping on a previous value
@@ -96,21 +96,21 @@ an external link:
 
 .. doctest::
 
-   >>> from urlparse import urlparse
+   >>> from six.moves.urllib.parse import urlparse
    >>> from bleach.linkifier import Linker
 
    >>> def set_target(attrs, new=False):
-   ...     p = urlparse(attrs[(None, u'href')])
+   ...     p = urlparse(attrs[(None, 'href')])
    ...     if p.netloc not in ['my-domain.com', 'other-domain.com']:
-   ...         attrs[(None, u'target')] = u'_blank'
-   ...         attrs[(None, u'class')] = u'external'
+   ...         attrs[(None, 'target')] = '_blank'
+   ...         attrs[(None, 'class')] = 'external'
    ...     else:
-   ...         attrs.pop((None, u'target'), None)
+   ...         attrs.pop((None, 'target'), None)
    ...     return attrs
    ...
    >>> linker = Linker(callbacks=[set_target])
    >>> linker.linkify('abc http://example.com def')
-   u'abc <a class="external" href="http://example.com" target="_blank">http://example.com</a> def'
+   'abc <a class="external" href="http://example.com" target="_blank">http://example.com</a> def'
 
 
 Removing Attributes
@@ -127,17 +127,17 @@ sanitizing attributes.)
    >>> def allowed_attrs(attrs, new=False):
    ...     """Only allow href, target, rel and title."""
    ...     allowed = [
-   ...         (None, u'href'),
-   ...         (None, u'target'),
-   ...         (None, u'rel'),
-   ...         (None, u'title'),
-   ...         u'_text',
+   ...         (None, 'href'),
+   ...         (None, 'target'),
+   ...         (None, 'rel'),
+   ...         (None, 'title'),
+   ...         '_text',
    ...     ]
    ...     return dict((k, v) for k, v in attrs.items() if k in allowed)
    ...
    >>> linker = Linker(callbacks=[allowed_attrs])
    >>> linker.linkify('<a style="font-weight: super bold;" href="http://example.com">link</a>')
-   u'<a href="http://example.com">link</a>'
+   '<a href="http://example.com">link</a>'
 
 
 Or you could remove a specific attribute, if it exists:
@@ -147,15 +147,15 @@ Or you could remove a specific attribute, if it exists:
    >>> from bleach.linkifier import Linker
 
    >>> def remove_title(attrs, new=False):
-   ...     attrs.pop((None, u'title'), None)
+   ...     attrs.pop((None, 'title'), None)
    ...     return attrs
    ...
    >>> linker = Linker(callbacks=[remove_title])
    >>> linker.linkify('<a href="http://example.com">link</a>')
-   u'<a href="http://example.com">link</a>'
+   '<a href="http://example.com">link</a>'
 
    >>> linker.linkify('<a title="bad title" href="http://example.com">link</a>')
-   u'<a href="http://example.com">link</a>'
+   '<a href="http://example.com">link</a>'
 
 
 Altering Attributes
@@ -177,14 +177,14 @@ Example of shortening link text:
    ...     if not new:
    ...         return attrs
    ...     # _text will be the same as the URL for new links
-   ...     text = attrs[u'_text']
+   ...     text = attrs['_text']
    ...     if len(text) > 25:
-   ...         attrs[u'_text'] = text[0:22] + u'...'
+   ...         attrs['_text'] = text[0:22] + '...'
    ...     return attrs
    ...
    >>> linker = Linker(callbacks=[shorten_url])
    >>> linker.linkify('http://example.com/longlonglonglonglongurl')
-   u'<a href="http://example.com/longlonglonglonglongurl">http://example.com/lon...</a>'
+   '<a href="http://example.com/longlonglonglonglongurl">http://example.com/lon...</a>'
 
 
 Example of switching all links to go through a bouncer first:
@@ -196,7 +196,7 @@ Example of switching all links to go through a bouncer first:
 
    >>> def outgoing_bouncer(attrs, new=False):
    ...     """Send outgoing links through a bouncer."""
-   ...     href_key = (None, u'href')
+   ...     href_key = (None, 'href')
    ...     p = urlparse(attrs.get(href_key, None))
    ...     if p.netloc not in ['example.com', 'www.example.com', '']:
    ...         bouncer = 'http://bn.ce/?destination=%s'
@@ -205,10 +205,10 @@ Example of switching all links to go through a bouncer first:
    ...
    >>> linker = Linker(callbacks=[outgoing_bouncer])
    >>> linker.linkify('http://example.com')
-   u'<a href="http://example.com">http://example.com</a>'
+   '<a href="http://example.com">http://example.com</a>'
 
    >>> linker.linkify('http://foo.com')
-   u'<a href="http://bn.ce/?destination=http%3A//foo.com">http://foo.com</a>'
+   '<a href="http://bn.ce/?destination=http%3A//foo.com">http://foo.com</a>'
 
 
 Preventing Links
@@ -230,7 +230,7 @@ write the following callback:
    ...         return attrs
    ...     # If the TLD is '.py', make sure it starts with http: or https:.
    ...     # Use _text because that's the original text
-   ...     link_text = attrs[u'_text']
+   ...     link_text = attrs['_text']
    ...     if link_text.endswith('.py') and not link_text.startswith(('http:', 'https:')):
    ...         # This looks like a Python file, not a URL. Don't make a link.
    ...         return None
@@ -239,10 +239,10 @@ write the following callback:
    ...
    >>> linker = Linker(callbacks=[dont_linkify_python])
    >>> linker.linkify('abc http://example.com def')
-   u'abc <a href="http://example.com">http://example.com</a> def'
+   'abc <a href="http://example.com">http://example.com</a> def'
 
    >>> linker.linkify('abc models.py def')
-   u'abc models.py def'
+   'abc models.py def'
 
 
 .. _Crate: https://crate.io/
@@ -261,13 +261,13 @@ For example, this removes any ``mailto:`` links:
    >>> from bleach.linkifier import Linker
 
    >>> def remove_mailto(attrs, new=False):
-   ...     if attrs[(None, u'href')].startswith(u'mailto:'):
+   ...     if attrs[(None, 'href')].startswith('mailto:'):
    ...         return None
    ...     return attrs
    ...
    >>> linker = Linker(callbacks=[remove_mailto])
    >>> linker.linkify('<a href="mailto:janet@example.com">mail janet!</a>')
-   u'mail janet!'
+   'mail janet!'
 
 
 Skipping links in specified tag blocks (``skip_tags``)
@@ -308,7 +308,7 @@ instance.
 
    >>> linker = Linker(skip_tags=['pre'])
    >>> linker.linkify('a b c http://example.com d e f')
-   u'a b c <a href="http://example.com" rel="nofollow">http://example.com</a> d e f'
+   'a b c <a href="http://example.com" rel="nofollow">http://example.com</a> d e f'
 
 
 .. autoclass:: bleach.linkifier.Linker
@@ -340,11 +340,11 @@ For example, using all the defaults:
 
    >>> cleaner = Cleaner(tags=['pre'])
    >>> cleaner.clean('<pre>http://example.com</pre>')
-   u'<pre>http://example.com</pre>'
+   '<pre>http://example.com</pre>'
 
    >>> cleaner = Cleaner(tags=['pre'], filters=[LinkifyFilter])
    >>> cleaner.clean('<pre>http://example.com</pre>')
-   u'<pre><a href="http://example.com">http://example.com</a></pre>'
+   '<pre><a href="http://example.com">http://example.com</a></pre>'
 
 
 And passing parameters to ``LinkifyFilter``:
@@ -362,7 +362,7 @@ And passing parameters to ``LinkifyFilter``:
    ... )
    ...
    >>> cleaner.clean('<pre>http://example.com</pre>')
-   u'<pre>http://example.com</pre>'
+   '<pre>http://example.com</pre>'
 
 
 .. autoclass:: bleach.linkifier.LinkifyFilter
