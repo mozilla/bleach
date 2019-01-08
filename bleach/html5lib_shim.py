@@ -181,6 +181,14 @@ class InputStreamWithMemory(object):
     def errors(self):
         return self._inner_stream.errors
 
+    @property
+    def charEncoding(self):
+        return self._inner_stream.charEncoding
+
+    @property
+    def changeEncoding(self):
+        return self._inner_stream.changeEncoding
+
     def char(self):
         c = self._inner_stream.char()
         # char() can return None if EOF, so ignore that

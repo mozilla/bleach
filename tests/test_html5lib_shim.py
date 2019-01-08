@@ -80,3 +80,65 @@ def test_serializer(data, expected):
     serialized = serializer.render(walker(dom))
 
     assert serialized == expected
+
+
+@pytest.mark.parametrize('parser_args, data, expected', [
+    # Make sure InputStreamWithMemory has charEncoding and changeEncoding
+    (
+        {},
+        '<meta charset="utf-8">',
+        '<meta charset="utf-8">'
+    ),
+    # Handle consume entities False--all entities are passed along and then
+    # escaped when serialized
+    (
+        {'consume_entities': False},
+        'text &amp;&gt;&quot;',
+        'text &amp;amp;&amp;gt;&amp;quot;'
+    ),
+    # Handle consume entities True--all entities are consumed and converted
+    # to their character equivalents and then &, <, and > are escaped when
+    # serialized
+    (
+        {'consume_entities': True},
+        'text &amp;&gt;&quot;',
+        'text &amp;&gt;"'
+    ),
+    # Test that "invalid-character-in-attribute-name" errors in tokenizing
+    # result in attributes with invalid names getting dropped
+    (
+        {},
+        '<a href="http://example.com"">',
+        '<a href="http://example.com"></a>'
+    ),
+    (
+        {},
+        '<a href=\'http://example.com\'\'>',
+        '<a href="http://example.com"></a>'
+    )
+])
+def test_bleach_html_parser(parser_args, data, expected):
+    args = {
+        'tags': None,
+        'strip': True,
+        'consume_entities': True
+    }
+    args.update(parser_args)
+
+    # Build a parser, walker, and serializer just like we do in clean()
+    parser = html5lib_shim.BleachHTMLParser(**args)
+    walker = html5lib_shim.getTreeWalker('etree')
+    serializer = html5lib_shim.BleachHTMLSerializer(
+        quote_attr_values='always',
+        omit_optional_tags=False,
+        escape_lt_in_attrs=True,
+        resolve_entities=False,
+        sanitize=False,
+        alphabetical_attributes=False,
+    )
+
+    # Parse, walk, and then serialize the output
+    dom = parser.parseFragment(data)
+    serialized = serializer.render(walker(dom))
+
+    assert serialized == expected

@@ -1,7 +1,7 @@
 Bleach changes
 ==============
 
-Version 3.0.3 (In development)
+Version 3.1.0 (In development)
 ------------------------------
 
 **Security fixes**
@@ -24,6 +24,12 @@ None
 
 * Fix cases where attribute names could have invalid characters in them.
   (#419)
+
+* Fix problems with ``LinkifyFilter`` not being able to match links
+  across ``&amp;``. (#422)
+
+* Fix ``InputStreamWithMemory`` when the ``BleachHTMLParser`` is
+  parsing ``meta`` tags. (#431)
 
 
 Version 3.0.2 (October 11th, 2018)
