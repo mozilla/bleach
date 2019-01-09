@@ -15,6 +15,11 @@ clean = partial(clean, tags=['p'], attributes=['style'])
         'color: red;'
     ),
     (
+        'font-family: メイリオ; color: red; float: left; background-color: red;',
+        ['color'],
+        'color: red;'
+    ),
+    (
         'border: 1px solid blue; color: red; float: left;',
         ['color'],
         'color: red;'
