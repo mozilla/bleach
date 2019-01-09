@@ -76,15 +76,17 @@ def test_allowed_css(data, styles, expected):
     p_double = "<p style='{0!s}'>bar</p>"
 
     if '"' in data:
-        if not isinstance(data, str):
-            # python2 and unicode data is given
+        if python2_and_unicode(data):
             p_double = unicode(p_double)
         assert clean(p_double.format(data), styles=styles) == p_double.format(expected)
     else:
-        if not isinstance(data, str):
-            # python2 and unicode data is given
+        if python2_and_unicode(data):
             p_single = unicode(p_single)
         assert clean(p_single.format(data), styles=styles) == p_single.format(expected)
+
+
+def python2_and_unicode(data):
+    return not isinstance(data, str)
 
 
 def test_valid_css():
