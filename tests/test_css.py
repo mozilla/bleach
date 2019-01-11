@@ -2,6 +2,7 @@
 from functools import partial
 
 import pytest
+import six
 
 from bleach import clean
 
@@ -76,17 +77,17 @@ def test_allowed_css(data, styles, expected):
     p_double = "<p style='{0!s}'>bar</p>"
 
     if '"' in data:
-        if python2_and_unicode(data):
+        if is_python2_unicode(data):
             p_double = unicode(p_double)
         assert clean(p_double.format(data), styles=styles) == p_double.format(expected)
     else:
-        if python2_and_unicode(data):
+        if is_python2_unicode(data):
             p_single = unicode(p_single)
         assert clean(p_single.format(data), styles=styles) == p_single.format(expected)
 
 
-def python2_and_unicode(data):
-    return not isinstance(data, str)
+def is_python2_unicode(data):
+    return six.PY2 and isinstance(data, unicode)
 
 
 def test_valid_css():
