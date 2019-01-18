@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 from functools import partial
 
 import pytest
-import six
 
 from bleach import clean
 
@@ -12,82 +10,73 @@ clean = partial(clean, tags=['p'], attributes=['style'])
 
 @pytest.mark.parametrize('data, styles, expected', [
     (
-        'font-family: Arial; color: red; float: left; background-color: red;',
+        '<p style="font-family: Arial; color: red; float: left; background-color: red;">bar</p>',
         ['color'],
-        'color: red;'
+        '<p style="color: red;">bar</p>'
     ),
     (
-        u'font-family: メイリオ; color: red; float: left; background-color: red;',
-        [u'color'],
-        u'color: red;'
-    ),
-    (
-        'border: 1px solid blue; color: red; float: left;',
+        '<p style="border: 1px solid blue; color: red; float: left;">bar</p>',
         ['color'],
-        'color: red;'
+        '<p style="color: red;">bar</p>'
     ),
     (
-        'border: 1px solid blue; color: red; float: left;',
+        '<p style="border: 1px solid blue; color: red; float: left;">bar</p>',
         ['color', 'float'],
-        'color: red; float: left;'
+        '<p style="color: red; float: left;">bar</p>'
     ),
     (
-        'color: red; float: left; padding: 1em;',
+        '<p style="color: red; float: left; padding: 1em;">bar</p>',
         ['color', 'float'],
-        'color: red; float: left;'
+        '<p style="color: red; float: left;">bar</p>'
     ),
     (
-        'color: red; float: left; padding: 1em;',
+        '<p style="color: red; float: left; padding: 1em;">bar</p>',
         ['color'],
-        'color: red;'
+        '<p style="color: red;">bar</p>'
     ),
+    # Handle leading - in attributes
     (
-        'cursor: -moz-grab;',
+        '<p style="cursor: -moz-grab;">bar</p>',
         ['cursor'],
-        'cursor: -moz-grab;'
+        '<p style="cursor: -moz-grab;">bar</p>'
     ),
+    # Handle () in attributes
     (
-        'color: hsl(30,100%,50%);',
+        '<p style="color: hsl(30,100%,50%);">bar</p>',
         ['color'],
-        'color: hsl(30,100%,50%);'
+        '<p style="color: hsl(30,100%,50%);">bar</p>',
     ),
     (
-        'color: rgba(255,0,0,0.4);',
+        '<p style="color: rgba(255,0,0,0.4);">bar</p>',
         ['color'],
-        'color: rgba(255,0,0,0.4);'
+        '<p style="color: rgba(255,0,0,0.4);">bar</p>',
     ),
+    # Handle ' in attributes
     (
-        "text-overflow: ',' ellipsis;",
+        '<p style="text-overflow: \',\' ellipsis;">bar</p>',
         ['text-overflow'],
-        "text-overflow: ',' ellipsis;"
+        '<p style="text-overflow: \',\' ellipsis;">bar</p>'
     ),
+    # Handle " in attributes
     (
-        'text-overflow: "," ellipsis;',
+        '<p style=\'text-overflow: "," ellipsis;\'>bar</p>',
         ['text-overflow'],
-        'text-overflow: "," ellipsis;'
+        '<p style=\'text-overflow: "," ellipsis;\'>bar</p>'
     ),
     (
-        'font-family: "Arial";',
+        '<p style=\'font-family: "Arial";\'>bar</p>',
         ['font-family'],
-        'font-family: "Arial";'
+        '<p style=\'font-family: "Arial";\'>bar</p>'
+    ),
+    # Handle non-ascii characters in attributes
+    (
+        u'<p style="font-family: \u30e1\u30a4\u30ea\u30aa; color: blue;">bar</p>',
+        [u'color'],
+        u'<p style="color: blue;">bar</p>'
     ),
 ])
 def test_allowed_css(data, styles, expected):
-    p_single = '<p style="{0!s}">bar</p>'
-    p_double = "<p style='{0!s}'>bar</p>"
-
-    if '"' in data:
-        if is_python2_unicode(data):
-            p_double = unicode(p_double)
-        assert clean(p_double.format(data), styles=styles) == p_double.format(expected)
-    else:
-        if is_python2_unicode(data):
-            p_single = unicode(p_single)
-        assert clean(p_single.format(data), styles=styles) == p_single.format(expected)
-
-
-def is_python2_unicode(data):
-    return six.PY2 and isinstance(data, unicode)
+    assert clean(data, styles=styles) == expected
 
 
 def test_valid_css():
