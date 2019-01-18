@@ -1,8 +1,8 @@
 Bleach changes
 ==============
 
-Version 3.1.0 (In development)
-------------------------------
+Version 3.1.0 (January 9th, 2019)
+---------------------------------
 
 **Security fixes**
 
@@ -30,6 +30,8 @@ None
 
 * Fix ``InputStreamWithMemory`` when the ``BleachHTMLParser`` is
   parsing ``meta`` tags. (#431)
+
+* Fix doctests. (#357)
 
 
 Version 3.0.2 (October 11th, 2018)

@@ -63,10 +63,10 @@ For example:
    >>> import bleach
 
    >>> bleach.clean(
-   ...     u'<b><i>an example</i></b>',
+   ...     '<b><i>an example</i></b>',
    ...     tags=['b'],
    ... )
-   u'<b>&lt;i&gt;an example&lt;/i&gt;</b>'
+   '<b>&lt;i&gt;an example&lt;/i&gt;</b>'
 
 
 The default value is a relatively conservative list found in
@@ -106,12 +106,12 @@ For example:
    >>> import bleach
 
    >>> bleach.clean(
-   ...     u'<p class="foo" style="color: red; font-weight: bold;">blah blah blah</p>',
+   ...     '<p class="foo" style="color: red; font-weight: bold;">blah blah blah</p>',
    ...     tags=['p'],
    ...     attributes=['style'],
    ...     styles=['color'],
    ... )
-   u'<p style="color: red;">blah blah blah</p>'
+   '<p style="color: red;">blah blah blah</p>'
 
 
 As a dict
@@ -135,11 +135,11 @@ and "class" for any tag (including "a" and "img"):
    ... }
 
    >>> bleach.clean(
-   ...    u'<img alt="an example" width=500>',
+   ...    '<img alt="an example" width=500>',
    ...    tags=['img'],
    ...    attributes=attrs
    ... )
-   u'<img alt="an example">'
+   '<img alt="an example">'
 
 
 Using functions
@@ -161,11 +161,11 @@ For example:
    ...     return name[0] == 'h'
 
    >>> bleach.clean(
-   ...    u'<a href="http://example.com" title="link">link</a>',
+   ...    '<a href="http://example.com" title="link">link</a>',
    ...    tags=['a'],
    ...    attributes=allow_h,
    ... )
-   u'<a href="http://example.com">link</a>'
+   '<a href="http://example.com">link</a>'
 
 
 You can also pass a callable as a value in an attributes dict and it'll run for
@@ -173,7 +173,7 @@ attributes for specified tags:
 
 .. doctest::
 
-   >>> from urlparse import urlparse
+   >>> from six.moves.urllib.parse import urlparse
    >>> import bleach
 
    >>> def allow_src(tag, name, value):
@@ -185,13 +185,13 @@ attributes for specified tags:
    ...     return False
 
    >>> bleach.clean(
-   ...    u'<img src="http://example.com" alt="an example">',
+   ...    '<img src="http://example.com" alt="an example">',
    ...    tags=['img'],
    ...    attributes={
    ...        'img': allow_src
    ...    }
    ... )
-   u'<img alt="an example">'
+   '<img alt="an example">'
 
 
 .. versionchanged:: 2.0
@@ -223,12 +223,12 @@ For example, to allow users to set the color and font-weight of text:
    >>> styles = ['color', 'font-weight']
 
    >>> bleach.clean(
-   ...     u'<p style="font-weight: heavy;">my html</p>',
+   ...     '<p style="font-weight: heavy;">my html</p>',
    ...     tags=tags,
    ...     attributes=attrs,
    ...     styles=styles
    ... )
-   u'<p style="font-weight: heavy;">my html</p>'
+   '<p style="font-weight: heavy;">my html</p>'
 
 
 Default styles are stored in ``bleach.sanitizer.ALLOWED_STYLES``.
@@ -252,7 +252,7 @@ For example, this sets allowed protocols to http, https and smb:
    ...     '<a href="smb://more_text">allowed protocol</a>',
    ...     protocols=['http', 'https', 'smb']
    ... )
-   u'<a href="smb://more_text">allowed protocol</a>'
+   '<a href="smb://more_text">allowed protocol</a>'
 
 
 This adds smb to the Bleach-specified set of allowed protocols:
@@ -265,7 +265,7 @@ This adds smb to the Bleach-specified set of allowed protocols:
    ...     '<a href="smb://more_text">allowed protocol</a>',
    ...     protocols=bleach.ALLOWED_PROTOCOLS + ['smb']
    ... )
-   u'<a href="smb://more_text">allowed protocol</a>'
+   '<a href="smb://more_text">allowed protocol</a>'
 
 
 Default protocols are in ``bleach.sanitizer.ALLOWED_PROTOCOLS``.
@@ -284,10 +284,10 @@ and invalid markup. For example:
    >>> import bleach
 
    >>> bleach.clean('<span>is not allowed</span>')
-   u'&lt;span&gt;is not allowed&lt;/span&gt;'
+   '&lt;span&gt;is not allowed&lt;/span&gt;'
 
    >>> bleach.clean('<b><span>is not allowed</span></b>', tags=['b'])
-   u'<b>&lt;span&gt;is not allowed&lt;/span&gt;</b>'
+   '<b>&lt;span&gt;is not allowed&lt;/span&gt;</b>'
 
 
 If you would rather Bleach stripped this markup entirely, you can pass
@@ -298,10 +298,10 @@ If you would rather Bleach stripped this markup entirely, you can pass
    >>> import bleach
 
    >>> bleach.clean('<span>is not allowed</span>', strip=True)
-   u'is not allowed'
+   'is not allowed'
 
    >>> bleach.clean('<b><span>is not allowed</span></b>', tags=['b'], strip=True)
-   u'<b>is not allowed</b>'
+   '<b>is not allowed</b>'
 
 
 Stripping comments (``strip_comments``)
@@ -317,10 +317,10 @@ By default, Bleach will strip out HTML comments. To disable this behavior, set
    >>> html = 'my<!-- commented --> html'
 
    >>> bleach.clean(html)
-   u'my html'
+   'my html'
 
    >>> bleach.clean(html, strip_comments=False)
-   u'my<!-- commented --> html'
+   'my<!-- commented --> html'
 
 
 Using ``bleach.sanitizer.Cleaner``
@@ -353,7 +353,7 @@ Trivial Filter example:
 .. doctest::
 
    >>> from bleach.sanitizer import Cleaner
-   >>> from html5lib.filters.base import Filter
+   >>> from bleach.html5lib_shim import Filter
 
    >>> class MooFilter(Filter):
    ...     def __iter__(self):
@@ -371,7 +371,7 @@ Trivial Filter example:
    >>> cleaner = Cleaner(tags=TAGS, attributes=ATTRS, filters=[MooFilter])
    >>> dirty = 'this is cute! <img src="http://example.com/puppy.jpg" rel="nofollow">'
    >>> cleaner.clean(dirty)
-   u'this is cute! <img rel="moo" src="moo">'
+   'this is cute! <img rel="moo" src="moo">'
 
 
 .. Warning::
