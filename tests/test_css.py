@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 from functools import partial
 
 import pytest
+import six
 
 from bleach import clean
 
@@ -13,6 +15,11 @@ clean = partial(clean, tags=['p'], attributes=['style'])
         'font-family: Arial; color: red; float: left; background-color: red;',
         ['color'],
         'color: red;'
+    ),
+    (
+        u'font-family: メイリオ; color: red; float: left; background-color: red;',
+        [u'color'],
+        u'color: red;'
     ),
     (
         'border: 1px solid blue; color: red; float: left;',
@@ -70,9 +77,17 @@ def test_allowed_css(data, styles, expected):
     p_double = "<p style='{0!s}'>bar</p>"
 
     if '"' in data:
+        if is_python2_unicode(data):
+            p_double = unicode(p_double)
         assert clean(p_double.format(data), styles=styles) == p_double.format(expected)
     else:
+        if is_python2_unicode(data):
+            p_single = unicode(p_single)
         assert clean(p_single.format(data), styles=styles) == p_single.format(expected)
+
+
+def is_python2_unicode(data):
+    return six.PY2 and isinstance(data, unicode)
 
 
 def test_valid_css():

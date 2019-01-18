@@ -593,7 +593,8 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
         # the whole thing.
         parts = style.split(';')
         gauntlet = re.compile(
-            r"""^([-/:,#%.'"\sa-zA-Z0-9!]|\w-\w|'[\s\w]+'\s*|"[\s\w]+"|\([\d,%\.\s]+\))*$"""
+            r"""^([-/:,#%.'"\s!\w]|\w-\w|'[\s\w]+'\s*|"[\s\w]+"|\([\d,%\.\s]+\))*$""",
+            flags=re.U
         )
 
         for part in parts:
