@@ -11,23 +11,23 @@ import string
 
 import six
 
-from bleach._vendor.html5lib import (
+from html5lib import (
     HTMLParser,
     getTreeWalker,
 )
-from bleach._vendor.html5lib import constants
-from bleach._vendor.html5lib.constants import (
+from html5lib import constants
+from html5lib.constants import (
     namespaces,
     prefixes,
 )
-from bleach._vendor.html5lib.constants import _ReparseException as ReparseException
-from bleach._vendor.html5lib.filters.base import Filter
-from bleach._vendor.html5lib.filters.sanitizer import allowed_protocols
-from bleach._vendor.html5lib.filters.sanitizer import Filter as SanitizerFilter
-from bleach._vendor.html5lib._inputstream import HTMLInputStream
-from bleach._vendor.html5lib.serializer import HTMLSerializer
-from bleach._vendor.html5lib._tokenizer import HTMLTokenizer
-from bleach._vendor.html5lib._trie import Trie
+from html5lib.constants import _ReparseException as ReparseException
+from html5lib.filters.base import Filter
+from html5lib.filters.sanitizer import allowed_protocols
+from html5lib.filters.sanitizer import Filter as SanitizerFilter
+from html5lib._inputstream import HTMLInputStream
+from html5lib.serializer import HTMLSerializer
+from html5lib._tokenizer import HTMLTokenizer
+from html5lib._trie import Trie
 
 
 #: Map of entity name to expanded entity

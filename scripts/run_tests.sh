@@ -14,8 +14,6 @@ case "${MODE}" in
     pytest ;;
   lint)
     flake8 bleach/ ;;
-  vendorverify)
-    ./scripts/vendor_verify.sh ;;
   *)
     echo "Unknown mode $MODE."
     exit 1
