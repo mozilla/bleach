@@ -162,7 +162,7 @@ class Cleaner(object):
             raise TypeError(message)
 
         if not text:
-            return u''
+            return ''
 
         text = force_unicode(text)
 
@@ -528,7 +528,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
                             continue
 
                 # If it's a style attribute, sanitize it
-                if namespaced_name == (None, u'style'):
+                if namespaced_name == (None, 'style'):
                     val = self.sanitize_css(val)
 
                 # At this point, we want to keep the attribute, so add it in

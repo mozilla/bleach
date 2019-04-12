@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import os
 
 import pytest
@@ -471,10 +473,10 @@ def test_attributes_callable():
     ATTRS = lambda tag, name, val: name == 'title'
     TAGS = ['a']
 
-    text = u'<a href="/foo" title="blah">example</a>'
+    text = '<a href="/foo" title="blah">example</a>'
     assert (
         clean(text, tags=TAGS, attributes=ATTRS) ==
-        u'<a title="blah">example</a>'
+        '<a title="blah">example</a>'
     )
 
 
@@ -501,8 +503,8 @@ def test_attributes_wildcard_callable():
     TAGS = ['a']
 
     assert (
-        clean(u'<a href="/foo" title="blah">example</a>', tags=TAGS, attributes=ATTRS) ==
-        u'<a title="blah">example</a>'
+        clean('<a href="/foo" title="blah">example</a>', tags=TAGS, attributes=ATTRS) ==
+        '<a title="blah">example</a>'
     )
 
 
@@ -519,12 +521,12 @@ def test_attributes_tag_callable():
     text = 'foo <img src="http://example.com" alt="blah"> baz'
     assert (
         clean(text, tags=TAGS, attributes=ATTRS) ==
-        u'foo <img> baz'
+        'foo <img> baz'
     )
     text = 'foo <img src="https://example.com" alt="blah"> baz'
     assert (
         clean(text, tags=TAGS, attributes=ATTRS) ==
-        u'foo <img src="https://example.com"> baz'
+        'foo <img src="https://example.com"> baz'
     )
 
 
@@ -536,8 +538,8 @@ def test_attributes_tag_list():
     TAGS = ['a']
 
     assert (
-        clean(u'<a href="/foo" title="blah">example</a>', tags=TAGS, attributes=ATTRS) ==
-        u'<a title="blah">example</a>'
+        clean('<a href="/foo" title="blah">example</a>', tags=TAGS, attributes=ATTRS) ==
+        '<a title="blah">example</a>'
     )
 
 
@@ -546,10 +548,10 @@ def test_attributes_list():
     ATTRS = ['title']
     TAGS = ['a']
 
-    text = u'<a href="/foo" title="blah">example</a>'
+    text = '<a href="/foo" title="blah">example</a>'
     assert (
         clean(text, tags=TAGS, attributes=ATTRS) ==
-        u'<a title="blah">example</a>'
+        '<a title="blah">example</a>'
     )
 
 

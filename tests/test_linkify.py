@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import re
 
 import pytest
@@ -190,7 +192,7 @@ def test_set_attrs():
     """We can set random attributes on links."""
 
     def set_attr(attrs, new=False):
-        attrs[(None, u'rev')] = u'canonical'
+        attrs[(None, 'rev')] = 'canonical'
         return attrs
 
     assert (
@@ -562,14 +564,14 @@ def test_drop_link_tags():
 
 
 @pytest.mark.parametrize('text, expected', [
-    (u'&lt;br&gt;', u'&lt;br&gt;'),
+    ('&lt;br&gt;', '&lt;br&gt;'),
     (
-        u'&lt;br&gt; http://example.com',
-        u'&lt;br&gt; <a href="http://example.com" rel="nofollow">http://example.com</a>'
+        '&lt;br&gt; http://example.com',
+        '&lt;br&gt; <a href="http://example.com" rel="nofollow">http://example.com</a>'
     ),
     (
-        u'&lt;br&gt; <br> http://example.com',
-        u'&lt;br&gt; <br> <a href="http://example.com" rel="nofollow">http://example.com</a>'
+        '&lt;br&gt; <br> http://example.com',
+        '&lt;br&gt; <br> <a href="http://example.com" rel="nofollow">http://example.com</a>'
     )
 ])
 def test_naughty_unescaping(text, expected):
