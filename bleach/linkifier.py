@@ -149,7 +149,7 @@ class Linker(object):
         text = force_unicode(text)
 
         if not text:
-            return u''
+            return ''
 
         dom = self.parser.parseFragment(text)
         filtered = LinkifyFilter(
@@ -250,7 +250,7 @@ class LinkifyFilter(html5lib_shim.Filter):
             if token_type in ['Characters', 'SpaceCharacters']:
                 out.append(token['data'])
 
-        return u''.join(out)
+        return ''.join(out)
 
     def handle_email_addresses(self, src_iter):
         """Handle email addresses in character tokens"""
@@ -264,31 +264,31 @@ class LinkifyFilter(html5lib_shim.Filter):
                 for match in self.email_re.finditer(text):
                     if match.start() > end:
                         new_tokens.append(
-                            {u'type': u'Characters', u'data': text[end:match.start()]}
+                            {'type': 'Characters', 'data': text[end:match.start()]}
                         )
 
                     # Run attributes through the callbacks to see what we
                     # should do with this match
                     attrs = {
-                        (None, u'href'): u'mailto:%s' % match.group(0),
-                        u'_text': match.group(0)
+                        (None, 'href'): 'mailto:%s' % match.group(0),
+                        '_text': match.group(0)
                     }
                     attrs = self.apply_callbacks(attrs, True)
 
                     if attrs is None:
                         # Just add the text--but not as a link
                         new_tokens.append(
-                            {u'type': u'Characters', u'data': match.group(0)}
+                            {'type': 'Characters', 'data': match.group(0)}
                         )
 
                     else:
                         # Add an "a" tag for the new link
-                        _text = attrs.pop(u'_text', '')
+                        _text = attrs.pop('_text', '')
                         attrs = alphabetize_attributes(attrs)
                         new_tokens.extend([
-                            {u'type': u'StartTag', u'name': u'a', u'data': attrs},
-                            {u'type': u'Characters', u'data': force_unicode(_text)},
-                            {u'type': u'EndTag', u'name': 'a'}
+                            {'type': 'StartTag', 'name': 'a', 'data': attrs},
+                            {'type': 'Characters', 'data': force_unicode(_text)},
+                            {'type': 'EndTag', 'name': 'a'}
                         ])
                     end = match.end()
 
@@ -296,7 +296,7 @@ class LinkifyFilter(html5lib_shim.Filter):
                     # Yield the adjusted set of tokens and then continue
                     # through the loop
                     if end < len(text):
-                        new_tokens.append({u'type': u'Characters', u'data': text[end:]})
+                        new_tokens.append({'type': 'Characters', 'data': text[end:]})
 
                     for new_token in new_tokens:
                         yield new_token
@@ -316,12 +316,12 @@ class LinkifyFilter(html5lib_shim.Filter):
         while fragment:
             # Try removing ( from the beginning and, if it's balanced, from the
             # end, too
-            if fragment.startswith(u'('):
-                prefix = prefix + u'('
+            if fragment.startswith('('):
+                prefix = prefix + '('
                 fragment = fragment[1:]
 
-                if fragment.endswith(u')'):
-                    suffix = u')' + suffix
+                if fragment.endswith(')'):
+                    suffix = ')' + suffix
                     fragment = fragment[:-1]
                 continue
 
@@ -331,21 +331,21 @@ class LinkifyFilter(html5lib_shim.Filter):
             #
             #     "i looked at the site (at http://example.com)"
 
-            if fragment.endswith(u')') and u'(' not in fragment:
+            if fragment.endswith(')') and '(' not in fragment:
                 fragment = fragment[:-1]
-                suffix = u')' + suffix
+                suffix = ')' + suffix
                 continue
 
             # Handle commas
-            if fragment.endswith(u','):
+            if fragment.endswith(','):
                 fragment = fragment[:-1]
-                suffix = u',' + suffix
+                suffix = ',' + suffix
                 continue
 
             # Handle periods
-            if fragment.endswith(u'.'):
+            if fragment.endswith('.'):
                 fragment = fragment[:-1]
-                suffix = u'.' + suffix
+                suffix = '.' + suffix
                 continue
 
             # Nothing matched, so we're done
@@ -374,7 +374,7 @@ class LinkifyFilter(html5lib_shim.Filter):
                 for match in self.url_re.finditer(text):
                     if match.start() > end:
                         new_tokens.append(
-                            {u'type': u'Characters', u'data': text[end:match.start()]}
+                            {'type': 'Characters', 'data': text[end:match.start()]}
                         )
 
                     url = match.group(0)
@@ -388,39 +388,39 @@ class LinkifyFilter(html5lib_shim.Filter):
                     if PROTO_RE.search(url):
                         href = url
                     else:
-                        href = u'http://%s' % url
+                        href = 'http://%s' % url
 
                     attrs = {
-                        (None, u'href'): href,
-                        u'_text': url
+                        (None, 'href'): href,
+                        '_text': url
                     }
                     attrs = self.apply_callbacks(attrs, True)
 
                     if attrs is None:
                         # Just add the text
                         new_tokens.append(
-                            {u'type': u'Characters', u'data': prefix + url + suffix}
+                            {'type': 'Characters', 'data': prefix + url + suffix}
                         )
 
                     else:
                         # Add the "a" tag!
                         if prefix:
                             new_tokens.append(
-                                {u'type': u'Characters', u'data': prefix}
+                                {'type': 'Characters', 'data': prefix}
                             )
 
-                        _text = attrs.pop(u'_text', '')
+                        _text = attrs.pop('_text', '')
                         attrs = alphabetize_attributes(attrs)
 
                         new_tokens.extend([
-                            {u'type': u'StartTag', u'name': u'a', u'data': attrs},
-                            {u'type': u'Characters', u'data': force_unicode(_text)},
-                            {u'type': u'EndTag', u'name': 'a'},
+                            {'type': 'StartTag', 'name': 'a', 'data': attrs},
+                            {'type': 'Characters', 'data': force_unicode(_text)},
+                            {'type': 'EndTag', 'name': 'a'},
                         ])
 
                         if suffix:
                             new_tokens.append(
-                                {u'type': u'Characters', u'data': suffix}
+                                {'type': 'Characters', 'data': suffix}
                             )
 
                     end = match.end()
@@ -429,7 +429,7 @@ class LinkifyFilter(html5lib_shim.Filter):
                     # Yield the adjusted set of tokens and then continue
                     # through the loop
                     if end < len(text):
-                        new_tokens.append({u'type': u'Characters', u'data': text[end:]})
+                        new_tokens.append({'type': 'Characters', 'data': text[end:]})
 
                     for new_token in new_tokens:
                         yield new_token

@@ -447,7 +447,7 @@ def convert_entities(text):
 
         new_text.append(part)
 
-    return u''.join(new_text)
+    return ''.join(new_text)
 
 
 def match_entity(stream):

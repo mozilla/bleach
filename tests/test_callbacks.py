@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from bleach.callbacks import nofollow, target_blank
 
 
@@ -45,19 +47,19 @@ class TestTargetBlankCallback:
         assert target_blank(attrs) == attrs
 
     def test_mailto(self):
-        attrs = {(None, u'href'): u'mailto:joe@example.com'}
+        attrs = {(None, 'href'): 'mailto:joe@example.com'}
         assert target_blank(attrs) == attrs
 
     def test_add_target(self):
-        attrs = {(None, u'href'): u'http://example.com'}
+        attrs = {(None, 'href'): 'http://example.com'}
         assert (
             target_blank(attrs) ==
-            {(None, u'href'): u'http://example.com', (None, u'target'): u'_blank'}
+            {(None, 'href'): 'http://example.com', (None, 'target'): '_blank'}
         )
 
     def test_stomp_target(self):
-        attrs = {(None, u'href'): u'http://example.com', (None, u'target'): u'foo'}
+        attrs = {(None, 'href'): 'http://example.com', (None, 'target'): 'foo'}
         assert (
             target_blank(attrs) ==
-            {(None, u'href'): 'http://example.com', (None, u'target'): u'_blank'}
+            {(None, 'href'): 'http://example.com', (None, 'target'): '_blank'}
         )

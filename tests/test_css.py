@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from functools import partial
 
 import pytest
@@ -70,9 +72,9 @@ clean = partial(clean, tags=['p'], attributes=['style'])
     ),
     # Handle non-ascii characters in attributes
     (
-        u'<p style="font-family: \u30e1\u30a4\u30ea\u30aa; color: blue;">bar</p>',
-        [u'color'],
-        u'<p style="color: blue;">bar</p>'
+        '<p style="font-family: \u30e1\u30a4\u30ea\u30aa; color: blue;">bar</p>',
+        ['color'],
+        '<p style="color: blue;">bar</p>'
     ),
 ])
 def test_allowed_css(data, styles, expected):

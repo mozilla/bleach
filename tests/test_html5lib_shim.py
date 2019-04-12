@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import pytest
 
 from bleach import html5lib_shim
@@ -9,7 +11,7 @@ from bleach import html5lib_shim
     ('abc', 'abc'),
 
     # Handles character entities--both named and numeric
-    ('&nbsp;', u'\xa0'),
+    ('&nbsp;', '\xa0'),
     ('&#32;', ' '),
     ('&#x20;', ' '),
 
