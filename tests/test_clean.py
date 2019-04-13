@@ -785,10 +785,11 @@ def get_ids_and_tests():
     # Sort numerically which makes it easier to iterate through them
     tests.sort(key=lambda x: int(os.path.basename(x).split('.', 1)[0]))
 
-    testcases = [
-        (os.path.basename(fn), open(fn, 'r').read())
-        for fn in tests
-    ]
+    testcases = []
+    for fn in tests:
+        with open(fn) as fp:
+            data = fp.read()
+        testcases.append((os.path.basename(fn), data))
 
     return testcases
 
