@@ -3,7 +3,7 @@
 import webbrowser
 
 
-TEST_BROWSERS = set([
+TEST_BROWSERS = {
     # 'mozilla',
     'firefox',
     # 'netscape',
@@ -27,7 +27,7 @@ TEST_BROWSERS = set([
     'chrome',
     # 'chromium',
     # 'chromium-browser',
-])
+}
 REGISTERED_BROWSERS = set(webbrowser._browsers.keys())
 
 
