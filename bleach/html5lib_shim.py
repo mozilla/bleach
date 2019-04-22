@@ -37,11 +37,11 @@ ENTITIES = constants.entities
 ENTITIES_TRIE = Trie(ENTITIES)
 
 #: Token type constants--these never change
-TAG_TOKEN_TYPES = set([
+TAG_TOKEN_TYPES = {
     constants.tokenTypes['StartTag'],
     constants.tokenTypes['EndTag'],
     constants.tokenTypes['EmptyTag']
-])
+}
 CHARACTERS_TYPE = constants.tokenTypes['Characters']
 PARSEERROR_TYPE = constants.tokenTypes['ParseError']
 
