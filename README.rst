@@ -114,4 +114,4 @@ Participation Guidelines
 .. _html5lib: https://github.com/html5lib/html5lib-python
 .. _GitHub: https://github.com/mozilla/bleach
 .. _ReadTheDocs: https://bleach.readthedocs.io/
-.. _PyPI: http://pypi.python.org/pypi/bleach
+.. _PyPI: https://pypi.org/project/bleach/
