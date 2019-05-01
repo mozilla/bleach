@@ -488,7 +488,7 @@ def match_entity(stream):
         while stream and stream[0] not in end_characters:
             c = stream.pop(0)
             if c not in allowed:
-                break
+                return None
             possible_entity += c
 
         if possible_entity and stream and stream[0] == ';':
@@ -499,7 +499,7 @@ def match_entity(stream):
     while stream and stream[0] not in end_characters:
         c = stream.pop(0)
         if not ENTITIES_TRIE.has_keys_with_prefix(possible_entity):
-            break
+            return None
         possible_entity += c
 
     if possible_entity and stream and stream[0] == ';':

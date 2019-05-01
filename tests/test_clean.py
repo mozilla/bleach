@@ -259,12 +259,18 @@ def test_bare_entities_get_escaped_correctly(text, expected):
     # Test non-numeric entities
     ('&#', '&amp;#'),
     ('&#<', '&amp;#&lt;'),
+    ('&#1x;', '&amp;#1x;'),
 
     # html5lib tokenizer unescapes character entities, so these would become '
     # and " which makes it possible to break out of html attributes.
     #
     # Verify that clean() doesn't unescape entities.
     ('&#39;&#34;', '&#39;&#34;'),
+
+    # Almost valid character entities (matching prefix of varying non matching lengths)
+    ('&ad;', '&ad;'),
+    ('&adp;', '&amp;adp;'),
+    ('&adpe;', '&amp;adpe;'),
 ])
 def test_character_entities_handling(text, expected):
     assert clean(text) == expected
