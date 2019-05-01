@@ -246,8 +246,8 @@ def test_bare_entities_get_escaped_correctly(text, expected):
         '<a href="http://example.com?active=true&amp;current=true">foo</a>'
     ),
 
-    # Ambiguous ampersands in text are not escaped
-    ('&xx;', '&xx;'),
+    # Invalid character entities in text are escaped
+    ('&xx;', '&amp;xx;'),
 
     # Test numeric entities
     ('&#39;', '&#39;'),
@@ -268,7 +268,7 @@ def test_bare_entities_get_escaped_correctly(text, expected):
     ('&#39;&#34;', '&#39;&#34;'),
 
     # Almost valid character entities (matching prefix of varying non matching lengths)
-    ('&ad;', '&ad;'),
+    ('&ad;', '&amp;ad;'),
     ('&adp;', '&amp;adp;'),
     ('&adpe;', '&amp;adpe;'),
 ])

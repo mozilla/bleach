@@ -502,7 +502,7 @@ def match_entity(stream):
             return None
         possible_entity += c
 
-    if possible_entity and stream and stream[0] == ';':
+    if possible_entity and stream and stream[0] == ';' and possible_entity + ';' in ENTITIES_TRIE:
         return possible_entity
 
     return None
