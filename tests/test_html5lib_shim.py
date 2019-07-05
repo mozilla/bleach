@@ -117,6 +117,11 @@ def test_serializer(data, expected):
         {},
         '<a href=\'http://example.com\'\'>',
         '<a href="http://example.com"></a>'
+    ),
+    (
+        {},
+        '</ chars',
+        '&lt;/ chars',
     )
 ])
 def test_bleach_html_parser(parser_args, data, expected):
