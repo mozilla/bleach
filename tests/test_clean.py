@@ -848,3 +848,12 @@ class TestCleaner:
             cleaner.clean(dirty) ==
             'this is cute! <img rel="moo" src="moo">'
         )
+
+
+def test_strip_respects_block_level_elements():
+    """
+    We should at least have a space between block level elements
+    https://github.com/mozilla/bleach/issues/369
+    """
+    text = '<p>Te<b>st</b>!</p><p>Hello</p>'
+    assert clean(text, tags=[], strip=True) == 'Test! Hello'

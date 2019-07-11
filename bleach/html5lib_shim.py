@@ -42,6 +42,7 @@ TAG_TOKEN_TYPES = {
     constants.tokenTypes['EndTag'],
     constants.tokenTypes['EmptyTag']
 }
+TAG_TOKEN_TYPE_START = constants.tokenTypes['StartTag']
 CHARACTERS_TYPE = constants.tokenTypes['Characters']
 PARSEERROR_TYPE = constants.tokenTypes['ParseError']
 
@@ -164,6 +165,45 @@ HTML_TAGS = [
 ]
 
 
+#: List of block level HTML tags, from mozilla on 2019.07.11, as per https://github.com/mozilla/bleach/issues/369
+#: https://developer.mozilla.org/en-US/docs/Web/HTML/Block-level_elements#Elements
+HTML_TAGS__BLOCK_LEVEL = [
+    'address',
+    'article',
+    'aside',
+    'blockquote',
+    'details',
+    'dialog',
+    'dd',
+    'div',
+    'dl',
+    'dt',
+    'fieldset',
+    'figcaption',
+    'figure',
+    'footer',
+    'form',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'header',
+    'hgroup',
+    'hr',
+    'li',
+    'main',
+    'nav',
+    'ol',
+    'p',
+    'pre',
+    'section',
+    'table',
+    'ul',
+]
+
+
 class InputStreamWithMemory(object):
     """Wraps an HTMLInputStream to remember characters since last <
 
@@ -235,6 +275,9 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
         # Wrap the stream with one that remembers the history
         self.stream = InputStreamWithMemory(self.stream)
+
+    # we need to remember the last token emitted, so we don't add too many spaces
+    _emittedLastToken = None
 
     def __iter__(self):
         last_error_token = None
@@ -335,9 +378,15 @@ class BleachHTMLTokenizer(HTMLTokenizer):
             # cases it gets converted to a Characters token.
             if self.parser.strip:
                 # If we're stripping the token, we just throw in an empty
-                # string token.
+                # string token
                 new_data = ''
-
+                if ((self._emittedLastToken and
+                     token['type'] == TAG_TOKEN_TYPE_START and
+                     token['name'].lower() in HTML_TAGS__BLOCK_LEVEL and
+                     not self._emittedLastToken.get('data', '').endswith(' '))):
+                    # BUT, if this is the START of a block level tag, then we
+                    # want to insert a space for accessibility.
+                    new_data = ' '
             else:
                 # If we're escaping the token, we want to escape the exact
                 # original string. Since tokenizing also normalizes data
@@ -351,11 +400,12 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                 'data': new_data
             }
 
-            self.currentToken = new_token
+            self.currentToken = self._emittedLastToken = new_token
             self.tokenQueue.append(new_token)
             self.state = self.dataState
             return
 
+        self._emittedLastToken = self.currentToken
         super(BleachHTMLTokenizer, self).emitCurrentToken()
 
 
