@@ -857,3 +857,6 @@ def test_strip_respects_block_level_elements():
     """
     text = '<p>Te<b>st</b>!</p><p>Hello</p>'
     assert clean(text, tags=[], strip=True) == 'Test! Hello'
+
+    text = '<div><p>This is our <b>description!</b> &amp;</p></div><p>nice!</p>'
+    assert clean(text, tags=[], strip=True) == 'This is our description! &amp; nice!'
