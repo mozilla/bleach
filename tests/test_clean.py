@@ -855,8 +855,22 @@ def test_strip_respects_block_level_elements():
     We should at least have a space between block level elements
     https://github.com/mozilla/bleach/issues/369
     """
+    # simple example
     text = '<p>Te<b>st</b>!</p><p>Hello</p>'
-    assert clean(text, tags=[], strip=True) == 'Test! Hello'
+    assert clean(text, tags=[], strip=True) == 'Test!\nHello'
 
+    # with an internal space and escaped character, just to be sure
+    text = '<p>This is our <b>description!</b> &amp;</p><p>nice!</p>'
+    assert clean(text, tags=[], strip=True) == 'This is our description! &amp;\nnice!'
+
+    # a double-wrap causes an initial newline. this can't really be handled under the current design
     text = '<div><p>This is our <b>description!</b> &amp;</p></div><p>nice!</p>'
-    assert clean(text, tags=[], strip=True) == 'This is our description! &amp; nice!'
+    assert clean(text, tags=[], strip=True) == '\nThis is our description! &amp;\nnice!'
+
+    # newlines are used to keep lists and other elements readable
+    text = '<div><p>This is our <b>description!</b> &amp;</p><p>1</p><ul><li>a</li><li>b</li><li>c</li></ul></div><p>nice!</p>'
+    assert clean(text, tags=[], strip=True) == '\nThis is our description! &amp;\n1\n\na\nb\nc\nnice!'
+
+
+
+

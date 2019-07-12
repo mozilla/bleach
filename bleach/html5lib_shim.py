@@ -379,11 +379,6 @@ class BleachHTMLTokenizer(HTMLTokenizer):
              token['type'] in TAG_TOKEN_TYPES and
              token['name'].lower() not in self.parser_tags)):
 
-            # if we strip a tag, keep track of the tag type so whitespace can be
-            # properly added for accessibility. this will be stashed into the
-            # new_token for processing on the next iteration
-            _bleach_stripped = None
-
             # If this is a start/end/empty tag for a tag that's not in our
             # allowed list, then it gets stripped or escaped. In both of these
             # cases it gets converted to a Characters token.
@@ -395,15 +390,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                      token['type'] == TAG_TOKEN_TYPE_START and
                      token['name'].lower() in HTML_TAGS__BLOCK_LEVEL
                      )):
-                    # If this is the START of a "block level" tag, then we
-                    # want to insert a space for accessibility
-                    # this ensures we only do this after a block end tag
-                    if self._emittedLastToken.get('_bleach_stripped') == TAG_TOKEN_TYPE_END:
-                        new_data = '\n'
-                else:
-                    # keep track of this token for the next loop
-                    if token['type'] == TAG_TOKEN_TYPE_END:
-                        _bleach_stripped = TAG_TOKEN_TYPE_END
+                    new_data = '\n'
             else:
                 # If we're escaping the token, we want to escape the exact
                 # original string. Since tokenizing also normalizes data
@@ -415,7 +402,6 @@ class BleachHTMLTokenizer(HTMLTokenizer):
             new_token = {
                 'type': CHARACTERS_TYPE,
                 'data': new_data,
-                '_bleach_stripped': TAG_TOKEN_TYPE_END,  # for next iteration
             }
 
             self.currentToken = self._emittedLastToken = new_token
