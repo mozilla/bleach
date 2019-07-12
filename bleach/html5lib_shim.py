@@ -382,11 +382,14 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                 new_data = ''
                 if ((self._emittedLastToken and
                      token['type'] == TAG_TOKEN_TYPE_START and
-                     token['name'].lower() in HTML_TAGS__BLOCK_LEVEL and
-                     not self._emittedLastToken.get('data', '').endswith(' '))):
-                    # BUT, if this is the START of a block level tag, then we
-                    # want to insert a space for accessibility.
-                    new_data = ' '
+                     token['name'].lower() in HTML_TAGS__BLOCK_LEVEL
+                     )):
+                    _token_data = self._emittedLastToken.get('data', '')
+                    if ((isinstance(_token_data, six.text_type) and
+                         not _token_data.endswith(' '))):
+                        # BUT, if this is the START of a block level tag, then we
+                        # want to insert a space for accessibility.
+                        new_data = ' '
             else:
                 # If we're escaping the token, we want to escape the exact
                 # original string. Since tokenizing also normalizes data
