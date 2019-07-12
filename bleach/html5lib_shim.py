@@ -384,7 +384,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                      token['type'] == TAG_TOKEN_TYPE_START and
                      token['name'].lower() in HTML_TAGS__BLOCK_LEVEL
                      )):
-                    _token_data = self._emittedLastToken.get('data', '')
+                    _token_data = self._emittedLastToken.get('data', None)
                     if ((_token_data and
                          isinstance(_token_data, six.text_type) and
                          _token_data[-1] not in (' ', '\n', '\t')
