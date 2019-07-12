@@ -385,8 +385,10 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                      token['name'].lower() in HTML_TAGS__BLOCK_LEVEL
                      )):
                     _token_data = self._emittedLastToken.get('data', '')
-                    if ((isinstance(_token_data, six.text_type) and
-                         not _token_data.endswith(' '))):
+                    if ((_token_data and
+                         isinstance(_token_data, six.text_type) and
+                         _token_data[-1] not in (' ', '\n', '\t')
+                         )):
                         # BUT, if this is the START of a block level tag, then we
                         # want to insert a space for accessibility.
                         new_data = ' '
