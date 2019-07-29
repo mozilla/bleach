@@ -17,7 +17,7 @@ TLDS = """ac ad ae aero af ag ai al am an ao aq ar arpa as asia at au aw ax az
        dm do dz ec edu ee eg er es et eu fi fj fk fm fo fr ga gb gd ge gf gg
        gh gi gl gm gn gov gp gq gr gs gt gu gw gy hk hm hn hr ht hu id ie il
        im in info int io iq ir is it je jm jo jobs jp ke kg kh ki km kn kp
-       kr kw ky kz la lb lc li lk lr ls lt lu lv ly ma mc md me mg mh mil mk
+       kr kw ky kz la lb lc li link lk lr ls lt lu lv ly ma mc md me mg mh mil mk
        ml mm mn mo mobi mp mq mr ms mt mu museum mv mw mx my mz na name nc ne
        net nf ng ni nl no np nr nu nz om org pa pe pf pg ph pk pl pm pn post
        pr pro ps pt pw py qa re ro rs ru rw sa sb sc sd se sg sh si sj sk sl
