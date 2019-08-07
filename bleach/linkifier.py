@@ -49,7 +49,7 @@ def build_url_re(tlds=TLDS, protocols=html5lib_shim.allowed_protocols):
         (?:[/?][^\s\{{\}}\|\\\^\[\]`<>"]*)?
             # /path/zz (excluding "unsafe" chars from RFC 1738,
             # except for # and ~, which happen in practice)
-        """.format('|'.join(protocols), '|'.join(tlds)),
+        """.format('|'.join(sorted(protocols)), '|'.join(sorted(tlds))),
         re.IGNORECASE | re.VERBOSE | re.UNICODE)
 
 
