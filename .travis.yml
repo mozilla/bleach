@@ -1,6 +1,5 @@
 # Note: If you update this, make sure to update tox.ini, too.
 dist: xenial
-sudo: false
 language: python
 cache:
   directories:
