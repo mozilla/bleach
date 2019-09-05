@@ -408,7 +408,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
                         new_tokens.append({'type': 'Entity', 'name': entity})
 
                     # Length of the entity plus 2--one for & at the beginning
-                    # and and one for ; at the end
+                    # and one for ; at the end
                     remainder = part[len(entity) + 2:]
                     if remainder:
                         new_tokens.append({'type': 'Characters', 'data': remainder})

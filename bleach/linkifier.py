@@ -241,7 +241,7 @@ class LinkifyFilter(html5lib_shim.Filter):
         # linkify callables.
         #
         # I'm not really sure how else to support that ``_text`` fauxttribute and
-        # maintain some modicum of backwards compatability with previous versions
+        # maintain some modicum of backwards compatibility with previous versions
         # of Bleach.
 
         out = []

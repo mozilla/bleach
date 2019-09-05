@@ -552,7 +552,7 @@ class BleachHTMLSerializer(HTMLSerializer):
                     yield '&' + entity + ';'
 
                     # Length of the entity plus 2--one for & at the beginning
-                    # and and one for ; at the end
+                    # and one for ; at the end
                     part = part[len(entity) + 2:]
                     if part:
                         yield part
