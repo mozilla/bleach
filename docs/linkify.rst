@@ -26,9 +26,22 @@ having URLs in tag attributes getting linkified.
    You may pass a ``string`` or ``unicode`` object, but Bleach will always
    return ``unicode``.
 
+.. note::
+
+   By default `linkify` **does not** attempt to protect users from bad
+   or deceptive links including:
+
+   * links to malicious or deceptive domains
+   * shortened or tracking links
+   * deceptive links using internationalized domain names (IDN) that
+     resemble legitimate domains for `IDN homograph attacks
+     <https://en.wikipedia.org/wiki/IDN_homograph_attack>`_ (font
+     styling, background color, and other context is unavailable)
+
+   We recommend using additional callbacks or other controls to check
+   these properties.
 
 .. autofunction:: bleach.linkify
-
 
 Callbacks for adjusting attributes (``callbacks``)
 ==================================================
