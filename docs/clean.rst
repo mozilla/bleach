@@ -34,7 +34,7 @@ return ``unicode``.
 
    This is a **not safe** use of ``clean`` output in an HTML attribute::
 
-     <body data-bio="{{ bleach.clean(user_bio} }}">
+     <body data-bio="{{ bleach.clean(user_bio) }}">
 
 
    If you need to use the output of ``bleach.clean()`` in an HTML attribute, you
