@@ -1,7 +1,7 @@
 -e .
 
 # Requirements to run the test suite
-pytest
+pytest<5
 pytest-wholenodeid
 flake8
 tox
