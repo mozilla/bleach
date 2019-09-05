@@ -311,6 +311,33 @@ instance.
    'a b c <a href="http://example.com" rel="nofollow">http://example.com</a> d e f'
 
 
+It includes optional keyword arguments to specify allowed of top-level
+domains (TLDs) and URL protocols/schemes:
+
+.. doctest::
+
+   >>> from bleach.linkifier import Linker, build_url_re
+
+   >>> only_fish_tld_url_re = build_url_re(tlds=['fish'])
+   >>> linker = Linker(url_re=only_fish_tld_url_re)
+
+   >>> linker.linkify('com TLD does not link https://example.com')
+   'com TLD does not link https://example.com'
+   >>> linker.linkify('fish TLD links https://example.fish')
+   'fish TLD links <a href="https://example.fish" rel="nofollow">https://example.fish</a>'
+
+
+   >>> only_https_url_re = build_url_re(protocols=['https'])
+   >>> linker = Linker(url_re=only_https_url_re)
+
+   >>> linker.linkify('gopher does not link gopher://example.link')
+   'gopher does not link gopher://example.link'
+   >>> linker.linkify('https links https://example.com/')
+   'https links <a href="https://example.com/" rel="nofollow">https://example.com/</a>'
+
+
+:ref:`LinkifyFilter <linkify-LinkifyFilter>` also accepts these options.
+
 .. autoclass:: bleach.linkifier.Linker
    :members:
 
