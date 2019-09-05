@@ -336,6 +336,21 @@ domains (TLDs) and URL protocols/schemes:
    'https links <a href="https://example.com/" rel="nofollow">https://example.com/</a>'
 
 
+Specify localized TLDs with and without punycode encoding to handle
+both formats:
+
+.. doctest::
+
+   >>> from bleach.linkifier import Linker, build_url_re
+
+   >>> linker = Linker(url_re=build_url_re(tlds=['рф']))
+   >>> linker.linkify('https://xn--80aaksdi3bpu.xn--p1ai/ https://дайтрафик.рф/')
+   'https://xn--80aaksdi3bpu.xn--p1ai/ <a href="https://дайтрафик.рф/" rel="nofollow">https://дайтрафик.рф/</a>'
+
+   >>> puny_linker = Linker(url_re=build_url_re(tlds=['рф', 'xn--p1ai']))
+   >>> puny_linker.linkify('https://xn--80aaksdi3bpu.xn--p1ai/ https://дайтрафик.рф/')
+   '<a href="https://xn--80aaksdi3bpu.xn--p1ai/" rel="nofollow">https://xn--80aaksdi3bpu.xn--p1ai/</a> <a href="https://дайтрафик.рф/" rel="nofollow">https://дайтрафик.рф/</a>'
+
 :ref:`LinkifyFilter <linkify-LinkifyFilter>` also accepts these options.
 
 .. autoclass:: bleach.linkifier.Linker
