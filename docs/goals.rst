@@ -59,6 +59,10 @@ the :ref:`linkify() method <linkify-chapter>` is flexible enough to allow the
 creation, alteration, and removal of links based on an extremely wide range of
 use cases.
 
+Bleach does not try to verify the validity or safety of the domains
+linked to beyond being well-formed (see :ref:`Linkifying text
+fragments <linkify-chapter>` for details).
+
 
 Non-Goals
 =========
