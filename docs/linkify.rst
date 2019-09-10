@@ -311,7 +311,7 @@ instance.
    'a b c <a href="http://example.com" rel="nofollow">http://example.com</a> d e f'
 
 
-It includes optional keyword arguments to specify allowed of top-level
+It includes optional keyword arguments to specify allowed top-level
 domains (TLDs) and URL protocols/schemes:
 
 .. doctest::
@@ -351,6 +351,22 @@ both formats:
    >>> puny_linker.linkify('https://xn--80aaksdi3bpu.xn--p1ai/ https://дайтрафик.рф/')
    '<a href="https://xn--80aaksdi3bpu.xn--p1ai/" rel="nofollow">https://xn--80aaksdi3bpu.xn--p1ai/</a> <a href="https://дайтрафик.рф/" rel="nofollow">https://дайтрафик.рф/</a>'
 
+
+If you need an up-to-date list of valid TLDs directly taken from
+IANA you can install the tlds_ package and use it like this:
+
+.. doctest::
+
+   >>> from bleach.linkifier import Linker, build_url_re
+   >>> from tlds import tld_set
+
+   >>> linker = Linker(url_re=build_url_re(tlds=list(tld_set)))
+   >>> linker.linkify('fish TLD links https://example.fish')
+   'fish TLD links <a href="https://example.fish" rel="nofollow">https://example.fish</a>'
+   >>> linker.linkify('motorcycles TLD links https://example.motorcycles')
+   'motorcycles TLD links <a href="https://example.motorcycles" rel="nofollow">https://example.motorcycles</a>'
+
+
 :ref:`LinkifyFilter <linkify-LinkifyFilter>` also accepts these options.
 
 .. autoclass:: bleach.linkifier.Linker
@@ -360,6 +376,9 @@ both formats:
 .. versionadded:: 2.0
 
 .. _linkify-LinkifyFilter:
+
+.. _tlds: https://pypi.org/project/tlds/
+
 
 Using ``bleach.linkifier.LinkifyFilter``
 ========================================
