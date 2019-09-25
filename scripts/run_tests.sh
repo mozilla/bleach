@@ -16,6 +16,8 @@ case "${MODE}" in
     flake8 bleach/ ;;
   vendorverify)
     ./scripts/vendor_verify.sh ;;
+  docs)
+    tox -e docs ;;
   *)
     echo "Unknown mode $MODE."
     exit 1
