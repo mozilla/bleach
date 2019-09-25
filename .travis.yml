@@ -26,7 +26,7 @@ matrix:
       env: MODE=vendorverify
     - python: "3.4"
       env: MODE=lint
-    - python: "3.5"
+    - python: "3.6"
       env: MODE=docs
 
 script:
