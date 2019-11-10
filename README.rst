@@ -30,7 +30,6 @@ fixes. You can find full documentation on `ReadTheDocs`_.
 :Code:           https://github.com/mozilla/bleach
 :Documentation:  https://bleach.readthedocs.io/
 :Issue tracker:  https://github.com/mozilla/bleach/issues
-:IRC:            ``#bleach`` on irc.mozilla.org
 :License:        Apache License v2; see LICENSE file
 
 

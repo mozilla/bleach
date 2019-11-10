@@ -102,4 +102,4 @@ Release process
 
     That will push the release to PyPI.
 
-12. Blog posts, twitter, update topic in ``#bleach``, etc.
+12. Blog posts, twitter, etc.
