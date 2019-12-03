@@ -24,11 +24,11 @@ def test_only_text_is_cleaned():
 
     with pytest.raises(TypeError) as e:
         clean(some_type)
-    assert "argument cannot be of 'type' type" in str(e)
+    assert "argument cannot be of 'type' type" in str(e.value)
 
     with pytest.raises(TypeError) as e:
         clean(no_type)
-    assert "NoneType" in str(e)
+    assert "NoneType" in str(e.value)
 
 
 def test_empty():

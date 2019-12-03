@@ -15,3 +15,5 @@ docs/_build/
 *~
 *.swp
 __pycache__
+venv/
+.idea/
