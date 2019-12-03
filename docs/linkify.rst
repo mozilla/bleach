@@ -365,8 +365,12 @@ both formats:
    '<a href="https://xn--80aaksdi3bpu.xn--p1ai/" rel="nofollow">https://xn--80aaksdi3bpu.xn--p1ai/</a> <a href="https://дайтрафик.рф/" rel="nofollow">https://дайтрафик.рф/</a>'
 
 
-If you need an up-to-date list of valid TLDs directly taken from
-IANA you can install the tlds_ package and use it like this:
+To use a package that provides a TLD list, review the package then
+pass the list as the ``tlds`` keyword argument.
+
+For example, if you need an up-to-date list of valid TLDs directly
+taken from IANA you can install the tlds_ package and use it like this
+(note that the bleach maintainers have not reviewed tlds_):
 
 .. doctest::
 
