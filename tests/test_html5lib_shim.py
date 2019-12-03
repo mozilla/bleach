@@ -117,6 +117,12 @@ def test_serializer(data, expected):
         {},
         '<a href=\'http://example.com\'\'>',
         '<a href="http://example.com"></a>'
+    ),
+    # Test that "expected-closing-tag-but-got-char" works when tags is None
+    (
+        {},
+        '</ chars',
+        '<!-- chars-->',
     )
 ])
 def test_bleach_html_parser(parser_args, data, expected):
