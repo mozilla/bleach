@@ -364,6 +364,23 @@ both formats:
    >>> puny_linker.linkify('https://xn--80aaksdi3bpu.xn--p1ai/ https://дайтрафик.рф/')
    '<a href="https://xn--80aaksdi3bpu.xn--p1ai/" rel="nofollow">https://xn--80aaksdi3bpu.xn--p1ai/</a> <a href="https://дайтрафик.рф/" rel="nofollow">https://дайтрафик.рф/</a>'
 
+
+Similarly, using ``build_email_re`` with the ``email_re`` argument to
+customize recognized email TLDs:
+
+.. doctest::
+
+   >>> from bleach.linkifier import Linker, build_email_re
+
+   >>> only_fish_tld_url_re = build_email_re(tlds=['fish'])
+   >>> linker = Linker(email_re=only_fish_tld_url_re, parse_email=True)
+
+   >>> linker.linkify('does not link email: foo@example.com')
+   'does not link email: foo@example.com'
+   >>> linker.linkify('links email foo@example.fish')
+   'links email <a href="mailto:foo@example.fish">foo@example.fish</a>'
+
+
 :ref:`LinkifyFilter <linkify-LinkifyFilter>` also accepts these options.
 
 .. autoclass:: bleach.linkifier.Linker
