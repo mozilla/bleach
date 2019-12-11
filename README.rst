@@ -96,7 +96,7 @@ The simplest way to use Bleach is:
     u'an &lt;script&gt;evil()&lt;/script&gt; example'
 
     >>> bleach.linkify('an http://example.com url')
-    u'an <a href="http://example.com" rel="nofollow">http://example.com</a> url
+    u'an <a href="http://example.com" rel="nofollow">http://example.com</a> url'
 
 
 Code of conduct
