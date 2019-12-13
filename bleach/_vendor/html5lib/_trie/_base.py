@@ -1,6 +1,11 @@
 from __future__ import absolute_import, division, unicode_literals
 
-from collections import Mapping
+try:
+    # Python 3
+    from collections.abc import Mapping
+except ImportError:
+    # Python 2.7
+    from collections import Mapping
 
 
 class Trie(Mapping):
