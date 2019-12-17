@@ -18,7 +18,7 @@ tests_require = [
 ]
 
 install_requires = [
-    'six>=1.9.0',
+    'six>=1.9.0;python_version<"3"',
     # html5lib requirements
     'webencodings',
 ]
