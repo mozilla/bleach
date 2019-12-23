@@ -220,7 +220,7 @@ def test_bare_entities_get_escaped_correctly(text, expected):
     ('this &amp that', 'this &amp;amp that'),
 
     # Test a thing that looks like a character entity, but isn't because it's
-    # missing a ; (&curren)
+    # missing a ; (&current)
     (
         'http://example.com?active=true&current=true',
         'http://example.com?active=true&amp;current=true'
