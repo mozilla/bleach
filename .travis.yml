@@ -5,30 +5,64 @@ cache:
   directories:
   - "~/.cache/pip"
 
-python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "3.7"
-  - "3.8"
-  - "pypy2.7-6.0"
-  - "pypy3.5-6.0"
+matrix:
+  include:
+    - arch: arm64
+      python: 2.7
+    - arch: amd64
+      python: 2.7
+    - arch: arm64
+      python: 2.7
+      env: MODE=lint
+    - arch: amd64
+      python: 2.7
+      env: MODE=lint
+    - arch: arm64
+      python: 2.7
+      env: MODE=vendorverify
+    - arch: amd64
+      python: 2.7
+      env: MODE=vendorverify
+    - arch: arm64
+      python: 3.4
+    - arch: amd64
+      python: 3.4
+    - arch: arm64
+      python: 3.4
+      env: MODE=lint
+    - arch: amd64
+      python: 3.4
+      env: MODE=lint
+    - arch: arm64
+      python: 3.5
+    - arch: amd64
+      python: 3.5
+    - arch: arm64
+      python: 3.6
+    - arch: amd64
+      python: 3.6
+    - arch: arm64
+      python: 3.6
+      env: MODE=docs
+    - arch: amd64
+      python: 3.6
+      env: MODE=docs
+    - arch: arm64
+      python: 3.7
+    - arch: amd64
+      python: 3.7
+    - arch: arm64
+      python: 3.8
+    - arch: amd64
+      python: 3.8
+    - arch: amd64
+      python: pypy2.7-6.0
+    - arch: amd64
+      python: pypy3.5-6.0
 
 install:
   - pip install -U pip setuptools>=18.5
   - pip install -r requirements-dev.txt
-
-matrix:
-  include:
-    - python: "2.7"
-      env: MODE=lint
-    - python: "2.7"
-      env: MODE=vendorverify
-    - python: "3.4"
-      env: MODE=lint
-    - python: "3.6"
-      env: MODE=docs
 
 script:
   - ./scripts/run_tests.sh $MODE
