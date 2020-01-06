@@ -680,18 +680,18 @@ class TestLinkify:
 
 @pytest.mark.parametrize('text, expected', [
     ('abc', 'abc'),
-    ('example.com', '<a href="http://example.com">example.com</a>'),
+    ('example.com', '<a href="http://example.com" rel="nofollow">example.com</a>'),
     (
         'http://example.com?b=1&c=2',
-        '<a href="http://example.com?b=1&amp;c=2">http://example.com?b=1&amp;c=2</a>'
+        '<a href="http://example.com?b=1&amp;c=2" rel="nofollow">http://example.com?b=1&amp;c=2</a>'
     ),
     (
         'http://example.com?b=1&amp;c=2',
-        '<a href="http://example.com?b=1&amp;c=2">http://example.com?b=1&amp;c=2</a>'
+        '<a href="http://example.com?b=1&amp;c=2" rel="nofollow">http://example.com?b=1&amp;c=2</a>'
     ),
     (
         'link: https://example.com/watch#anchor',
-        'link: <a href="https://example.com/watch#anchor">https://example.com/watch#anchor</a>'
+        'link: <a href="https://example.com/watch#anchor" rel="nofollow">https://example.com/watch#anchor</a>'
     )
 ])
 def test_linkify_filter(text, expected):
