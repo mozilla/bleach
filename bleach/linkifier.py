@@ -192,8 +192,8 @@ class LinkifyFilter(html5lib_shim.Filter):
     This filter can be used anywhere html5lib filters can be used.
 
     """
-    def __init__(self, source, callbacks=None, skip_tags=None, parse_email=False,
-                 url_re=URL_RE, email_re=EMAIL_RE):
+    def __init__(self, source, callbacks=DEFAULT_CALLBACKS, skip_tags=None,
+                 parse_email=False, url_re=URL_RE, email_re=EMAIL_RE):
         """Creates a LinkifyFilter instance
 
         :arg TreeWalker source: stream
