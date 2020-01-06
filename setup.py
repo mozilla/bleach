@@ -3,19 +3,9 @@
 import io
 import os
 import re
-import sys
 
 from setuptools import setup, find_packages
 
-
-setup_requires = []
-if 'test' in sys.argv:
-    # Only add pytest-runner to setup_requires if running tests
-    setup_requires.append('pytest-runner>=2.0,<3dev')
-
-tests_require = [
-    'pytest>=3.0.0',
-]
 
 install_requires = [
     'six>=1.9.0',
@@ -56,8 +46,6 @@ setup(
     zip_safe=False,
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
     install_requires=install_requires,
-    setup_requires=setup_requires,
-    tests_require=tests_require,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
