@@ -416,7 +416,7 @@ For example, using all the defaults:
 
    >>> cleaner = Cleaner(tags=['pre'], filters=[LinkifyFilter])
    >>> cleaner.clean('<pre>http://example.com</pre>')
-   '<pre><a href="http://example.com">http://example.com</a></pre>'
+   '<pre><a href="http://example.com" rel="nofollow">http://example.com</a></pre>'
 
 
 And passing parameters to ``LinkifyFilter``:
