@@ -99,15 +99,12 @@ The simplest way to use Bleach is:
     u'an <a href="http://example.com" rel="nofollow">http://example.com</a> url'
 
 
-Code of conduct
+Code of Conduct
 ===============
 
 This project and repository is governed by Mozilla's code of conduct and
-etiquette guidelines. For more details please see the `Mozilla Community
-Participation Guidelines
-<https://www.mozilla.org/about/governance/policies/participation/>`_ and
-`Developer Etiquette Guidelines
-<https://bugzilla.mozilla.org/page.cgi?id=etiquette.html>`_.
+etiquette guidelines. For more details please see the `CODE_OF_CONDUCT.md
+</CODE_OF_CONDUCT.md>`_
 
 
 .. _html5lib: https://github.com/html5lib/html5lib-python
