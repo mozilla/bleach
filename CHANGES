@@ -1,6 +1,41 @@
 Bleach changes
 ==============
 
+Version 3.1.1 (February 13th, 2020)
+-----------------------------------
+
+**Security fixes**
+
+* ``bleach.clean`` behavior parsing ``noscript`` tags did not match
+  browser behavior.
+
+  Calls to ``bleach.clean`` allowing ``noscript`` and one or more of
+  the raw text tags (``title``, ``textarea``, ``script``, ``style``,
+  ``noembed``, ``noframes``, ``iframe``, and ``xmp``) were vulnerable
+  to a mutation XSS.
+
+  This security issue was confirmed in Bleach versions v2.1.4, v3.0.2,
+  and v3.1.0. Earlier versions are probably affected too.
+
+  Anyone using Bleach <=v3.1.0 is highly encouraged to upgrade.
+
+  https://bugzilla.mozilla.org/show_bug.cgi?id=1615315
+
+**Backwards incompatible changes**
+
+None
+
+**Features**
+
+None
+
+**Bug fixes**
+
+None
+
+Bleach changes
+==============
+
 Version 3.1.0 (January 9th, 2019)
 ---------------------------------
 
@@ -76,7 +111,7 @@ None
 
 * Fix ``list`` object has no attribute ``lower`` in ``clean``. (#398)
 * Fix ``abbr`` getting escaped in ``linkify``. (#400)
- 
+
 
 Version 3.0.0 (October 3rd, 2018)
 ---------------------------------
