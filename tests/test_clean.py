@@ -769,6 +769,34 @@ def test_nonexistent_namespace():
     assert clean('<d {c}>') == '&lt;d {c}&gt;'
 
 
+# tags that get content passed through (i.e. parsed with parseRCDataRawtext)
+_raw_tags = [
+    "title",
+    "textarea",
+    "script",
+    "style",
+    "noembed",
+    "noframes",
+    "iframe",
+    "xmp",
+]
+
+@pytest.mark.parametrize(
+    "raw_tag, data, expected",
+    [
+        (
+            raw_tag,
+            "<noscript><%s></noscript><img src=x onerror=alert(1) />" % raw_tag,
+            "<noscript><%s></noscript>&lt;img src=x onerror=alert(1) /&gt;" % raw_tag,
+        )
+        for raw_tag in _raw_tags
+    ],
+)
+def test_noscript_rawtag_(raw_tag, data, expected):
+    # refs: bug 1615315 / GHSA-q65m-pv3f-wr5r
+    assert clean(data, tags=["noscript", raw_tag]) == expected
+
+
 def get_ids_and_tests():
     """Retrieves regression tests from data/ directory
 
