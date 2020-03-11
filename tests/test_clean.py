@@ -7,7 +7,7 @@ import pytest
 from bleach import clean
 from bleach.html5lib_shim import Filter
 from bleach.sanitizer import Cleaner
-
+from bleach._vendor.html5lib.constants import rcdataElements
 
 def test_clean_idempotent():
     """Make sure that applying the filter twice doesn't change anything."""
@@ -789,7 +789,7 @@ _raw_tags = [
         (
             raw_tag,
             "<noscript><%s></noscript><img src=x onerror=alert(1) />" % raw_tag,
-            "<noscript><%s></noscript>&lt;img src=x onerror=alert(1) /&gt;" % raw_tag,
+            "<noscript>&lt;%s&gt;</noscript>&lt;img src=x onerror=alert(1) /&gt;" % raw_tag,
         )
         for raw_tag in _raw_tags
     ],
@@ -797,6 +797,29 @@ _raw_tags = [
 def test_noscript_rawtag_(raw_tag, data, expected):
     # refs: bug 1615315 / GHSA-q65m-pv3f-wr5r
     assert clean(data, tags=["noscript", raw_tag]) == expected
+
+
+@pytest.mark.parametrize(
+    "namespace_tag, rc_data_element_tag, data, expected",
+    [
+        (
+            namespace_tag,
+            rc_data_element_tag,
+            "<%s><%s><img src=x onerror=alert(1)>" % (namespace_tag, rc_data_element_tag),
+            "<%s><%s>&lt;img src=x onerror=alert(1)&gt;</%s></%s>" % (namespace_tag, rc_data_element_tag, rc_data_element_tag, namespace_tag),
+        )
+        for namespace_tag in ["math", "svg"]
+        # https://dev.w3.org/html5/html-author/#rcdata-elements
+        # https://html.spec.whatwg.org/index.html#parsing-html-fragments
+        # in html5lib: 'style', 'script', 'xmp', 'iframe', 'noembed', 'noframes', and 'noscript'
+        for rc_data_element_tag in rcdataElements
+    ],
+)
+def test_namespace_rc_data_element_strip_false(namespace_tag, rc_data_element_tag, data, expected):
+    # refs: bug 1621692 / GHSA-m6xf-fq7q-8743
+    #
+    # browsers will pull the img out of the namespace and rc data tag resulting in XSS
+    assert clean(data, tags=[namespace_tag, rc_data_element_tag], strip=False) == expected
 
 
 def get_ids_and_tests():
