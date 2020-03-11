@@ -1,6 +1,40 @@
 Bleach changes
 ==============
 
+Version 3.1.2 (March 11th, 2020)
+--------------------------------
+
+**Security fixes**
+
+* ``bleach.clean`` behavior parsing embedded MathML and SVG content
+  with RCDATA tags did not match browser behavior and could result in
+  a mutation XSS.
+
+  Calls to ``bleach.clean`` with ``strip=False`` and ``math`` or
+  ``svg`` tags and one or more of the RCDATA tags ``script``,
+  ``noscript``, ``style``, ``noframes``, ``iframe``, ``noembed``, or
+  ``xmp`` in the allowed tags whitelist were vulnerable to a mutation
+  XSS.
+
+  This security issue was confirmed in Bleach version v3.1.1. Earlier
+  versions are likely affected too.
+
+  Anyone using Bleach <=v3.1.1 is encouraged to upgrade.
+
+  https://bugzilla.mozilla.org/show_bug.cgi?id=1621692
+
+**Backwards incompatible changes**
+
+None
+
+**Features**
+
+None
+
+**Bug fixes**
+
+None
+
 Version 3.1.1 (February 13th, 2020)
 -----------------------------------
 
