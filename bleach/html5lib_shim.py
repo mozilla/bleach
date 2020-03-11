@@ -533,7 +533,18 @@ def next_possible_entity(text):
 
 
 class BleachHTMLSerializer(HTMLSerializer):
-    """HTMLSerializer that undoes & -> &amp; in attributes"""
+    """HTMLSerializer that undoes & -> &amp; in attributes and sets
+    escape_rcdata to True
+    """
+
+    # per the HTMLSerializer.__init__ docstring:
+    #
+    # Whether to escape characters that need to be
+    # escaped within normal elements within rcdata elements such as
+    # style.
+    #
+    escape_rcdata = True
+
     def escape_base_amp(self, stoken):
         """Escapes just bare & in HTML attribute values"""
         # First, undo escaping of &. We need to do this because html5lib's
