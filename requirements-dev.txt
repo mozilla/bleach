@@ -11,3 +11,6 @@ Sphinx
 
 # Requirements for updating package
 twine
+
+# Requirements for running setup.py bdist_wheel
+wheel
