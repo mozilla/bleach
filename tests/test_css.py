@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from functools import partial
+from timeit import timeit
 
 import pytest
 
@@ -37,10 +38,12 @@ clean = partial(clean, tags=['p'], attributes=['style'])
         '<p style="color: red;">bar</p>'
     ),
     # Handle leading - in attributes
-    (
+    # regressed with the fix for bug 1623633
+    pytest.param(
         '<p style="cursor: -moz-grab;">bar</p>',
         ['cursor'],
-        '<p style="cursor: -moz-grab;">bar</p>'
+        '<p style="cursor: -moz-grab;">bar</p>',
+        marks=pytest.mark.xfail,
     ),
     # Handle () in attributes
     (
@@ -54,16 +57,20 @@ clean = partial(clean, tags=['p'], attributes=['style'])
         '<p style="color: rgba(255,0,0,0.4);">bar</p>',
     ),
     # Handle ' in attributes
-    (
+    # regressed with the fix for bug 1623633
+    pytest.param(
         '<p style="text-overflow: \',\' ellipsis;">bar</p>',
         ['text-overflow'],
-        '<p style="text-overflow: \',\' ellipsis;">bar</p>'
+        '<p style="text-overflow: \',\' ellipsis;">bar</p>',
+        marks=pytest.mark.xfail,
     ),
     # Handle " in attributes
-    (
+    # regressed with the fix for bug 1623633
+    pytest.param(
         '<p style=\'text-overflow: "," ellipsis;\'>bar</p>',
         ['text-overflow'],
-        '<p style=\'text-overflow: "," ellipsis;\'>bar</p>'
+        '<p style=\'text-overflow: "," ellipsis;\'>bar</p>',
+        marks=pytest.mark.xfail,
     ),
     (
         '<p style=\'font-family: "Arial";\'>bar</p>',
@@ -223,3 +230,17 @@ def test_style_hang():
 def test_css_parsing_with_entities(data, styles, expected):
     """The sanitizer should be ok with character entities"""
     assert clean(data, tags=['p'], attributes={'p': ['style']}, styles=styles) == expected
+
+
+@pytest.mark.parametrize('overlap_test_char', ["\"", "'", "-"])
+def test_css_parsing_gauntlet_regex_backtracking(overlap_test_char):
+    """The sanitizer gauntlet regex should not catastrophically backtrack"""
+    # refs: https://bugzilla.mozilla.org/show_bug.cgi?id=1623633
+
+    def time_clean(test_char, size):
+        style_attr_value = (test_char + 'a' + test_char) * size + '^'
+        stmt = """clean('''<a style='%s'></a>''', attributes={'a': ['style']})""" % style_attr_value
+        return timeit(stmt=stmt, setup='from bleach import clean', number=1)
+
+    # should complete in less than one second
+    assert time_clean(overlap_test_char, 22) < 1.0
