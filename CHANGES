@@ -1,6 +1,39 @@
 Bleach changes
 ==============
 
+Version 3.1.4 (March 24th, 2020)
+--------------------------------
+
+**Security fixes**
+
+* ``bleach.clean`` behavior parsing style attributes could result in a
+  regular expression denial of service (ReDoS).
+
+  Calls to ``bleach.clean`` with an allowed tag with an allowed
+  ``style`` attribute were vulnerable to ReDoS. For example,
+  ``bleach.clean(..., attributes={'a': ['style']})``.
+
+  This issue was confirmed in Bleach versions v3.1.3, v3.1.2, v3.1.1,
+  v3.1.0, v3.0.0, v2.1.4, and v2.1.3. Earlier versions used a similar
+  regular expression and should be considered vulnerable too.
+
+  Anyone using Bleach <=v3.1.3 is encouraged to upgrade.
+
+  https://bugzilla.mozilla.org/show_bug.cgi?id=1623633
+
+**Backwards incompatible changes**
+
+* Style attributes with dashes, or single or double quoted values are
+  cleaned instead of passed through.
+
+**Features**
+
+None
+
+**Bug fixes**
+
+None
+
 Version 3.1.3 (March 17th, 2020)
 --------------------------------
 
