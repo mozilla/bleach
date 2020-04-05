@@ -619,7 +619,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
 |\w-\w           # 3 characters in the form \w-\w
 |'[\s\w]+'\s*    # a single quoted string of [\s\w]+ with trailing space
 |"[\s\w]+"       # a double quoted string of [\s\w]+
-|\([\d,%\.\s]+\) # a parenthesized string of one or more digits, commas, periods, ...
+|\([\d,%.\s]+\)  # a parenthesized string of one or more digits, commas, periods, ...
 )*$""",  # ... percent signs, or whitespace e.g. from 'color: hsl(30,100%,50%)'
             flags=re.U | re.VERBOSE,
         )
