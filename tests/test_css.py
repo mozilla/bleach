@@ -60,7 +60,6 @@ clean = partial(clean, tags=["p"], attributes=["style"])
             "<p style=\"text-overflow: ',' ellipsis;\">bar</p>",
             ["text-overflow"],
             "<p style=\"text-overflow: ',' ellipsis;\">bar</p>",
-            marks=pytest.mark.xfail,
         ),
         # Handle " in attributes
         # regressed with the fix for bug 1623633
@@ -68,7 +67,6 @@ clean = partial(clean, tags=["p"], attributes=["style"])
             "<p style='text-overflow: \",\" ellipsis;'>bar</p>",
             ["text-overflow"],
             "<p style='text-overflow: \",\" ellipsis;'>bar</p>",
-            marks=pytest.mark.xfail,
         ),
         (
             "<p style='font-family: \"Arial\";'>bar</p>",
