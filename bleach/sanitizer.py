@@ -615,8 +615,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
         parts = style.split(";")
         gauntlet = re.compile(
             r"""^(  # consider a style attribute value as composed of:
-[/:,#%!.\s\w]    # a non-newline character
-|\w-\w           # 3 characters in the form \w-\w
+[-/:,#%!.\s\w]   # a non-newline character
 |'[\s\w]+'       # a single quoted string of [\s\w]+
 |"[\s\w]+"       # a double quoted string of [\s\w]+
 |\([\d,%.\s]+\)  # a parenthesized string of one or more digits, commas, periods, ...

@@ -38,12 +38,10 @@ clean = partial(clean, tags=["p"], attributes=["style"])
             '<p style="color: red;">bar</p>',
         ),
         # Handle leading - in attributes
-        # regressed with the fix for bug 1623633
         pytest.param(
             '<p style="cursor: -moz-grab;">bar</p>',
             ["cursor"],
             '<p style="cursor: -moz-grab;">bar</p>',
-            marks=pytest.mark.xfail,
         ),
         # Handle () in attributes
         (
