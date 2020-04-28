@@ -2,7 +2,7 @@
 
 from __future__ import unicode_literals
 
-from pkg_resources import parse_version
+import packaging.version
 
 from bleach.linkifier import (
     DEFAULT_CALLBACKS,
@@ -21,7 +21,7 @@ from bleach.sanitizer import (
 __releasedate__ = '20200324'
 # x.y.z or x.y.z.dev0 -- semver
 __version__ = '3.1.4'
-VERSION = parse_version(__version__)
+VERSION = packaging.version.Version(__version__)
 
 
 __all__ = ['clean', 'linkify']

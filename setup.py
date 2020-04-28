@@ -8,6 +8,7 @@ from setuptools import setup, find_packages
 
 
 install_requires = [
+    'packaging',
     'six>=1.9.0',
     # html5lib requirements
     'webencodings',
