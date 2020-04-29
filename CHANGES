@@ -1,6 +1,21 @@
 Bleach changes
 ==============
 
+Version 3.1.5 (April 29th, 2020)
+--------------------------------
+
+**Security fixes**
+
+None
+
+**Features**
+
+None
+
+**Bug fixes**
+
+* replace missing ``setuptools`` dependency with ``packaging``. Thank you Benjamin Peterson.
+
 Version 3.1.4 (March 24th, 2020)
 --------------------------------
 
