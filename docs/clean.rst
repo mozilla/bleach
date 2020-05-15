@@ -346,7 +346,7 @@ This lets you add data, drop data and change data as it is being serialized back
 to a unicode.
 
 Documentation on html5lib Filters is here:
-http://html5lib.readthedocs.io/en/latest/movingparts.html#filters
+https://html5lib.readthedocs.io/en/latest/movingparts.html#filters
 
 Trivial Filter example:
 

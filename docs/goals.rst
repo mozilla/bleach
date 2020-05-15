@@ -158,7 +158,7 @@ Usage with Javascript frameworks and template languages
 -------------------------------------------------------
 
 A number of Javascript frameworks and template languages allow `XSS
-via Javascript Gadgets <http://sebastian-lekies.de/slides/appsec2017.pdf>`_.
+via Javascript Gadgets <https://sebastian-lekies.de/slides/appsec2017.pdf>`_.
 While Bleach usually produces output safe for these contexts, it is
 not tested against them nor guaranteed to produce safe output.  Check
 that bleach properly strips or escapes language-specific syntax like

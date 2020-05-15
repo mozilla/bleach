@@ -107,7 +107,7 @@ class Cleaner(object):
 
         :arg list filters: list of html5lib Filter classes to pass streamed content through
 
-            .. seealso:: http://html5lib.readthedocs.io/en/latest/movingparts.html#filters
+            .. seealso:: https://html5lib.readthedocs.io/en/latest/movingparts.html#filters
 
             .. Warning::
 
