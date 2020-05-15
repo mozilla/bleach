@@ -5,7 +5,7 @@ from timeit import timeit
 
 import pytest
 
-from bleach import clean
+from bleach import Cleaner, clean
 
 
 clean = partial(clean, tags=['p'], attributes=['style'])
@@ -244,3 +244,23 @@ def test_css_parsing_gauntlet_regex_backtracking(overlap_test_char):
 
     # should complete in less than one second
     assert time_clean(overlap_test_char, 22) < 1.0
+
+
+def always_red_sanitizer(style):
+    return 'color: red'
+
+
+@pytest.mark.parametrize('data, styles, expected', [
+    (
+        '<p style="border: 1px solid blue; color: blue; float: left;">bar</p>',
+        [],
+        '<p style="color: red">bar</p>'
+    ),
+])
+def test_custom_css_sanitizer(data, styles, expected):
+    custom_cleaner = Cleaner(
+        tags=['p'], attributes=['style'],
+        styles=styles,
+        css_style_attr_sanitizer=always_red_sanitizer,
+    )
+    assert custom_cleaner.clean(data) == expected

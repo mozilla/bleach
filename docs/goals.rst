@@ -133,10 +133,26 @@ Bleach to make it safe and then do your own transform afterwards.
 Allow arbitrary styling
 -----------------------
 
-There are a number of interesting CSS properties that can do dangerous things,
-like Opera's ``-o-link``. Painful as it is, if you want your users to be able to
-change nearly anything in a ``style`` attribute, you should have to opt into
-this.
+Arbitrary CSS can do dangerous things:
+
+* `UI Redressing / Clickjacking <https://html5sec.org/#clickjacking>`_
+  using positioning and other properties (e.g. ``pointer-events``,
+  ``z-index``, ``display: none``, ``position: absolute``, etc.)
+
+* `data exfiltration
+  <https://www.mike-gualtieri.com/posts/stealing-data-with-css-attack-and-defense>`_
+  / `privacy leaks <https://github.com/cure53/HTTPLeaks/blob/ac0a2c6c8bd73c4e982c6fce86d01d018571b17e/leak.html#L362-L396>`_
+
+* `XSS in legacy browsers <https://blog.innerht.ml/cascading-style-scripting/>`_ using properties like ``-o-link`` and
+  ``-moz-binding``, or functions like ``expression()`` and ``url()``
+
+
+Bleach doesn't know how the surrounding page is styled or what a
+site's authors or users consider customization instead of defacement.
+
+Consequently, bleach requires you to opt in if you want your users to
+be able to change nearly anything in a ``style`` attribute.
+
 
 Usage with Javascript frameworks and template languages
 -------------------------------------------------------

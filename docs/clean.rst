@@ -395,3 +395,32 @@ use an html5lib filter.
 
 
 .. versionadded:: 2.0
+
+
+Using different CSS parser and sanitizer with `css_style_attr_sanitizer`
+------------------------------------------------------------------------
+
+The argument `css_style_attr_sanitizer` can ``bleach.sanitizer.Cleaner`` be used
+to customize CSS parsing and sanitization. For example, define a new sanitization
+function:
+
+   >>> from bleach import Cleaner
+
+   >>> def sanitize_css(style):
+   ...     print('ignoring style attribute value:', repr(style))
+   ...     return ''
+
+   Create a new :py:class:`bleach.sanitizer.Cleaner` using it:
+
+   >>> cleaner = Cleaner(
+   ...     tags=['p'],
+   ...     attributes=['style'],
+   ...     styles=['not used'],
+   ...     css_style_attr_sanitizer=sanitize_css,
+   ... )
+
+   >>> cleaner.clean('<p style="cursor: -moz-grab;">bar</p>')
+   ignoring style attribute value: 'cursor: -moz-grab;'
+   '<p style="">bar</p>'
+
+.. versionadded:: 3.2.0

@@ -86,7 +86,7 @@ class Cleaner(object):
 
     def __init__(self, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
                  styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
-                 strip_comments=True, filters=None):
+                 strip_comments=True, filters=None, css_style_attr_sanitizer=None):
         """Initializes a Cleaner
 
         :arg list tags: allowed list of tags; defaults to
@@ -111,8 +111,22 @@ class Cleaner(object):
 
             .. Warning::
 
-               Using filters changes the output of ``bleach.Cleaner.clean``.
+               Using ``filters`` changes the output of ``bleach.Cleaner.clean``.
                Make sure the way the filters change the output are secure.
+
+        :arg func css_style_attr_sanitizer: a function taking a
+            style attribute string and returns a sanitized style attribute; defaults to
+            the legacy regex-based sanitizer.
+
+            .. seealso:: https://bleach.readthedocs.io/en/latest/goals.html#allow-arbitrary-styling
+
+            .. Warning::
+
+               Using ``css_style_attr_sanitizer`` changes the output of ``bleach.Cleaner.clean``
+               overriding the ``styles`` whitelist. Make sure the output is secure for your use
+               case.
+
+            .. versionadded:: 3.2.0
 
         """
         self.tags = tags
@@ -122,6 +136,7 @@ class Cleaner(object):
         self.strip = strip
         self.strip_comments = strip_comments
         self.filters = filters or []
+        self.css_style_attr_sanitizer = css_style_attr_sanitizer
 
         self.parser = html5lib_shim.BleachHTMLParser(
             tags=self.tags,
@@ -174,6 +189,7 @@ class Cleaner(object):
             attributes=self.attributes,
             strip_disallowed_elements=self.strip,
             strip_html_comments=self.strip_comments,
+            css_style_attr_sanitizer=self.css_style_attr_sanitizer,
 
             # html5lib-sanitizer things
             allowed_elements=self.tags,
@@ -238,6 +254,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
     """
     def __init__(self, source, attributes=ALLOWED_ATTRIBUTES,
                  strip_disallowed_elements=False, strip_html_comments=True,
+                 css_style_attr_sanitizer=None,
                  **kwargs):
         """Creates a BleachSanitizerFilter instance
 
@@ -260,10 +277,26 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
 
         :arg bool strip_html_comments: whether or not to strip HTML comments
 
+        :arg func css_style_attr_sanitizer: a function taking a
+            style attribute string and returns a sanitized style attribute; defaults to
+            the legacy regex-based sanitizer.
+
+            .. seealso:: https://bleach.readthedocs.io/en/latest/goals.html#allow-arbitrary-styling
+
+            .. Warning::
+
+               Using ``css_style_attr_sanitizer`` changes the output of ``bleach.Cleaner.clean``
+               overriding the ``styles`` whitelist. Make sure the output is secure for your use
+               case.
+
+            .. versionadded:: 3.2.0
+
         """
         self.attr_filter = attribute_filter_factory(attributes)
         self.strip_disallowed_elements = strip_disallowed_elements
         self.strip_html_comments = strip_html_comments
+        if css_style_attr_sanitizer is not None:
+            self.sanitize_css = css_style_attr_sanitizer
 
         return super(BleachSanitizerFilter, self).__init__(source, **kwargs)
 
