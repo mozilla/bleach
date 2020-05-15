@@ -1,6 +1,21 @@
 Bleach changes
 ==============
 
+Version 3.2.0.dev0 (May 15th, 2020)
+-----------------------------------
+
+**Security fixes**
+
+None
+
+**Features**
+
+* Add ``css_style_attr_sanitizer`` argument to ``bleach.sanitizer.Cleaner``
+
+**Bug fixes**
+
+None
+
 Version 3.1.5 (April 29th, 2020)
 --------------------------------
 
