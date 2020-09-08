@@ -1,8 +1,48 @@
+Metadata-Version: 2.1
+Name: html5lib
+Version: 1.1
+Summary: HTML parser based on the WHATWG HTML specification
+Home-page: https://github.com/html5lib/html5lib-python
+Maintainer: James Graham
+Maintainer-email: james@hoppipolla.co.uk
+License: MIT License
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Text Processing :: Markup :: HTML
+Requires-Python: >=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*
+Requires-Dist: six (>=1.9)
+Requires-Dist: webencodings
+Provides-Extra: all
+Requires-Dist: genshi ; extra == 'all'
+Requires-Dist: chardet (>=2.2) ; extra == 'all'
+Requires-Dist: lxml ; (platform_python_implementation == 'CPython') and extra == 'all'
+Provides-Extra: chardet
+Requires-Dist: chardet (>=2.2) ; extra == 'chardet'
+Provides-Extra: genshi
+Requires-Dist: genshi ; extra == 'genshi'
+Provides-Extra: lxml
+Requires-Dist: lxml ; (platform_python_implementation == 'CPython') and extra == 'lxml'
+
 html5lib
 ========
 
-.. image:: https://travis-ci.org/html5lib/html5lib-python.png?branch=master
-  :target: https://travis-ci.org/html5lib/html5lib-python
+.. image:: https://travis-ci.org/html5lib/html5lib-python.svg?branch=master
+    :target: https://travis-ci.org/html5lib/html5lib-python
+
 
 html5lib is a pure-python library for parsing HTML. It is designed to
 conform to the WHATWG HTML specification, as is implemented by all major
@@ -90,22 +130,21 @@ More documentation is available at https://html5lib.readthedocs.io/.
 Installation
 ------------
 
-html5lib works on CPython 2.7+, CPython 3.3+ and PyPy.  To install it,
-use:
+html5lib works on CPython 2.7+, CPython 3.5+ and PyPy. To install:
 
 .. code-block:: bash
 
     $ pip install html5lib
 
+The goal is to support a (non-strict) superset of the versions that `pip
+supports
+<https://pip.pypa.io/en/stable/installing/#python-and-os-compatibility>`_.
 
 Optional Dependencies
 ---------------------
 
 The following third-party libraries may be used for additional
 functionality:
-
-- ``datrie`` can be used under CPython to improve parsing performance
-  (though in almost all cases the improvement is marginal);
 
 - ``lxml`` is supported as a tree format (for both building and
   walking) under CPython (but *not* PyPy where it is known to cause
@@ -153,6 +192,30 @@ irc.freenode.net <http://wiki.whatwg.org/wiki/IRC>`_.
 Change Log
 ----------
 
+1.1
+~~~
+
+UNRELEASED
+
+Breaking changes:
+
+* Drop support for Python 3.3. (#358)
+* Drop support for Python 3.4. (#421)
+
+Deprecations:
+
+* Deprecate the ``html5lib`` sanitizer (``html5lib.serialize(sanitize=True)`` and
+  ``html5lib.filters.sanitizer``). We recommend users migrate to `Bleach
+  <https://github.com/mozilla/bleach>`. Please let us know if Bleach doesn't suffice for your
+  use. (#443)
+
+Other changes:
+
+* Try to import from ``collections.abc`` to remove DeprecationWarning and ensure
+  ``html5lib`` keeps working in future Python versions. (#403)
+* Drop optional ``datrie`` dependency. (#442)
+
+
 1.0.1
 ~~~~~
 
@@ -172,7 +235,7 @@ Features:
 * Support Python 3.6. (#333) (Thank you, Jon Dufresne!)
 * Add CI support for Windows using AppVeyor. (Thank you, John Vandenberg!)
 * Improve testing and CI and add code coverage (#323, #334), (Thank you, Jon
-  Dufresne, John Vandenberg, Geoffrey Sneddon, Will Kahn-Greene!)
+  Dufresne, John Vandenberg, Sam Sneddon, Will Kahn-Greene!)
 * Semver-compliant version number.
 
 Bug fixes:
