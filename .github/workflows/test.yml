@@ -12,45 +12,27 @@ jobs:
         os: [ubuntu-18.04, ubuntu-16.04, macos-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v1
-
-      - name: Ubuntu cache
-        uses: actions/cache@v1
-        if: startsWith(matrix.os, 'ubuntu')
-        with:
-          path: ~/.cache/pip
-          key:
-            ${{ matrix.os }}-${{ matrix.python-version }}-${{ hashFiles('**/setup.py')
-            }}
-          restore-keys: |
-            ${{ matrix.os }}-${{ matrix.python-version }}-
-
-      - name: macOS cache
-        uses: actions/cache@v1
-        if: startsWith(matrix.os, 'macOS')
-        with:
-          path: ~/Library/Caches/pip
-          key:
-            ${{ matrix.os }}-${{ matrix.python-version }}-${{ hashFiles('**/setup.py')
-            }}
-          restore-keys: |
-            ${{ matrix.os }}-${{ matrix.python-version }}-
-
-      - name: Windows cache
-        uses: actions/cache@v1
-        if: startsWith(matrix.os, 'windows')
-        with:
-          path: ~\AppData\Local\pip\Cache
-          key:
-            ${{ matrix.os }}-${{ matrix.python-version }}-${{ hashFiles('**/setup.py')
-            }}
-          restore-keys: |
-            ${{ matrix.os }}-${{ matrix.python-version }}-
+      - uses: actions/checkout@v2
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Get pip cache dir
+        id: pip-cache
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key:
+            ${{ matrix.os }}-${{ matrix.python-version }}-${{ hashFiles('**/setup.py')
+            }}
+          restore-keys: |
+            ${{ matrix.os }}-${{ matrix.python-version }}-
 
       - name: Install dependencies
         run: |
