@@ -26,7 +26,7 @@ from bleach._vendor.html5lib.filters.sanitizer import allowed_protocols
 from bleach._vendor.html5lib.filters.sanitizer import Filter as SanitizerFilter
 from bleach._vendor.html5lib._inputstream import HTMLInputStream
 from bleach._vendor.html5lib.serializer import HTMLSerializer
-from bleach._vendor.html5lib._tokenizer import HTMLTokenizer
+from bleach._vendor.html5lib._tokenizer import attributeMap, HTMLTokenizer
 from bleach._vendor.html5lib._trie import Trie
 
 
@@ -244,14 +244,21 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                 if ((last_error_token['data'] == 'invalid-character-in-attribute-name' and
                      token['type'] in TAG_TOKEN_TYPES and
                      token.get('data'))):
+                    # token["data"] is an html5lib attributeMap
+                    # (OrderedDict 3.7+ and dict otherwise)
+                    # of attr name to attr value
+                    #
                     # Remove attribute names that have ', " or < in them
                     # because those characters are invalid for attribute names.
-                    token['data'] = [
-                        item for item in token['data']
-                        if ('"' not in item[0] and
-                            "'" not in item[0] and
-                            '<' not in item[0])
-                    ]
+                    token["data"] = attributeMap(
+                        (attr_name, attr_value)
+                        for attr_name, attr_value in token["data"].items()
+                        if (
+                            '"' not in attr_name
+                            and "'" not in attr_name
+                            and "<" not in attr_name
+                        )
+                    )
                     last_error_token = None
                     yield token
 
