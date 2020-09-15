@@ -8,8 +8,12 @@ from __future__ import unicode_literals
 
 import re
 import string
+import warnings
 
 import six
+
+# filter out html5lib deprecation warnings to use bleach
+warnings.simplefilter("ignore", category=DeprecationWarning)
 
 from bleach._vendor.html5lib import (
     HTMLParser,

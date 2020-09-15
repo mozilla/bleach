@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from itertools import chain
 import re
+import warnings
 
 import six
 from six.moves.urllib.parse import urlparse
@@ -9,6 +10,10 @@ from xml.sax.saxutils import unescape
 
 from bleach import html5lib_shim
 from bleach.utils import alphabetize_attributes, force_unicode
+
+
+# filter out html5lib deprecation warnings to use bleach from BleachSanitizerFilter init
+warnings.simplefilter("ignore", category=DeprecationWarning)
 
 
 #: List of allowed tags
