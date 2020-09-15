@@ -14,3 +14,6 @@ twine
 
 # Requirements for running setup.py bdist_wheel
 wheel
+
+# Requirements for updating the vendored html5lib
+hashin
