@@ -1,6 +1,22 @@
 Bleach changes
 ==============
 
+Version Unreleased (replaceme, 2020)
+--------------------------------
+
+**Security fixes**
+
+None
+
+**Features**
+
+None
+
+**Bug fixes**
+
+* ``html5lib`` dependency to version 1.1.0. Thank you Sam Sneddon.
+* update tests_website terminology. Thank you Thomas Grainger.
+
 Version 3.1.5 (April 29th, 2020)
 --------------------------------
 
