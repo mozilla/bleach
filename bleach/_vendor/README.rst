@@ -19,7 +19,7 @@ Adding/Updating a vendored library
 
 Way to vendor a library or update a version:
 
-1. Update ``vendor.txt`` with the library, version, and hash. You can use 
+1. Update ``vendor.txt`` with the library, version, and hash. You can use
    `hashin <https://pypi.org/project/hashin/>`_.
 2. Remove all old files and directories of the old version.
 3. Run ``pip_install_vendor.sh`` and check everything it produced in including
@@ -35,3 +35,6 @@ Way to verify a vendored library addition/update:
 2. Delete all the old files and directories of the old version.
 3. Run ``pip_install_vendor.sh``.
 4. Run ``git diff`` and verify there are no changes.
+
+
+NB: the current ``vendor.txt`` was generated with pip 20.2.3, which might be necessary to reproduce the dist-info
