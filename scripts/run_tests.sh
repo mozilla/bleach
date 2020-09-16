@@ -18,6 +18,10 @@ case "${MODE}" in
     ./scripts/vendor_verify.sh ;;
   docs)
     tox -e docs ;;
+  format)
+    black bleach/*.py tests/ tests_website/ ;;
+  format-check)
+    black --check --diff bleach/*.py tests/ tests_website/ ;;
   *)
     echo "Unknown mode $MODE."
     exit 1
