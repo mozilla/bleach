@@ -18,18 +18,24 @@ from bleach.sanitizer import (
 
 
 # yyyymmdd
-__releasedate__ = ''
+__releasedate__ = ""
 # x.y.z or x.y.z.dev0 -- semver
-__version__ = '3.2.1dev0'
+__version__ = "3.2.1dev0"
 VERSION = packaging.version.Version(__version__)
 
 
-__all__ = ['clean', 'linkify']
+__all__ = ["clean", "linkify"]
 
 
-def clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
-          styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
-          strip_comments=True):
+def clean(
+    text,
+    tags=ALLOWED_TAGS,
+    attributes=ALLOWED_ATTRIBUTES,
+    styles=ALLOWED_STYLES,
+    protocols=ALLOWED_PROTOCOLS,
+    strip=False,
+    strip_comments=True,
+):
     """Clean an HTML fragment of malicious content and return it
 
     This function is a security-focused function whose sole purpose is to
@@ -123,9 +129,5 @@ def linkify(text, callbacks=DEFAULT_CALLBACKS, skip_tags=None, parse_email=False
     :returns: linkified text as unicode
 
     """
-    linker = Linker(
-        callbacks=callbacks,
-        skip_tags=skip_tags,
-        parse_email=parse_email
-    )
+    linker = Linker(callbacks=callbacks, skip_tags=skip_tags, parse_email=parse_email)
     return linker.linkify(text)

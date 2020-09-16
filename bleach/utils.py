@@ -11,7 +11,7 @@ def _attr_key(attr):
     ``None`` to an empty string.
 
     """
-    key = (attr[0][0] or ''), attr[0][1]
+    key = (attr[0][0] or ""), attr[0][1]
     return key
 
 
@@ -20,9 +20,7 @@ def alphabetize_attributes(attrs):
     if not attrs:
         return attrs
 
-    return OrderedDict(
-        [(k, v) for k, v in sorted(attrs.items(), key=_attr_key)]
-    )
+    return OrderedDict([(k, v) for k, v in sorted(attrs.items(), key=_attr_key)])
 
 
 def force_unicode(text):
@@ -41,4 +39,4 @@ def force_unicode(text):
         return text
 
     # If not, convert it
-    return six.text_type(text, 'utf-8', 'strict')
+    return six.text_type(text, "utf-8", "strict")
