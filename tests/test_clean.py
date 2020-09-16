@@ -771,6 +771,45 @@ def test_nonexistent_namespace():
     assert clean('<d {c}>') == '&lt;d {c}&gt;'
 
 
+@pytest.mark.parametrize(
+    "tag",
+    [
+        "area",
+        "base",
+        "br",
+        "embed",
+        "hr",
+        "img",
+        "input",
+        pytest.param(
+            "keygen",
+            marks=pytest.mark.xfail(
+                reason="https://github.com/mozilla/bleach/issues/488"
+            ),
+        ),
+        "link",
+        "meta",
+        "param",
+        "source",
+        pytest.param(
+            "menuitem",
+            marks=pytest.mark.xfail(
+                reason="https://github.com/mozilla/bleach/issues/488"
+            ),
+        ),
+        "track",
+        pytest.param(
+            "wbr",
+            marks=pytest.mark.xfail(
+                reason="https://github.com/mozilla/bleach/issues/488"
+            ),
+        ),
+    ],
+)
+def test_self_closing_tags_self_close(tag):
+    assert clean("<%s>" % tag, tags=[tag]) == "<%s>" % tag
+
+
 # tags that get content passed through (i.e. parsed with parseRCDataRawtext)
 _raw_tags = [
     "title",
