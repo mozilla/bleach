@@ -18,46 +18,45 @@ warnings.simplefilter("ignore", category=DeprecationWarning)
 
 #: List of allowed tags
 ALLOWED_TAGS = [
-    'a',
-    'abbr',
-    'acronym',
-    'b',
-    'blockquote',
-    'code',
-    'em',
-    'i',
-    'li',
-    'ol',
-    'strong',
-    'ul',
+    "a",
+    "abbr",
+    "acronym",
+    "b",
+    "blockquote",
+    "code",
+    "em",
+    "i",
+    "li",
+    "ol",
+    "strong",
+    "ul",
 ]
 
 
 #: Map of allowed attributes by tag
 ALLOWED_ATTRIBUTES = {
-    'a': ['href', 'title'],
-    'abbr': ['title'],
-    'acronym': ['title'],
+    "a": ["href", "title"],
+    "abbr": ["title"],
+    "acronym": ["title"],
 }
 
 #: List of allowed styles
 ALLOWED_STYLES = []
 
 #: List of allowed protocols
-ALLOWED_PROTOCOLS = ['http', 'https', 'mailto']
+ALLOWED_PROTOCOLS = ["http", "https", "mailto"]
 
 #: Invisible characters--0 to and including 31 except 9 (tab), 10 (lf), and 13 (cr)
-INVISIBLE_CHARACTERS = ''.join([chr(c) for c in chain(range(0, 9), range(11, 13), range(14, 32))])
+INVISIBLE_CHARACTERS = "".join(
+    [chr(c) for c in chain(range(0, 9), range(11, 13), range(14, 32))]
+)
 
 #: Regexp for characters that are invisible
-INVISIBLE_CHARACTERS_RE = re.compile(
-    '[' + INVISIBLE_CHARACTERS + ']',
-    re.UNICODE
-)
+INVISIBLE_CHARACTERS_RE = re.compile("[" + INVISIBLE_CHARACTERS + "]", re.UNICODE)
 
 #: String to replace invisible characters with. This can be a character, a
 #: string, or even a function that takes a Python re matchobj
-INVISIBLE_REPLACEMENT_CHAR = '?'
+INVISIBLE_REPLACEMENT_CHAR = "?"
 
 
 class Cleaner(object):
@@ -89,9 +88,16 @@ class Cleaner(object):
 
     """
 
-    def __init__(self, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES,
-                 styles=ALLOWED_STYLES, protocols=ALLOWED_PROTOCOLS, strip=False,
-                 strip_comments=True, filters=None):
+    def __init__(
+        self,
+        tags=ALLOWED_TAGS,
+        attributes=ALLOWED_ATTRIBUTES,
+        styles=ALLOWED_STYLES,
+        protocols=ALLOWED_PROTOCOLS,
+        strip=False,
+        strip_comments=True,
+        filters=None,
+    ):
         """Initializes a Cleaner
 
         :arg list tags: allowed list of tags; defaults to
@@ -132,21 +138,18 @@ class Cleaner(object):
             tags=self.tags,
             strip=self.strip,
             consume_entities=False,
-            namespaceHTMLElements=False
+            namespaceHTMLElements=False,
         )
-        self.walker = html5lib_shim.getTreeWalker('etree')
+        self.walker = html5lib_shim.getTreeWalker("etree")
         self.serializer = html5lib_shim.BleachHTMLSerializer(
-            quote_attr_values='always',
+            quote_attr_values="always",
             omit_optional_tags=False,
             escape_lt_in_attrs=True,
-
             # We want to leave entities as they are without escaping or
             # resolving or expanding
             resolve_entities=False,
-
             # Bleach has its own sanitizer, so don't use the html5lib one
             sanitize=False,
-
             # Bleach sanitizer alphabetizes already, so don't use the html5lib one
             alphabetical_attributes=False,
         )
@@ -162,24 +165,25 @@ class Cleaner(object):
 
         """
         if not isinstance(text, six.string_types):
-            message = "argument cannot be of '{name}' type, must be of text type".format(
-                name=text.__class__.__name__)
+            message = (
+                "argument cannot be of '{name}' type, must be of text type".format(
+                    name=text.__class__.__name__
+                )
+            )
             raise TypeError(message)
 
         if not text:
-            return ''
+            return ""
 
         text = force_unicode(text)
 
         dom = self.parser.parseFragment(text)
         filtered = BleachSanitizerFilter(
             source=self.walker(dom),
-
             # Bleach-sanitizer-specific things
             attributes=self.attributes,
             strip_disallowed_elements=self.strip,
             strip_html_comments=self.strip_comments,
-
             # html5lib-sanitizer things
             allowed_elements=self.tags,
             allowed_css_properties=self.styles,
@@ -206,6 +210,7 @@ def attribute_filter_factory(attributes):
         return attributes
 
     if isinstance(attributes, dict):
+
         def _attr_filter(tag, attr, value):
             if tag in attributes:
                 attr_val = attributes[tag]
@@ -215,8 +220,8 @@ def attribute_filter_factory(attributes):
                 if attr in attr_val:
                     return True
 
-            if '*' in attributes:
-                attr_val = attributes['*']
+            if "*" in attributes:
+                attr_val = attributes["*"]
                 if callable(attr_val):
                     return attr_val(tag, attr, value)
 
@@ -227,12 +232,13 @@ def attribute_filter_factory(attributes):
         return _attr_filter
 
     if isinstance(attributes, list):
+
         def _attr_filter(tag, attr, value):
             return attr in attributes
 
         return _attr_filter
 
-    raise ValueError('attributes needs to be a callable, a list or a dict')
+    raise ValueError("attributes needs to be a callable, a list or a dict")
 
 
 class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
@@ -241,9 +247,15 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
     This filter can be used anywhere html5lib filters can be used.
 
     """
-    def __init__(self, source, attributes=ALLOWED_ATTRIBUTES,
-                 strip_disallowed_elements=False, strip_html_comments=True,
-                 **kwargs):
+
+    def __init__(
+        self,
+        source,
+        attributes=ALLOWED_ATTRIBUTES,
+        strip_disallowed_elements=False,
+        strip_html_comments=True,
+        **kwargs
+    ):
         """Creates a BleachSanitizerFilter instance
 
         :arg Treewalker source: stream
@@ -291,33 +303,37 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
 
         for token in token_iterator:
             if characters_buffer:
-                if token['type'] == 'Characters':
+                if token["type"] == "Characters":
                     characters_buffer.append(token)
                     continue
                 else:
                     # Merge all the characters tokens together into one and then
                     # operate on it.
                     new_token = {
-                        'data': ''.join([char_token['data'] for char_token in characters_buffer]),
-                        'type': 'Characters'
+                        "data": "".join(
+                            [char_token["data"] for char_token in characters_buffer]
+                        ),
+                        "type": "Characters",
                     }
                     characters_buffer = []
                     yield new_token
 
-            elif token['type'] == 'Characters':
+            elif token["type"] == "Characters":
                 characters_buffer.append(token)
                 continue
 
             yield token
 
         new_token = {
-            'data': ''.join([char_token['data'] for char_token in characters_buffer]),
-            'type': 'Characters'
+            "data": "".join([char_token["data"] for char_token in characters_buffer]),
+            "type": "Characters",
         }
         yield new_token
 
     def __iter__(self):
-        return self.merge_characters(self.sanitize_stream(html5lib_shim.Filter.__iter__(self)))
+        return self.merge_characters(
+            self.sanitize_stream(html5lib_shim.Filter.__iter__(self))
+        )
 
     def sanitize_token(self, token):
         """Sanitize a token either by HTML-encoding or dropping.
@@ -335,28 +351,28 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
         :returns: token or list of tokens
 
         """
-        token_type = token['type']
-        if token_type in ['StartTag', 'EndTag', 'EmptyTag']:
-            if token['name'] in self.allowed_elements:
+        token_type = token["type"]
+        if token_type in ["StartTag", "EndTag", "EmptyTag"]:
+            if token["name"] in self.allowed_elements:
                 return self.allow_token(token)
 
             elif self.strip_disallowed_elements:
                 return None
 
             else:
-                if 'data' in token:
+                if "data" in token:
                     # Alphabetize the attributes before calling .disallowed_token()
                     # so that the resulting string is stable
-                    token['data'] = alphabetize_attributes(token['data'])
+                    token["data"] = alphabetize_attributes(token["data"])
                 return self.disallowed_token(token)
 
-        elif token_type == 'Comment':
+        elif token_type == "Comment":
             if not self.strip_html_comments:
                 return token
             else:
                 return None
 
-        elif token_type == 'Characters':
+        elif token_type == "Characters":
             return self.sanitize_characters(token)
 
         else:
@@ -377,16 +393,16 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
         :returns: a list of tokens
 
         """
-        data = token.get('data', '')
+        data = token.get("data", "")
 
         if not data:
             return token
 
         data = INVISIBLE_CHARACTERS_RE.sub(INVISIBLE_REPLACEMENT_CHAR, data)
-        token['data'] = data
+        token["data"] = data
 
         # If there isn't a & in the data, we can return now
-        if '&' not in data:
+        if "&" not in data:
             return token
 
         new_tokens = []
@@ -397,10 +413,10 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
             if not part:
                 continue
 
-            if part.startswith('&'):
+            if part.startswith("&"):
                 entity = html5lib_shim.match_entity(part)
                 if entity is not None:
-                    if entity == 'amp':
+                    if entity == "amp":
                         # LinkifyFilter can't match urls across token boundaries
                         # which is problematic with &amp; since that shows up in
                         # querystrings all the time. This special-cases &amp;
@@ -408,18 +424,18 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
                         # Characters token. It'll get merged with surrounding
                         # tokens in the BleachSanitizerfilter.__iter__ and
                         # escaped in the serializer.
-                        new_tokens.append({'type': 'Characters', 'data': '&'})
+                        new_tokens.append({"type": "Characters", "data": "&"})
                     else:
-                        new_tokens.append({'type': 'Entity', 'name': entity})
+                        new_tokens.append({"type": "Entity", "name": entity})
 
                     # Length of the entity plus 2--one for & at the beginning
                     # and one for ; at the end
-                    remainder = part[len(entity) + 2:]
+                    remainder = part[len(entity) + 2 :]
                     if remainder:
-                        new_tokens.append({'type': 'Characters', 'data': remainder})
+                        new_tokens.append({"type": "Characters", "data": remainder})
                     continue
 
-            new_tokens.append({'type': 'Characters', 'data': part})
+            new_tokens.append({"type": "Characters", "data": part})
 
         return new_tokens
 
@@ -440,14 +456,10 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
         new_value = html5lib_shim.convert_entities(value)
 
         # Nix backtick, space characters, and control characters
-        new_value = re.sub(
-            r"[`\000-\040\177-\240\s]+",
-            '',
-            new_value
-        )
+        new_value = re.sub(r"[`\000-\040\177-\240\s]+", "", new_value)
 
         # Remove REPLACEMENT characters
-        new_value = new_value.replace('\ufffd', '')
+        new_value = new_value.replace("\ufffd", "")
 
         # Lowercase it--this breaks the value, but makes it easier to match
         # against
@@ -468,23 +480,23 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
 
         else:
             # Allow uris that are just an anchor
-            if new_value.startswith('#'):
+            if new_value.startswith("#"):
                 return value
 
             # Handle protocols that urlparse doesn't recognize like "myprotocol"
-            if ':' in new_value and new_value.split(':')[0] in allowed_protocols:
+            if ":" in new_value and new_value.split(":")[0] in allowed_protocols:
                 return value
 
             # If there's no protocol/scheme specified, then assume it's "http"
             # and see if that's allowed
-            if 'http' in allowed_protocols:
+            if "http" in allowed_protocols:
                 return value
 
         return None
 
     def allow_token(self, token):
         """Handles the case where we're allowing the tag"""
-        if 'data' in token:
+        if "data" in token:
             # Loop through all the attributes and drop the ones that are not
             # allowed, are unsafe or break other rules. Additionally, fix
             # attribute values that need fixing.
@@ -492,14 +504,14 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
             # At the end of this loop, we have the final set of attributes
             # we're keeping.
             attrs = {}
-            for namespaced_name, val in token['data'].items():
+            for namespaced_name, val in token["data"].items():
                 namespace, name = namespaced_name
 
                 # Drop attributes that are not explicitly allowed
                 #
                 # NOTE(willkg): We pass in the attribute name--not a namespaced
                 # name.
-                if not self.attr_filter(token['name'], name, val):
+                if not self.attr_filter(token["name"], name, val):
                     continue
 
                 # Drop attributes with uri values that use a disallowed protocol
@@ -512,9 +524,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
 
                 # Drop values in svg attrs with non-local IRIs
                 if namespaced_name in self.svg_attr_val_allows_ref:
-                    new_val = re.sub(r'url\s*\(\s*[^#\s][^)]+?\)',
-                                     ' ',
-                                     unescape(val))
+                    new_val = re.sub(r"url\s*\(\s*[^#\s][^)]+?\)", " ", unescape(val))
                     new_val = new_val.strip()
                     if not new_val:
                         continue
@@ -525,21 +535,22 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
                         val = new_val
 
                 # Drop href and xlink:href attr for svg elements with non-local IRIs
-                if (None, token['name']) in self.svg_allow_local_href:
+                if (None, token["name"]) in self.svg_allow_local_href:
                     if namespaced_name in [
-                            (None, 'href'), (html5lib_shim.namespaces['xlink'], 'href')
+                        (None, "href"),
+                        (html5lib_shim.namespaces["xlink"], "href"),
                     ]:
-                        if re.search(r'^\s*[^#\s]', val):
+                        if re.search(r"^\s*[^#\s]", val):
                             continue
 
                 # If it's a style attribute, sanitize it
-                if namespaced_name == (None, 'style'):
+                if namespaced_name == (None, "style"):
                     val = self.sanitize_css(val)
 
                 # At this point, we want to keep the attribute, so add it in
                 attrs[namespaced_name] = val
 
-            token['data'] = alphabetize_attributes(attrs)
+            token["data"] = alphabetize_attributes(attrs)
 
         return token
 
@@ -562,16 +573,19 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
                 if ns is None or ns not in html5lib_shim.prefixes:
                     namespaced_name = name
                 else:
-                    namespaced_name = '%s:%s' % (html5lib_shim.prefixes[ns], name)
+                    namespaced_name = "%s:%s" % (html5lib_shim.prefixes[ns], name)
 
-                attrs.append(' %s="%s"' % (
-                    namespaced_name,
-                    # NOTE(willkg): HTMLSerializer escapes attribute values
-                    # already, so if we do it here (like HTMLSerializer does),
-                    # then we end up double-escaping.
-                    v)
+                attrs.append(
+                    ' %s="%s"'
+                    % (
+                        namespaced_name,
+                        # NOTE(willkg): HTMLSerializer escapes attribute values
+                        # already, so if we do it here (like HTMLSerializer does),
+                        # then we end up double-escaping.
+                        v,
+                    )
                 )
-            token["data"] = "<%s%s>" % (token["name"], ''.join(attrs))
+            token["data"] = "<%s%s>" % (token["name"], "".join(attrs))
 
         else:
             token["data"] = "<%s>" % token["name"]
@@ -590,13 +604,13 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
         style = html5lib_shim.convert_entities(style)
 
         # Drop any url values before we do anything else
-        style = re.compile(r'url\s*\(\s*[^\s)]+?\s*\)\s*').sub(' ', style)
+        style = re.compile(r"url\s*\(\s*[^\s)]+?\s*\)\s*").sub(" ", style)
 
         # The gauntlet of sanitization
 
         # Validate the css in the style tag and if it's not valid, then drop
         # the whole thing.
-        parts = style.split(';')
+        parts = style.split(";")
         gauntlet = re.compile(
             r"""^(  # consider a style attribute value as composed of:
 [/:,#%!.\s\w]    # a non-newline character
@@ -605,25 +619,25 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
 |"[\s\w]+"       # a double quoted string of [\s\w]+
 |\([\d,%\.\s]+\) # a parenthesized string of one or more digits, commas, periods, ...
 )*$""",  # ... percent signs, or whitespace e.g. from 'color: hsl(30,100%,50%)'
-            flags=re.U | re.VERBOSE
+            flags=re.U | re.VERBOSE,
         )
 
         for part in parts:
             if not gauntlet.match(part):
-                return ''
+                return ""
 
         if not re.match(r"^\s*([-\w]+\s*:[^:;]*(;\s*|$))*$", style):
-            return ''
+            return ""
 
         clean = []
-        for prop, value in re.findall(r'([-\w]+)\s*:\s*([^:;]*)', style):
+        for prop, value in re.findall(r"([-\w]+)\s*:\s*([^:;]*)", style):
             if not value:
                 continue
 
             if prop.lower() in self.allowed_css_properties:
-                clean.append(prop + ': ' + value + ';')
+                clean.append(prop + ": " + value + ";")
 
             elif prop.lower() in self.allowed_svg_properties:
-                clean.append(prop + ': ' + value + ';')
+                clean.append(prop + ": " + value + ";")
 
-        return ' '.join(clean)
+        return " ".join(clean)

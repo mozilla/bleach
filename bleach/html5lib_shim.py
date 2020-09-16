@@ -42,129 +42,129 @@ ENTITIES_TRIE = Trie(ENTITIES)
 
 #: Token type constants--these never change
 TAG_TOKEN_TYPES = {
-    constants.tokenTypes['StartTag'],
-    constants.tokenTypes['EndTag'],
-    constants.tokenTypes['EmptyTag']
+    constants.tokenTypes["StartTag"],
+    constants.tokenTypes["EndTag"],
+    constants.tokenTypes["EmptyTag"],
 }
-CHARACTERS_TYPE = constants.tokenTypes['Characters']
-PARSEERROR_TYPE = constants.tokenTypes['ParseError']
+CHARACTERS_TYPE = constants.tokenTypes["Characters"]
+PARSEERROR_TYPE = constants.tokenTypes["ParseError"]
 
 
 #: List of valid HTML tags, from WHATWG HTML Living Standard as of 2018-10-17
 #: https://html.spec.whatwg.org/multipage/indices.html#elements-3
 HTML_TAGS = [
-    'a',
-    'abbr',
-    'address',
-    'area',
-    'article',
-    'aside',
-    'audio',
-    'b',
-    'base',
-    'bdi',
-    'bdo',
-    'blockquote',
-    'body',
-    'br',
-    'button',
-    'canvas',
-    'caption',
-    'cite',
-    'code',
-    'col',
-    'colgroup',
-    'data',
-    'datalist',
-    'dd',
-    'del',
-    'details',
-    'dfn',
-    'dialog',
-    'div',
-    'dl',
-    'dt',
-    'em',
-    'embed',
-    'fieldset',
-    'figcaption',
-    'figure',
-    'footer',
-    'form',
-    'h1',
-    'h2',
-    'h3',
-    'h4',
-    'h5',
-    'h6',
-    'head',
-    'header',
-    'hgroup',
-    'hr',
-    'html',
-    'i',
-    'iframe',
-    'img',
-    'input',
-    'ins',
-    'kbd',
-    'keygen',
-    'label',
-    'legend',
-    'li',
-    'link',
-    'map',
-    'mark',
-    'menu',
-    'meta',
-    'meter',
-    'nav',
-    'noscript',
-    'object',
-    'ol',
-    'optgroup',
-    'option',
-    'output',
-    'p',
-    'param',
-    'picture',
-    'pre',
-    'progress',
-    'q',
-    'rp',
-    'rt',
-    'ruby',
-    's',
-    'samp',
-    'script',
-    'section',
-    'select',
-    'slot',
-    'small',
-    'source',
-    'span',
-    'strong',
-    'style',
-    'sub',
-    'summary',
-    'sup',
-    'table',
-    'tbody',
-    'td',
-    'template',
-    'textarea',
-    'tfoot',
-    'th',
-    'thead',
-    'time',
-    'title',
-    'tr',
-    'track',
-    'u',
-    'ul',
-    'var',
-    'video',
-    'wbr',
+    "a",
+    "abbr",
+    "address",
+    "area",
+    "article",
+    "aside",
+    "audio",
+    "b",
+    "base",
+    "bdi",
+    "bdo",
+    "blockquote",
+    "body",
+    "br",
+    "button",
+    "canvas",
+    "caption",
+    "cite",
+    "code",
+    "col",
+    "colgroup",
+    "data",
+    "datalist",
+    "dd",
+    "del",
+    "details",
+    "dfn",
+    "dialog",
+    "div",
+    "dl",
+    "dt",
+    "em",
+    "embed",
+    "fieldset",
+    "figcaption",
+    "figure",
+    "footer",
+    "form",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "head",
+    "header",
+    "hgroup",
+    "hr",
+    "html",
+    "i",
+    "iframe",
+    "img",
+    "input",
+    "ins",
+    "kbd",
+    "keygen",
+    "label",
+    "legend",
+    "li",
+    "link",
+    "map",
+    "mark",
+    "menu",
+    "meta",
+    "meter",
+    "nav",
+    "noscript",
+    "object",
+    "ol",
+    "optgroup",
+    "option",
+    "output",
+    "p",
+    "param",
+    "picture",
+    "pre",
+    "progress",
+    "q",
+    "rp",
+    "rt",
+    "ruby",
+    "s",
+    "samp",
+    "script",
+    "section",
+    "select",
+    "slot",
+    "small",
+    "source",
+    "span",
+    "strong",
+    "style",
+    "sub",
+    "summary",
+    "sup",
+    "table",
+    "tbody",
+    "td",
+    "template",
+    "textarea",
+    "tfoot",
+    "th",
+    "thead",
+    "time",
+    "title",
+    "tr",
+    "track",
+    "u",
+    "ul",
+    "var",
+    "video",
+    "wbr",
 ]
 
 
@@ -175,6 +175,7 @@ class InputStreamWithMemory(object):
     since the last < which marked an open tag state.
 
     """
+
     def __init__(self, inner_stream):
         self._inner_stream = inner_stream
         self.reset = self._inner_stream.reset
@@ -218,7 +219,7 @@ class InputStreamWithMemory(object):
         is the "tag" that is being tokenized.
 
         """
-        return six.text_type('').join(self._buffer)
+        return six.text_type("").join(self._buffer)
 
     def start_tag(self):
         """Resets stream history to just '<'
@@ -227,11 +228,12 @@ class InputStreamWithMemory(object):
         open tag. Any time we see that, we reset the buffer.
 
         """
-        self._buffer = ['<']
+        self._buffer = ["<"]
 
 
 class BleachHTMLTokenizer(HTMLTokenizer):
     """Tokenizer that doesn't consume character entities"""
+
     def __init__(self, consume_entities=False, **kwargs):
         super(BleachHTMLTokenizer, self).__init__(**kwargs)
 
@@ -245,9 +247,11 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
         for token in super(BleachHTMLTokenizer, self).__iter__():
             if last_error_token is not None:
-                if ((last_error_token['data'] == 'invalid-character-in-attribute-name' and
-                     token['type'] in TAG_TOKEN_TYPES and
-                     token.get('data'))):
+                if (
+                    last_error_token["data"] == "invalid-character-in-attribute-name"
+                    and token["type"] in TAG_TOKEN_TYPES
+                    and token.get("data")
+                ):
                     # token["data"] is an html5lib attributeMap
                     # (OrderedDict 3.7+ and dict otherwise)
                     # of attr name to attr value
@@ -266,9 +270,11 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                     last_error_token = None
                     yield token
 
-                elif ((last_error_token['data'] == 'expected-closing-tag-but-got-char' and
-                       self.parser.tags is not None and
-                       token['data'].lower().strip() not in self.parser.tags)):
+                elif (
+                    last_error_token["data"] == "expected-closing-tag-but-got-char"
+                    and self.parser.tags is not None
+                    and token["data"].lower().strip() not in self.parser.tags
+                ):
                     # We've got either a malformed tag or a pseudo-tag or
                     # something that html5lib wants to turn into a malformed
                     # comment which Bleach clean() will drop so we interfere
@@ -280,13 +286,13 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                     #
                     # If this is not an allowed tag, then we convert it to
                     # characters and it'll get escaped in the sanitizer.
-                    token['data'] = self.stream.get_tag()
-                    token['type'] = CHARACTERS_TYPE
+                    token["data"] = self.stream.get_tag()
+                    token["type"] = CHARACTERS_TYPE
 
                     last_error_token = None
                     yield token
 
-                elif token['type'] == PARSEERROR_TYPE:
+                elif token["type"] == PARSEERROR_TYPE:
                     # If the token is a parse error, then let the last_error_token
                     # go, and make token the new last_error_token
                     yield last_error_token
@@ -301,7 +307,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
             # If the token is a ParseError, we hold on to it so we can get the
             # next token and potentially fix it.
-            if token['type'] == PARSEERROR_TYPE:
+            if token["type"] == PARSEERROR_TYPE:
                 last_error_token = token
                 continue
 
@@ -314,7 +320,9 @@ class BleachHTMLTokenizer(HTMLTokenizer):
         # If this tokenizer is set to consume entities, then we can let the
         # superclass do its thing.
         if self.consume_entities:
-            return super(BleachHTMLTokenizer, self).consumeEntity(allowedChar, fromAttribute)
+            return super(BleachHTMLTokenizer, self).consumeEntity(
+                allowedChar, fromAttribute
+            )
 
         # If this tokenizer is set to not consume entities, then we don't want
         # to consume and convert them, so this overrides the html5lib tokenizer's
@@ -323,10 +331,10 @@ class BleachHTMLTokenizer(HTMLTokenizer):
         # However, when that gets called, it's consumed an &, so we put that back in
         # the stream.
         if fromAttribute:
-            self.currentToken['data'][-1][1] += '&'
+            self.currentToken["data"][-1][1] += "&"
 
         else:
-            self.tokenQueue.append({"type": CHARACTERS_TYPE, "data": '&'})
+            self.tokenQueue.append({"type": CHARACTERS_TYPE, "data": "&"})
 
     def tagOpenState(self):
         # This state marks a < that is either a StartTag, EndTag, EmptyTag,
@@ -339,16 +347,18 @@ class BleachHTMLTokenizer(HTMLTokenizer):
     def emitCurrentToken(self):
         token = self.currentToken
 
-        if ((self.parser.tags is not None and
-             token['type'] in TAG_TOKEN_TYPES and
-             token['name'].lower() not in self.parser.tags)):
+        if (
+            self.parser.tags is not None
+            and token["type"] in TAG_TOKEN_TYPES
+            and token["name"].lower() not in self.parser.tags
+        ):
             # If this is a start/end/empty tag for a tag that's not in our
             # allowed list, then it gets stripped or escaped. In both of these
             # cases it gets converted to a Characters token.
             if self.parser.strip:
                 # If we're stripping the token, we just throw in an empty
                 # string token.
-                new_data = ''
+                new_data = ""
 
             else:
                 # If we're escaping the token, we want to escape the exact
@@ -358,10 +368,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                 # string and use that.
                 new_data = self.stream.get_tag()
 
-            new_token = {
-                'type': CHARACTERS_TYPE,
-                'data': new_data
-            }
+            new_token = {"type": CHARACTERS_TYPE, "data": new_data}
 
             self.currentToken = new_token
             self.tokenQueue.append(new_token)
@@ -373,6 +380,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
 class BleachHTMLParser(HTMLParser):
     """Parser that uses BleachHTMLTokenizer"""
+
     def __init__(self, tags, strip, consume_entities, **kwargs):
         """
         :arg tags: list of allowed tags--everything else is either stripped or
@@ -388,7 +396,9 @@ class BleachHTMLParser(HTMLParser):
         self.consume_entities = consume_entities
         super(BleachHTMLParser, self).__init__(**kwargs)
 
-    def _parse(self, stream, innerHTML=False, container='div', scripting=True, **kwargs):
+    def _parse(
+        self, stream, innerHTML=False, container="div", scripting=True, **kwargs
+    ):
         # set scripting=True to parse <noscript> as though JS is enabled to
         # match the expected context in browsers
         #
@@ -399,10 +409,7 @@ class BleachHTMLParser(HTMLParser):
         self.container = container
         self.scripting = scripting
         self.tokenizer = BleachHTMLTokenizer(
-            stream=stream,
-            consume_entities=self.consume_entities,
-            parser=self,
-            **kwargs
+            stream=stream, consume_entities=self.consume_entities, parser=self, **kwargs
         )
         self.reset()
 
@@ -424,8 +431,8 @@ def convert_entity(value):
         doesn't match a character entity
 
     """
-    if value[0] == '#':
-        if value[1] in ('x', 'X'):
+    if value[0] == "#":
+        if value[1] in ("x", "X"):
             return six.unichr(int(value[2:], 16))
         return six.unichr(int(value[1:], 10))
 
@@ -440,7 +447,7 @@ def convert_entities(text):
     :returns: unicode text with converted entities
 
     """
-    if '&' not in text:
+    if "&" not in text:
         return text
 
     new_text = []
@@ -448,7 +455,7 @@ def convert_entities(text):
         if not part:
             continue
 
-        if part.startswith('&'):
+        if part.startswith("&"):
             entity = match_entity(part)
             if entity is not None:
                 converted = convert_entity(entity)
@@ -457,14 +464,14 @@ def convert_entities(text):
                 # unicode character. Otherwise, we leave the entity in.
                 if converted is not None:
                     new_text.append(converted)
-                    remainder = part[len(entity) + 2:]
+                    remainder = part[len(entity) + 2 :]
                     if part:
                         new_text.append(remainder)
                     continue
 
         new_text.append(part)
 
-    return ''.join(new_text)
+    return "".join(new_text)
 
 
 def match_entity(stream):
@@ -480,25 +487,25 @@ def match_entity(stream):
 
     """
     # Nix the & at the beginning
-    if stream[0] != '&':
+    if stream[0] != "&":
         raise ValueError('Stream should begin with "&"')
 
     stream = stream[1:]
 
     stream = list(stream)
-    possible_entity = ''
-    end_characters = '<&=;' + string.whitespace
+    possible_entity = ""
+    end_characters = "<&=;" + string.whitespace
 
     # Handle number entities
-    if stream and stream[0] == '#':
-        possible_entity = '#'
+    if stream and stream[0] == "#":
+        possible_entity = "#"
         stream.pop(0)
 
-        if stream and stream[0] in ('x', 'X'):
-            allowed = '0123456789abcdefABCDEF'
+        if stream and stream[0] in ("x", "X"):
+            allowed = "0123456789abcdefABCDEF"
             possible_entity += stream.pop(0)
         else:
-            allowed = '0123456789'
+            allowed = "0123456789"
 
         # FIXME(willkg): Do we want to make sure these are valid number
         # entities? This doesn't do that currently.
@@ -508,7 +515,7 @@ def match_entity(stream):
                 break
             possible_entity += c
 
-        if possible_entity and stream and stream[0] == ';':
+        if possible_entity and stream and stream[0] == ";":
             return possible_entity
         return None
 
@@ -519,13 +526,13 @@ def match_entity(stream):
             break
         possible_entity += c
 
-    if possible_entity and stream and stream[0] == ';':
+    if possible_entity and stream and stream[0] == ";":
         return possible_entity
 
     return None
 
 
-AMP_SPLIT_RE = re.compile('(&)')
+AMP_SPLIT_RE = re.compile("(&)")
 
 
 def next_possible_entity(text):
@@ -541,7 +548,7 @@ def next_possible_entity(text):
         if i == 0:
             yield part
         elif i % 2 == 0:
-            yield '&' + part
+            yield "&" + part
 
 
 class BleachHTMLSerializer(HTMLSerializer):
@@ -564,7 +571,7 @@ class BleachHTMLSerializer(HTMLSerializer):
         # entities and convert them to their respective characters, but the
         # BleachHTMLTokenizer doesn't do that. For example, this fixes
         # &amp;entity; back to &entity; .
-        stoken = stoken.replace('&amp;', '&')
+        stoken = stoken.replace("&amp;", "&")
 
         # However, we do want all bare & that are not marking character
         # entities to be changed to &amp;, so let's do that carefully here.
@@ -572,21 +579,21 @@ class BleachHTMLSerializer(HTMLSerializer):
             if not part:
                 continue
 
-            if part.startswith('&'):
+            if part.startswith("&"):
                 entity = match_entity(part)
                 # Only leave entities in that are not ambiguous. If they're
                 # ambiguous, then we escape the ampersand.
                 if entity is not None and convert_entity(entity) is not None:
-                    yield '&' + entity + ';'
+                    yield "&" + entity + ";"
 
                     # Length of the entity plus 2--one for & at the beginning
                     # and one for ; at the end
-                    part = part[len(entity) + 2:]
+                    part = part[len(entity) + 2 :]
                     if part:
                         yield part
                     continue
 
-            yield part.replace('&', '&amp;')
+            yield part.replace("&", "&amp;")
 
     def serialize(self, treewalker, encoding=None):
         """Wrap HTMLSerializer.serialize and conver & to &amp; in attribute values
@@ -600,7 +607,7 @@ class BleachHTMLSerializer(HTMLSerializer):
 
         for stoken in super(BleachHTMLSerializer, self).serialize(treewalker, encoding):
             if in_tag:
-                if stoken == '>':
+                if stoken == ">":
                     in_tag = False
 
                 elif after_equals:
@@ -611,11 +618,11 @@ class BleachHTMLSerializer(HTMLSerializer):
                         after_equals = False
                         continue
 
-                elif stoken == '=':
+                elif stoken == "=":
                     after_equals = True
 
                 yield stoken
             else:
-                if stoken.startswith('<'):
+                if stoken.startswith("<"):
                     in_tag = True
                 yield stoken
