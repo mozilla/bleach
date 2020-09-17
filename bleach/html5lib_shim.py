@@ -12,26 +12,51 @@ import warnings
 
 import six
 
-# filter out html5lib deprecation warnings to use bleach
-warnings.simplefilter("ignore", category=DeprecationWarning)
+# ignore html5lib deprecation warnings to use bleach; we are bleach
+# apply before we import submodules that import html5lib
+warnings.filterwarnings(
+    "ignore",
+    message="html5lib's sanitizer is deprecated",
+    category=DeprecationWarning,
+    module="bleach._vendor.html5lib",
+)
 
-from bleach._vendor.html5lib import (
+from bleach._vendor.html5lib import (  # noqa: E402 module level import not at top of file
     HTMLParser,
     getTreeWalker,
 )
-from bleach._vendor.html5lib import constants
-from bleach._vendor.html5lib.constants import (
+from bleach._vendor.html5lib import (
+    constants,
+)  # noqa: E402 module level import not at top of file
+from bleach._vendor.html5lib.constants import (  # noqa: E402 module level import not at top of file
     namespaces,
     prefixes,
 )
-from bleach._vendor.html5lib.constants import _ReparseException as ReparseException
-from bleach._vendor.html5lib.filters.base import Filter
-from bleach._vendor.html5lib.filters.sanitizer import allowed_protocols
-from bleach._vendor.html5lib.filters.sanitizer import Filter as SanitizerFilter
-from bleach._vendor.html5lib._inputstream import HTMLInputStream
-from bleach._vendor.html5lib.serializer import HTMLSerializer
-from bleach._vendor.html5lib._tokenizer import attributeMap, HTMLTokenizer
-from bleach._vendor.html5lib._trie import Trie
+from bleach._vendor.html5lib.constants import (
+    _ReparseException as ReparseException,
+)  # noqa: E402 module level import not at top of file
+from bleach._vendor.html5lib.filters.base import (
+    Filter,
+)  # noqa: E402 module level import not at top of file
+from bleach._vendor.html5lib.filters.sanitizer import (
+    allowed_protocols,
+)  # noqa: E402 module level import not at top of file
+from bleach._vendor.html5lib.filters.sanitizer import (
+    Filter as SanitizerFilter,
+)  # noqa: E402 module level import not at top of file
+from bleach._vendor.html5lib._inputstream import (
+    HTMLInputStream,
+)  # noqa: E402 module level import not at top of file
+from bleach._vendor.html5lib.serializer import (
+    HTMLSerializer,
+)  # noqa: E402 module level import not at top of file
+from bleach._vendor.html5lib._tokenizer import (
+    attributeMap,
+    HTMLTokenizer,
+)  # noqa: E402 module level import not at top of file
+from bleach._vendor.html5lib._trie import (
+    Trie,
+)  # noqa: E402 module level import not at top of file
 
 
 #: Map of entity name to expanded entity
