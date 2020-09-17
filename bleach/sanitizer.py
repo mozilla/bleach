@@ -12,10 +12,6 @@ from bleach import html5lib_shim
 from bleach.utils import alphabetize_attributes, force_unicode
 
 
-# filter out html5lib deprecation warnings to use bleach from BleachSanitizerFilter init
-warnings.simplefilter("ignore", category=DeprecationWarning)
-
-
 #: List of allowed tags
 ALLOWED_TAGS = [
     "a",
@@ -282,6 +278,13 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
         self.strip_disallowed_elements = strip_disallowed_elements
         self.strip_html_comments = strip_html_comments
 
+        # filter out html5lib deprecation warnings to use bleach from BleachSanitizerFilter init
+        warnings.filterwarnings(
+            "ignore",
+            message="html5lib's sanitizer is deprecated",
+            category=DeprecationWarning,
+            module="bleach._vendor.html5lib",
+        )
         return super(BleachSanitizerFilter, self).__init__(source, **kwargs)
 
     def sanitize_stream(self, token_iterator):
