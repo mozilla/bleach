@@ -1,7 +1,7 @@
 Bleach changes
 ==============
 
-Version replaceme (replaceme, 2020)
+Version 3.2.1 (September 18th, 2020)
 ------------------------------------
 
 **Security fixes**
@@ -15,6 +15,7 @@ None
 **Bug fixes**
 
 * change linkifier to add rel="nofollow" as documented. Thank you @mitar.
+* suppress html5lib sanitizer DeprecationWarnings #557
 
 Version 3.2.0 (September 16th, 2020)
 ------------------------------------
