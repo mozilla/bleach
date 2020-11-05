@@ -2,7 +2,7 @@ from itertools import chain
 import re
 import warnings
 
-from urllib.parse import urlparse
+from bleach._vendor.parse import urlparse
 from xml.sax.saxutils import unescape
 
 from bleach import html5lib_shim
