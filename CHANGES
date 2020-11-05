@@ -1,6 +1,22 @@
 Bleach changes
 ==============
 
+Version Next (Unreleased, 2020)
+------------------------------------
+
+**Security fixes**
+
+None
+
+**Features**
+
+* Drop support for Python <3.6 #520
+
+**Bug fixes**
+
+None
+
+
 Version 3.2.2 (January 20th, 2021)
 ------------------------------------
 
