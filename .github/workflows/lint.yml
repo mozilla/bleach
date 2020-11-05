@@ -8,9 +8,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8]
+        python-version: [3.9]
         os: [ubuntu-latest]
-        mode: [lint, vendorverify, docs]
+        mode: [lint, vendorverify, docs, format-check]
 
     steps:
       - uses: actions/checkout@v2
