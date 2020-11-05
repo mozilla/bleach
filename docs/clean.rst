@@ -173,7 +173,7 @@ attributes for specified tags:
 
 .. doctest::
 
-   >>> from six.moves.urllib.parse import urlparse
+   >>> from urllib.parse import urlparse
    >>> import bleach
 
    >>> def allow_src(tag, name, value):

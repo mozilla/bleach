@@ -1,9 +1,7 @@
-from __future__ import unicode_literals
-
 import re
 
 import pytest
-from six.moves.urllib_parse import quote_plus
+from urllib.parse import quote_plus
 
 from bleach import linkify, DEFAULT_CALLBACKS as DC
 from bleach.linkifier import Linker, LinkifyFilter
