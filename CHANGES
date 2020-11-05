@@ -1,6 +1,13 @@
 Bleach changes
 ==============
 
+Version Next (Unreleased, 2021)
+-------------------------------
+
+**Backwards incompatible changes**
+
+* Clean and linkify preserve the order of HTML attributes #566. Thank you @askoretskiy.
+
 Version 4.1.0 (August 25th, 2021)
 ---------------------------------
 
