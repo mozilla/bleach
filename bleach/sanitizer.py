@@ -1,5 +1,6 @@
 from itertools import chain
 import re
+from typing import List
 import warnings
 
 from urllib.parse import urlparse
@@ -33,7 +34,7 @@ ALLOWED_ATTRIBUTES = {
 }
 
 #: List of allowed styles
-ALLOWED_STYLES = []
+ALLOWED_STYLES: List[str] = []
 
 #: List of allowed protocols
 ALLOWED_PROTOCOLS = ["http", "https", "mailto"]
