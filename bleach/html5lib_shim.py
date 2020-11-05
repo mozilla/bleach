@@ -4,13 +4,9 @@ Shim module between Bleach and html5lib. This makes it easier to upgrade the
 html5lib library without having to change a lot of code.
 """
 
-from __future__ import unicode_literals
-
 import re
 import string
 import warnings
-
-import six
 
 # ignore html5lib deprecation warnings to use bleach; we are bleach
 # apply before we import submodules that import html5lib
@@ -244,7 +240,7 @@ class InputStreamWithMemory(object):
         is the "tag" that is being tokenized.
 
         """
-        return six.text_type("").join(self._buffer)
+        return "".join(self._buffer)
 
     def start_tag(self):
         """Resets stream history to just '<'
@@ -460,8 +456,8 @@ def convert_entity(value):
         if len(value) < 2:
             return None
         if value[1] in ("x", "X"):
-            return six.unichr(int(value[2:], 16))
-        return six.unichr(int(value[1:], 10))
+            return chr(int(value[2:], 16))
+        return chr(int(value[1:], 10))
 
     return ENTITIES.get(value, None)
 

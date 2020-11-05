@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from bleach.callbacks import nofollow, target_blank
 
 
