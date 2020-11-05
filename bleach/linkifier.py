@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 import re
-import six
 
 from bleach import callbacks as linkify_callbacks
 from bleach import html5lib_shim
@@ -171,7 +170,7 @@ class Linker(object):
         :raises TypeError: if ``text`` is not a text type
 
         """
-        if not isinstance(text, six.string_types):
+        if not isinstance(text, str):
             raise TypeError("argument must be of text type")
 
         text = force_unicode(text)
