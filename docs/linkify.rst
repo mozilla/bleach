@@ -109,7 +109,7 @@ an external link:
 
 .. doctest::
 
-   >>> from six.moves.urllib.parse import urlparse
+   >>> from urllib.parse import urlparse
    >>> from bleach.linkifier import Linker
 
    >>> def set_target(attrs, new=False):
@@ -204,7 +204,7 @@ Example of switching all links to go through a bouncer first:
 
 .. doctest::
 
-   >>> from six.moves.urllib.parse import quote, urlparse
+   >>> from urllib.parse import quote, urlparse
    >>> from bleach.linkifier import Linker
 
    >>> def outgoing_bouncer(attrs, new=False):

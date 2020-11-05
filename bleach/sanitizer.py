@@ -5,7 +5,7 @@ import re
 import warnings
 
 import six
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 from xml.sax.saxutils import unescape
 
 from bleach import html5lib_shim
