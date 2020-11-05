@@ -1,15 +1,12 @@
-from __future__ import unicode_literals
-
 from itertools import chain
 import re
 import warnings
 
-import six
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 from xml.sax.saxutils import unescape
 
 from bleach import html5lib_shim
-from bleach.utils import alphabetize_attributes, force_unicode
+from bleach.utils import alphabetize_attributes
 
 
 #: List of allowed tags
@@ -160,7 +157,7 @@ class Cleaner(object):
         :raises TypeError: if ``text`` is not a text type
 
         """
-        if not isinstance(text, six.string_types):
+        if not isinstance(text, str):
             message = (
                 "argument cannot be of '{name}' type, must be of text type".format(
                     name=text.__class__.__name__
@@ -170,8 +167,6 @@ class Cleaner(object):
 
         if not text:
             return ""
-
-        text = force_unicode(text)
 
         dom = self.parser.parseFragment(text)
         filtered = BleachSanitizerFilter(
