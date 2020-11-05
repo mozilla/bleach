@@ -6,7 +6,6 @@ cache:
   - "~/.cache/pip"
 
 python:
-  - "2.7"
   - "3.5"
   - "3.6"
   - "3.7"
@@ -20,9 +19,7 @@ install:
 
 matrix:
   include:
-    - python: "2.7"
-      env: MODE=lint
-    - python: "2.7"
+    - python: "3.8"
       env: MODE=vendorverify
     - python: "3.8"
       env: MODE=lint
