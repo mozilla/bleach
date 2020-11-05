@@ -4,8 +4,6 @@ Shim module between Bleach and html5lib. This makes it easier to upgrade the
 html5lib library without having to change a lot of code.
 """
 
-from __future__ import unicode_literals
-
 import re
 import string
 import warnings

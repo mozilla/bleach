@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from functools import partial
 from timeit import timeit
 
