@@ -1,7 +1,15 @@
 """A set of basic callbacks for bleach.linkify."""
+from typing import Dict, Optional, Tuple
 
 
-def nofollow(attrs, new=False):
+def nofollow(
+    attrs: Dict[Tuple[Optional[str], str], str], new: Optional[bool] = False
+) -> Dict[Tuple[Optional[str], str], str]:
+    """
+
+    map of ``(namespace, name)`` -> ``value``
+
+    """
     href_key = (None, "href")
 
     if href_key not in attrs:
@@ -19,7 +27,9 @@ def nofollow(attrs, new=False):
     return attrs
 
 
-def target_blank(attrs, new=False):
+def target_blank(
+    attrs: Dict[Tuple[Optional[str], str], str], new: Optional[bool] = False
+) -> Dict[Tuple[Optional[str], str], str]:
     href_key = (None, "href")
 
     if href_key not in attrs:
