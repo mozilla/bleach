@@ -1,6 +1,21 @@
 Bleach changes
 ==============
 
+Version Next (Unreleased, 2020)
+------------------------------------
+
+**Security fixes**
+
+None
+
+**Features**
+
+* Drop Python 2.7 support #520
+
+**Bug fixes**
+
+None
+
 Version 3.2.1 (September 18th, 2020)
 ------------------------------------
 
@@ -656,7 +671,6 @@ Version 1.2.2 (May 18, 2013)
 ----------------------------
 
 * Pin html5lib to version 0.95 for now due to major API break.
-
 
 Version 1.2.1 (February 19, 2013)
 ---------------------------------
