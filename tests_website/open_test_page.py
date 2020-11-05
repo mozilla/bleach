@@ -28,9 +28,12 @@ TEST_BROWSERS = {
     # 'chromium',
     # 'chromium-browser',
 }
-REGISTERED_BROWSERS = set(webbrowser._browsers.keys())
 
 
 if __name__ == "__main__":
-    for b in TEST_BROWSERS & REGISTERED_BROWSERS:
-        webbrowser.get(b).open_new_tab("http://localhost:8080")
+    for browser_name in TEST_BROWSERS:
+        try:
+            browser = webbrowser.get(browser_name)
+            browser.open_new_tab("http://localhost:8080")
+        except Exception as error:
+            print("error getting test browser %s: %s" % (browser_name, error))
