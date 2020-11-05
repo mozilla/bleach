@@ -3,7 +3,7 @@ import re
 
 from bleach import callbacks as linkify_callbacks
 from bleach import html5lib_shim
-from bleach.utils import alphabetize_attributes, force_unicode
+from bleach.utils import alphabetize_attributes
 
 
 #: List of default callbacks
@@ -173,8 +173,6 @@ class Linker(object):
         if not isinstance(text, str):
             raise TypeError("argument must be of text type")
 
-        text = force_unicode(text)
-
         if not text:
             return ""
 
@@ -323,7 +321,7 @@ class LinkifyFilter(html5lib_shim.Filter):
                         new_tokens.extend(
                             [
                                 {"type": "StartTag", "name": "a", "data": attrs},
-                                {"type": "Characters", "data": force_unicode(_text)},
+                                {"type": "Characters", "data": str(_text)},
                                 {"type": "EndTag", "name": "a"},
                             ]
                         )
@@ -447,7 +445,7 @@ class LinkifyFilter(html5lib_shim.Filter):
                         new_tokens.extend(
                             [
                                 {"type": "StartTag", "name": "a", "data": attrs},
-                                {"type": "Characters", "data": force_unicode(_text)},
+                                {"type": "Characters", "data": str(_text)},
                                 {"type": "EndTag", "name": "a"},
                             ]
                         )
@@ -510,7 +508,7 @@ class LinkifyFilter(html5lib_shim.Filter):
                 # all the tokens between the start and end "a" tags and replace
                 # it with the new text
                 yield a_token
-                yield {"type": "Characters", "data": force_unicode(new_text)}
+                yield {"type": "Characters", "data": str(new_text)}
                 yield token_buffer[-1]
 
     def __iter__(self):
