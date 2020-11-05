@@ -1,6 +1,17 @@
 Bleach changes
 ==============
 
+Version Next (Unreleased, 2021)
+-------------------------------
+
+**Security fixes**
+
+None
+
+**Features**
+
+* Drop support for Python <3.6 #520
+
 Version 3.3.1 (July 14th, 2021)
 -------------------------------
 
@@ -54,6 +65,7 @@ None
 **Bug fixes**
 
 * fix clean and linkify raising ValueErrors for certain inputs. Thank you @Google-Autofuzz.
+
 
 Version 3.2.2 (January 20th, 2021)
 ----------------------------------
