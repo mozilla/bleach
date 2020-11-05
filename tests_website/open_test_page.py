@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
+from typing import Set
 import webbrowser
 
 
-TEST_BROWSERS = {
+TEST_BROWSERS: Set[str] = {
     # 'mozilla',
     "firefox",
     # 'netscape',
