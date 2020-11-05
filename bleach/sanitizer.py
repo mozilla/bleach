@@ -4,7 +4,6 @@ from itertools import chain
 import re
 import warnings
 
-import six
 from urllib.parse import urlparse
 from xml.sax.saxutils import unescape
 
@@ -160,7 +159,7 @@ class Cleaner(object):
         :raises TypeError: if ``text`` is not a text type
 
         """
-        if not isinstance(text, six.string_types):
+        if not isinstance(text, str):
             message = (
                 "argument cannot be of '{name}' type, must be of text type".format(
                     name=text.__class__.__name__
