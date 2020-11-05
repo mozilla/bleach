@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 from xml.sax.saxutils import unescape
 
 from bleach import html5lib_shim
-from bleach.utils import alphabetize_attributes, force_unicode
+from bleach.utils import alphabetize_attributes
 
 
 #: List of allowed tags
@@ -169,8 +169,6 @@ class Cleaner(object):
 
         if not text:
             return ""
-
-        text = force_unicode(text)
 
         dom = self.parser.parseFragment(text)
         filtered = BleachSanitizerFilter(
