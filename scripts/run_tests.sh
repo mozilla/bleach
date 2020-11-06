@@ -22,6 +22,8 @@ case "${MODE}" in
     black bleach/*.py tests/ tests_website/ ;;
   format-check)
     black --check --diff bleach/*.py tests/ tests_website/ ;;
+  type-check)
+    mypy bleach ;;  # find config options in the mypy sections of setup.cfg
   *)
     echo "Unknown mode $MODE."
     exit 1
