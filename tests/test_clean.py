@@ -572,7 +572,7 @@ def test_svg_attr_val_allows_ref():
     [
         (
             '<svg><pattern id="patt1" href="#patt2"></pattern></svg>',
-            '<svg><pattern href="#patt2" id="patt1"></pattern></svg>',
+            '<svg><pattern id="patt1" href="#patt2"></pattern></svg>',
         ),
         (
             '<svg><pattern id="patt1" xlink:href="#patt2"></pattern></svg>',
@@ -778,6 +778,13 @@ def test_regressions(test_case):
     assert clean(test_data) == expected
 
 
+def test_preserves_attributes_order():
+    html = """<a target="_blank" href="https://example.com">Link</a>"""
+    cleaned_html = clean(html, tags=["a"], attributes={"a": ["href", "target"]})
+
+    assert cleaned_html == html
+
+
 class TestCleaner:
     def test_basics(self):
         TAGS = ["span", "br"]
@@ -807,4 +814,4 @@ class TestCleaner:
         cleaner = Cleaner(tags=TAGS, attributes=ATTRS, filters=[MooFilter])
 
         dirty = 'this is cute! <img src="http://example.com/puppy.jpg" rel="nofollow">'
-        assert cleaner.clean(dirty) == 'this is cute! <img rel="moo" src="moo">'
+        assert cleaner.clean(dirty) == 'this is cute! <img src="moo" rel="moo">'

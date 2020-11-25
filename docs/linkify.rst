@@ -123,7 +123,7 @@ an external link:
    ...
    >>> linker = Linker(callbacks=[set_target])
    >>> linker.linkify('abc http://example.com def')
-   'abc <a class="external" href="http://example.com" target="_blank">http://example.com</a> def'
+   'abc <a href="http://example.com" target="_blank" class="external">http://example.com</a> def'
 
 
 Removing Attributes
