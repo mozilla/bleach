@@ -93,6 +93,7 @@ class Cleaner(object):
         strip=False,
         strip_comments=True,
         filters=None,
+        alphabetical_attributes=True,
     ):
         """Initializes a Cleaner
 
@@ -129,6 +130,7 @@ class Cleaner(object):
         self.strip = strip
         self.strip_comments = strip_comments
         self.filters = filters or []
+        self.alphabetical_attributes = alphabetical_attributes
 
         self.parser = html5lib_shim.BleachHTMLParser(
             tags=self.tags,
@@ -180,6 +182,7 @@ class Cleaner(object):
             attributes=self.attributes,
             strip_disallowed_elements=self.strip,
             strip_html_comments=self.strip_comments,
+            alphabetical_attributes=self.alphabetical_attributes,
             # html5lib-sanitizer things
             allowed_elements=self.tags,
             allowed_css_properties=self.styles,
@@ -250,6 +253,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
         attributes=ALLOWED_ATTRIBUTES,
         strip_disallowed_elements=False,
         strip_html_comments=True,
+        alphabetical_attributes=True,
         **kwargs
     ):
         """Creates a BleachSanitizerFilter instance
@@ -277,6 +281,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
         self.attr_filter = attribute_filter_factory(attributes)
         self.strip_disallowed_elements = strip_disallowed_elements
         self.strip_html_comments = strip_html_comments
+        self.alphabetical_attributes = alphabetical_attributes
 
         # filter out html5lib deprecation warnings to use bleach from BleachSanitizerFilter init
         warnings.filterwarnings(
@@ -363,7 +368,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
                 return None
 
             else:
-                if "data" in token:
+                if self.alphabetical_attributes and "data" in token:
                     # Alphabetize the attributes before calling .disallowed_token()
                     # so that the resulting string is stable
                     token["data"] = alphabetize_attributes(token["data"])
@@ -553,7 +558,10 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
                 # At this point, we want to keep the attribute, so add it in
                 attrs[namespaced_name] = val
 
-            token["data"] = alphabetize_attributes(attrs)
+            if self.alphabetical_attributes:
+                token["data"] = alphabetize_attributes(attrs)
+            else:
+                token["data"] = attrs
 
         return token
 

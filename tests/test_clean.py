@@ -780,6 +780,21 @@ def test_regressions(test_case):
     assert clean(test_data) == expected
 
 
+def test_preserve_attributes_order():
+    html = """<a target="_blank" href="https://example.com">Link</a>"""
+
+    cleaned_html = clean(html, tags=["a"], attributes={"a": ["href", "target"]})
+    assert cleaned_html == """<a href="https://example.com" target="_blank">Link</a>"""
+
+    cleaned_preserved_html = clean(
+        html,
+        tags=["a"],
+        attributes={"a": ["href", "target"]},
+        alphabetical_attributes=False,
+    )
+    assert cleaned_preserved_html == html
+
+
 class TestCleaner:
     def test_basics(self):
         TAGS = ["span", "br"]

@@ -35,6 +35,7 @@ def clean(
     protocols=ALLOWED_PROTOCOLS,
     strip=False,
     strip_comments=True,
+    alphabetical_attributes=True,
 ):
     """Clean an HTML fragment of malicious content and return it
 
@@ -76,6 +77,8 @@ def clean(
 
     :arg bool strip_comments: whether or not to strip HTML comments
 
+    :arg bool alphabetical_attributes: whether or not to sort HTML attributes
+
     :returns: cleaned text as unicode
 
     """
@@ -86,6 +89,7 @@ def clean(
         protocols=protocols,
         strip=strip,
         strip_comments=strip_comments,
+        alphabetical_attributes=alphabetical_attributes,
     )
     return cleaner.clean(text)
 
