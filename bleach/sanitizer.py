@@ -6,7 +6,6 @@ from urllib.parse import urlparse
 from xml.sax.saxutils import unescape
 
 from bleach import html5lib_shim
-from bleach.utils import alphabetize_attributes
 
 
 #: List of allowed tags
@@ -143,7 +142,7 @@ class Cleaner:
             resolve_entities=False,
             # Bleach has its own sanitizer, so don't use the html5lib one
             sanitize=False,
-            # Bleach sanitizer alphabetizes already, so don't use the html5lib one
+            # clean preserves attr order
             alphabetical_attributes=False,
         )
 
@@ -358,10 +357,6 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
                 return None
 
             else:
-                if "data" in token:
-                    # Alphabetize the attributes before calling .disallowed_token()
-                    # so that the resulting string is stable
-                    token["data"] = alphabetize_attributes(token["data"])
                 return self.disallowed_token(token)
 
         elif token_type == "Comment":
@@ -552,7 +547,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
                 # At this point, we want to keep the attribute, so add it in
                 attrs[namespaced_name] = val
 
-            token["data"] = alphabetize_attributes(attrs)
+            token["data"] = attrs
 
         return token
 
