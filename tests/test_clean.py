@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import os
+import sys
 
 import pytest
 
@@ -780,6 +781,7 @@ def test_regressions(test_case):
     assert clean(test_data) == expected
 
 
+@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires python3.6 or higher")
 def test_preserve_attributes_order():
     html = """<a target="_blank" href="https://example.com">Link</a>"""
 
