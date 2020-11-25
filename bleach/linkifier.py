@@ -2,7 +2,6 @@ import re
 
 from bleach import callbacks as linkify_callbacks
 from bleach import html5lib_shim
-from bleach.utils import alphabetize_attributes
 
 
 #: List of default callbacks
@@ -155,7 +154,7 @@ class Linker:
             omit_optional_tags=False,
             # linkify does not sanitize
             sanitize=False,
-            # linkify alphabetizes
+            # linkify preserves attr order
             alphabetical_attributes=False,
         )
 
@@ -316,7 +315,6 @@ class LinkifyFilter(html5lib_shim.Filter):
                     else:
                         # Add an "a" tag for the new link
                         _text = attrs.pop("_text", "")
-                        attrs = alphabetize_attributes(attrs)
                         new_tokens.extend(
                             [
                                 {"type": "StartTag", "name": "a", "data": attrs},
@@ -439,8 +437,6 @@ class LinkifyFilter(html5lib_shim.Filter):
                             new_tokens.append({"type": "Characters", "data": prefix})
 
                         _text = attrs.pop("_text", "")
-                        attrs = alphabetize_attributes(attrs)
-
                         new_tokens.extend(
                             [
                                 {"type": "StartTag", "name": "a", "data": attrs},
@@ -493,7 +489,7 @@ class LinkifyFilter(html5lib_shim.Filter):
 
         else:
             new_text = attrs.pop("_text", "")
-            a_token["data"] = alphabetize_attributes(attrs)
+            a_token["data"] = attrs
 
             if text == new_text:
                 # The callbacks didn't change the text, so we yield the new "a"

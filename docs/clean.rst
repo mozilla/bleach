@@ -371,7 +371,7 @@ Trivial Filter example:
    >>> cleaner = Cleaner(tags=TAGS, attributes=ATTRS, filters=[MooFilter])
    >>> dirty = 'this is cute! <img src="http://example.com/puppy.jpg" rel="nofollow">'
    >>> cleaner.clean(dirty)
-   'this is cute! <img rel="moo" src="moo">'
+   'this is cute! <img src="moo" rel="moo">'
 
 
 .. Warning::
