@@ -2,8 +2,11 @@
 Bleach
 ======
 
-.. image:: https://travis-ci.org/mozilla/bleach.svg?branch=master
-   :target: https://travis-ci.org/mozilla/bleach
+.. image:: https://github.com/mozilla/bleach/workflows/Test/badge.svg
+   :target: https://github.com/mozilla/bleach/actions?query=workflow%3ATest
+
+.. image:: https://github.com/mozilla/bleach/workflows/Lint/badge.svg
+   :target: https://github.com/mozilla/bleach/actions?query=workflow%3ALint
 
 .. image:: https://badge.fury.io/py/bleach.svg
    :target: http://badge.fury.io/py/bleach
