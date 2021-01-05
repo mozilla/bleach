@@ -42,7 +42,7 @@ Run::
 That'll run Bleach tests in all the supported Python environments. Note
 that you need the necessary Python binaries for them all to be tested.
 
-Tests are run in Travis CI via a GitHub webhook.
+Tests are run as github actions for test and pull request events.
 
 
 Release process
@@ -80,9 +80,9 @@ Release process
 
 6. Commit the changes.
 
-7. Push the changes to GitHub. This will cause Travis to run the tests.
+7. Push the changes to GitHub. This will cause Github Actions to run the tests.
 
-8. After Travis is happy, create a signed tag for the release::
+8. After CI passes, create a signed tag for the release::
 
      $ git tag -s v0.4.0
 
