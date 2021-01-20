@@ -457,6 +457,8 @@ def convert_entity(value):
 
     """
     if value[0] == "#":
+        if len(value) < 2:
+            return None
         if value[1] in ("x", "X"):
             return six.unichr(int(value[2:], 16))
         return six.unichr(int(value[1:], 10))

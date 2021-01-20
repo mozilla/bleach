@@ -233,8 +233,15 @@ def test_tlds(data, expected):
     assert linkify(data) == expected
 
 
-def test_escaping():
-    assert linkify("< unrelated") == "&lt; unrelated"
+@pytest.mark.parametrize(
+    "data,expected",
+    [
+        ("< unrelated", "&lt; unrelated"),
+        ("<U \x7f=&#;>", '<u \x7f="&amp;#;"></u>'),
+    ],
+)
+def test_escaping(data, expected):
+    assert linkify(data) == expected
 
 
 def test_nofollow_off():
