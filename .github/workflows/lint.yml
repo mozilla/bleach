@@ -10,7 +10,7 @@ jobs:
       matrix:
         python-version: [3.8]
         os: [ubuntu-latest]
-        mode: [lint, vendorverify, docs]
+        mode: [lint, vendorverify, docs, format-check, type-check]
 
     steps:
       - uses: actions/checkout@v2
