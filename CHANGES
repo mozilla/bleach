@@ -1,8 +1,13 @@
 Bleach changes
 ==============
 
-Version Next (Unreleased, 2020)
+Version Next (Unreleased, 2021)
 ------------------------------------
+
+**Backwards incompatible changes**
+
+* Clean and linkify preserve the order of HTML attributes #566. Thank you @askoretskiy.
+* Drop support for Python <3.6 #520.
 
 **Security fixes**
 
@@ -10,7 +15,7 @@ None
 
 **Features**
 
-* Drop support for Python <3.6 #520
+None
 
 **Bug fixes**
 
