@@ -90,7 +90,7 @@ def build_email_re(tlds=TLDS):
 EMAIL_RE = build_email_re()
 
 
-class Linker(object):
+class Linker:
     """Convert URL-like strings in an HTML fragment to links
 
     This function converts strings that look like URLs, domain names and email

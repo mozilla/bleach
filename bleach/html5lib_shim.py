@@ -190,7 +190,7 @@ HTML_TAGS = [
 ]
 
 
-class InputStreamWithMemory(object):
+class InputStreamWithMemory:
     """Wraps an HTMLInputStream to remember characters since last <
 
     This wraps existing HTMLInputStream classes to keep track of the stream
