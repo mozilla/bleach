@@ -52,7 +52,7 @@ INVISIBLE_CHARACTERS_RE = re.compile("[" + INVISIBLE_CHARACTERS + "]", re.UNICOD
 INVISIBLE_REPLACEMENT_CHAR = "?"
 
 
-class Cleaner(object):
+class Cleaner:
     """Cleaner for cleaning HTML fragments of malicious content
 
     This cleaner is a security-focused function whose sole purpose is to remove
