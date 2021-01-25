@@ -8,6 +8,7 @@ Version Next (Unreleased, 2021)
 
 * Clean and linkify preserve the order of HTML attributes #566. Thank you @askoretskiy.
 * Drop support for Python <3.6 #520.
+* Add type annotations #477.
 
 **Security fixes**
 
@@ -15,7 +16,7 @@ None
 
 **Features**
 
-* Drop support for Python <3.6 #520
+None
 
 Version 3.3.1 (July 14th, 2021)
 -------------------------------
