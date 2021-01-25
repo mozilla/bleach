@@ -8,6 +8,10 @@ Version Next (Unreleased, 2021)
 
 * Clean and linkify preserve the order of HTML attributes #566. Thank you @askoretskiy.
 
+**Features**
+
+* Add type annotations #477.
+
 Version 4.1.0 (August 25th, 2021)
 ---------------------------------
 
