@@ -1,8 +1,23 @@
 Bleach changes
 ==============
 
+Version 3.2.3 (January 26th, 2021)
+----------------------------------
+
+**Security fixes**
+
+None
+
+**Features**
+
+None
+
+**Bug fixes**
+
+* fix clean and linkify raising ValueErrors for certain inputs. Thank you @Google-Autofuzz.
+
 Version 3.2.2 (January 20th, 2021)
-------------------------------------
+----------------------------------
 
 **Security fixes**
 

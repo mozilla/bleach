@@ -19,6 +19,16 @@ from bleach import html5lib_shim
         ("&xx;", "&xx;"),
         # Handles multiple entities in the same string
         ("this &amp; that &amp; that", "this & that & that"),
+        # Handles empty decimal and hex encoded code points
+        ("&#x;", "&#x;"),
+        ("&#;", "&#;"),
+        # Handles too high unicode points
+        ("&#x110000;", "&#x110000;"),
+        ("&#x110111;", "&#x110111;"),
+        ("&#9277809;", "&#9277809;"),
+        # Handles negative unicode points
+        ("&#-1;", "&#-1;"),
+        ("&#x-1;", "&#x-1;"),
     ],
 )
 def test_convert_entities(data, expected):
