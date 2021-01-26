@@ -18,7 +18,7 @@ pip --version
 # Install vendored dependencies into temp directory
 pip install --no-binary all --no-compile --no-deps -r bleach/_vendor/vendor.txt --target "${DEST}"
 
-# Diff contents of temp directory and bleach/_vendor/ excluding vnedoring
+# Diff contents of temp directory and bleach/_vendor/ excluding vendoring
 # infrastructure
 echo "diffing directory trees..."
 diff -r \
