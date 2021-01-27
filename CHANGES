@@ -1,6 +1,18 @@
 Bleach changes
 ==============
 
+Version 4.1.0 (August 25th, 2021)
+---------------------------------
+
+**Features**
+
+* Python 3.9 support
+
+**Bug fixes**
+
+* Update sanitizer clean to use vendored 3.6.14 stdlib urllib.parse to
+  fix test failures on Python 3.9 #536
+
 Version 4.0.0 (August 3rd, 2021)
 --------------------------------
 
