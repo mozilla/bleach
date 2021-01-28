@@ -48,6 +48,7 @@ from bleach._vendor.html5lib._inputstream import (
     HTMLInputStream,
 )  # noqa: E402 module level import not at top of file
 from bleach._vendor.html5lib.serializer import (
+    escape,
     HTMLSerializer,
 )  # noqa: E402 module level import not at top of file
 from bleach._vendor.html5lib._tokenizer import (

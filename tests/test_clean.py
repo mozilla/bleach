@@ -739,6 +739,53 @@ def test_namespace_rc_data_element_strip_false(
     )
 
 
+@pytest.mark.parametrize(
+    "namespace_tag, end_tag, data, expected",
+    [
+        (
+            "math",
+            "p",
+            "<math></p><style><!--</style><img src/onerror=alert(1)>",
+            "<math><p></p><style><!--&lt;/style&gt;&lt;img src/onerror=alert(1)&gt;--></style></math>",
+        ),
+        (
+            "math",
+            "br",
+            "<math></br><style><!--</style><img src/onerror=alert(1)>",
+            "<math><br><style><!--&lt;/style&gt;&lt;img src/onerror=alert(1)&gt;--></style></math>",
+        ),
+        (
+            "svg",
+            "p",
+            "<svg></p><style><!--</style><img src/onerror=alert(1)>",
+            "<svg><p></p><style><!--&lt;/style&gt;&lt;img src/onerror=alert(1)&gt;--></style></svg>",
+        ),
+        (
+            "svg",
+            "br",
+            "<svg></br><style><!--</style><img src/onerror=alert(1)>",
+            "<svg><br><style><!--&lt;/style&gt;&lt;img src/onerror=alert(1)&gt;--></style></svg>",
+        ),
+    ],
+)
+def test_html_comments_escaped(namespace_tag, end_tag, data, expected):
+    # refs: bug 1689399 / GHSA-vv2x-vrpj-qqpq
+    #
+    # p and br can be just an end tag (e.g. </p> == <p></p>)
+    #
+    # In browsers:
+    #
+    # * img and other tags break out of the svg or math namespace (e.g. <svg><img></svg> == <svg><img></svg>)
+    # * style does not (e.g. <svg><style></svg> == <svg><style></style></svg>)
+    # * the breaking tag ejects trailing elements (e.g. <svg><img><style></style></svg> == <svg></svg><img><style></style>)
+    #
+    # the ejected elements can trigger XSS
+    assert (
+        clean(data, tags=[namespace_tag, end_tag, "style"], strip_comments=False)
+        == expected
+    )
+
+
 def get_ids_and_tests():
     """Retrieves regression tests from data/ directory
 
