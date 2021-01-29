@@ -1,6 +1,25 @@
 Bleach changes
 ==============
 
+Version 3.3.0 (February 1st, 2021)
+----------------------------------
+
+**Backwards incompatible changes**
+
+* clean escapes HTML comments even when strip_comments=False
+
+**Security fixes**
+
+* Fix bug 1621692 / GHSA-m6xf-fq7q-8743. See the advisory for details.
+
+**Features**
+
+None
+
+**Bug fixes**
+
+None
+
 Version 3.2.3 (January 26th, 2021)
 ----------------------------------
 
