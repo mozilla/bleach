@@ -740,35 +740,272 @@ def test_namespace_rc_data_element_strip_false(
 
 
 @pytest.mark.parametrize(
-    "namespace_tag, end_tag, data, expected",
+    "namespace_tag, end_tag, eject_tag, data, expected",
     [
+        # eject with style
         (
             "math",
             "p",
+            "style",
             "<math></p><style><!--</style><img src/onerror=alert(1)>",
             "<math><p></p><style><!--&lt;/style&gt;&lt;img src/onerror=alert(1)&gt;--></style></math>",
         ),
         (
             "math",
             "br",
+            "style",
             "<math></br><style><!--</style><img src/onerror=alert(1)>",
             "<math><br><style><!--&lt;/style&gt;&lt;img src/onerror=alert(1)&gt;--></style></math>",
         ),
         (
             "svg",
             "p",
+            "style",
             "<svg></p><style><!--</style><img src/onerror=alert(1)>",
             "<svg><p></p><style><!--&lt;/style&gt;&lt;img src/onerror=alert(1)&gt;--></style></svg>",
         ),
         (
             "svg",
             "br",
+            "style",
             "<svg></br><style><!--</style><img src/onerror=alert(1)>",
             "<svg><br><style><!--&lt;/style&gt;&lt;img src/onerror=alert(1)&gt;--></style></svg>",
         ),
+        # eject with title
+        (
+            "math",
+            "p",
+            "title",
+            "<math></p><title><!--</title><img src/onerror=alert(1)>",
+            "<math><p></p><title><!--&lt;/title&gt;&lt;img src/onerror=alert(1)&gt;--></title></math>",
+        ),
+        (
+            "math",
+            "br",
+            "title",
+            "<math></br><title><!--</title><img src/onerror=alert(1)>",
+            "<math><br><title><!--&lt;/title&gt;&lt;img src/onerror=alert(1)&gt;--></title></math>",
+        ),
+        (
+            "svg",
+            "p",
+            "title",
+            "<svg></p><title><!--</title><img src/onerror=alert(1)>",
+            "<svg><p></p><title><!--&lt;/title&gt;&lt;img src/onerror=alert(1)&gt;--></title></svg>",
+        ),
+        (
+            "svg",
+            "br",
+            "title",
+            "<svg></br><title><!--</title><img src/onerror=alert(1)>",
+            "<svg><br><title><!--&lt;/title&gt;&lt;img src/onerror=alert(1)&gt;--></title></svg>",
+        ),
+        # eject with noscript
+        (
+            "math",
+            "p",
+            "noscript",
+            "<math></p><noscript><!--</noscript><img src/onerror=alert(1)>",
+            "<math><p></p><noscript><!--&lt;/noscript&gt;&lt;img src/onerror=alert(1)&gt;--></noscript></math>",
+        ),
+        (
+            "math",
+            "br",
+            "noscript",
+            "<math></br><noscript><!--</noscript><img src/onerror=alert(1)>",
+            "<math><br><noscript><!--&lt;/noscript&gt;&lt;img src/onerror=alert(1)&gt;--></noscript></math>",
+        ),
+        (
+            "svg",
+            "p",
+            "noscript",
+            "<svg></p><noscript><!--</noscript><img src/onerror=alert(1)>",
+            "<svg><p></p><noscript><!--&lt;/noscript&gt;&lt;img src/onerror=alert(1)&gt;--></noscript></svg>",
+        ),
+        (
+            "svg",
+            "br",
+            "noscript",
+            "<svg></br><noscript><!--</noscript><img src/onerror=alert(1)>",
+            "<svg><br><noscript><!--&lt;/noscript&gt;&lt;img src/onerror=alert(1)&gt;--></noscript></svg>",
+        ),
+        # eject with script
+        (
+            "math",
+            "p",
+            "script",
+            "<math></p><script><!--</script><img src/onerror=alert(1)>",
+            "<math><p></p><script><!--&lt;/script&gt;&lt;img src/onerror=alert(1)&gt;--></script></math>",
+        ),
+        (
+            "math",
+            "br",
+            "script",
+            "<math></br><script><!--</script><img src/onerror=alert(1)>",
+            "<math><br><script><!--&lt;/script&gt;&lt;img src/onerror=alert(1)&gt;--></script></math>",
+        ),
+        (
+            "svg",
+            "p",
+            "script",
+            "<svg></p><script><!--</script><img src/onerror=alert(1)>",
+            "<svg><p></p><script><!--&lt;/script&gt;&lt;img src/onerror=alert(1)&gt;--></script></svg>",
+        ),
+        (
+            "svg",
+            "br",
+            "script",
+            "<svg></br><script><!--</script><img src/onerror=alert(1)>",
+            "<svg><br><script><!--&lt;/script&gt;&lt;img src/onerror=alert(1)&gt;--></script></svg>",
+        ),
+        # eject with noembed
+        (
+            "math",
+            "p",
+            "noembed",
+            "<math></p><noembed><!--</noembed><img src/onerror=alert(1)>",
+            "<math><p></p><noembed><!--&lt;/noembed&gt;&lt;img src/onerror=alert(1)&gt;--></noembed></math>",
+        ),
+        (
+            "math",
+            "br",
+            "noembed",
+            "<math></br><noembed><!--</noembed><img src/onerror=alert(1)>",
+            "<math><br><noembed><!--&lt;/noembed&gt;&lt;img src/onerror=alert(1)&gt;--></noembed></math>",
+        ),
+        (
+            "svg",
+            "p",
+            "noembed",
+            "<svg></p><noembed><!--</noembed><img src/onerror=alert(1)>",
+            "<svg><p></p><noembed><!--&lt;/noembed&gt;&lt;img src/onerror=alert(1)&gt;--></noembed></svg>",
+        ),
+        (
+            "svg",
+            "br",
+            "noembed",
+            "<svg></br><noembed><!--</noembed><img src/onerror=alert(1)>",
+            "<svg><br><noembed><!--&lt;/noembed&gt;&lt;img src/onerror=alert(1)&gt;--></noembed></svg>",
+        ),
+        # eject with textarea
+        (
+            "math",
+            "p",
+            "textarea",
+            "<math></p><textarea><!--</textarea><img src/onerror=alert(1)>",
+            "<math><p></p><textarea><!--&lt;/textarea&gt;&lt;img src/onerror=alert(1)&gt;--></textarea></math>",
+        ),
+        (
+            "math",
+            "br",
+            "textarea",
+            "<math></br><textarea><!--</textarea><img src/onerror=alert(1)>",
+            "<math><br><textarea><!--&lt;/textarea&gt;&lt;img src/onerror=alert(1)&gt;--></textarea></math>",
+        ),
+        (
+            "svg",
+            "p",
+            "textarea",
+            "<svg></p><textarea><!--</textarea><img src/onerror=alert(1)>",
+            "<svg><p></p><textarea><!--&lt;/textarea&gt;&lt;img src/onerror=alert(1)&gt;--></textarea></svg>",
+        ),
+        (
+            "svg",
+            "br",
+            "textarea",
+            "<svg></br><textarea><!--</textarea><img src/onerror=alert(1)>",
+            "<svg><br><textarea><!--&lt;/textarea&gt;&lt;img src/onerror=alert(1)&gt;--></textarea></svg>",
+        ),
+        # eject with noframes
+        (
+            "math",
+            "p",
+            "noframes",
+            "<math></p><noframes><!--</noframes><img src/onerror=alert(1)>",
+            "<math><p></p><noframes><!--&lt;/noframes&gt;&lt;img src/onerror=alert(1)&gt;--></noframes></math>",
+        ),
+        (
+            "math",
+            "br",
+            "noframes",
+            "<math></br><noframes><!--</noframes><img src/onerror=alert(1)>",
+            "<math><br><noframes><!--&lt;/noframes&gt;&lt;img src/onerror=alert(1)&gt;--></noframes></math>",
+        ),
+        (
+            "svg",
+            "p",
+            "noframes",
+            "<svg></p><noframes><!--</noframes><img src/onerror=alert(1)>",
+            "<svg><p></p><noframes><!--&lt;/noframes&gt;&lt;img src/onerror=alert(1)&gt;--></noframes></svg>",
+        ),
+        (
+            "svg",
+            "br",
+            "noframes",
+            "<svg></br><noframes><!--</noframes><img src/onerror=alert(1)>",
+            "<svg><br><noframes><!--&lt;/noframes&gt;&lt;img src/onerror=alert(1)&gt;--></noframes></svg>",
+        ),
+        # eject with iframe
+        (
+            "math",
+            "p",
+            "iframe",
+            "<math></p><iframe><!--</iframe><img src/onerror=alert(1)>",
+            "<math><p></p><iframe><!--&lt;/iframe&gt;&lt;img src/onerror=alert(1)&gt;--></iframe></math>",
+        ),
+        (
+            "math",
+            "br",
+            "iframe",
+            "<math></br><iframe><!--</iframe><img src/onerror=alert(1)>",
+            "<math><br><iframe><!--&lt;/iframe&gt;&lt;img src/onerror=alert(1)&gt;--></iframe></math>",
+        ),
+        (
+            "svg",
+            "p",
+            "iframe",
+            "<svg></p><iframe><!--</iframe><img src/onerror=alert(1)>",
+            "<svg><p></p><iframe><!--&lt;/iframe&gt;&lt;img src/onerror=alert(1)&gt;--></iframe></svg>",
+        ),
+        (
+            "svg",
+            "br",
+            "iframe",
+            "<svg></br><iframe><!--</iframe><img src/onerror=alert(1)>",
+            "<svg><br><iframe><!--&lt;/iframe&gt;&lt;img src/onerror=alert(1)&gt;--></iframe></svg>",
+        ),
+        # eject with xmp
+        (
+            "math",
+            "p",
+            "xmp",
+            "<math></p><xmp><!--</xmp><img src/onerror=alert(1)>",
+            "<math><p></p><xmp><!--&lt;/xmp&gt;&lt;img src/onerror=alert(1)&gt;--></xmp></math>",
+        ),
+        (
+            "math",
+            "br",
+            "xmp",
+            "<math></br><xmp><!--</xmp><img src/onerror=alert(1)>",
+            "<math><br><xmp><!--&lt;/xmp&gt;&lt;img src/onerror=alert(1)&gt;--></xmp></math>",
+        ),
+        (
+            "svg",
+            "p",
+            "xmp",
+            "<svg></p><xmp><!--</xmp><img src/onerror=alert(1)>",
+            "<svg><p></p><xmp><!--&lt;/xmp&gt;&lt;img src/onerror=alert(1)&gt;--></xmp></svg>",
+        ),
+        (
+            "svg",
+            "br",
+            "xmp",
+            "<svg></br><xmp><!--</xmp><img src/onerror=alert(1)>",
+            "<svg><br><xmp><!--&lt;/xmp&gt;&lt;img src/onerror=alert(1)&gt;--></xmp></svg>",
+        ),
     ],
 )
-def test_html_comments_escaped(namespace_tag, end_tag, data, expected):
+def test_html_comments_escaped(namespace_tag, end_tag, eject_tag, data, expected):
     # refs: bug 1689399 / GHSA-vv2x-vrpj-qqpq
     #
     # p and br can be just an end tag (e.g. </p> == <p></p>)
@@ -777,11 +1014,12 @@ def test_html_comments_escaped(namespace_tag, end_tag, data, expected):
     #
     # * img and other tags break out of the svg or math namespace (e.g. <svg><img></svg> == <svg><img></svg>)
     # * style does not (e.g. <svg><style></svg> == <svg><style></style></svg>)
+    # * style and other tags without child elements does not (e.g. <svg><style></svg> == <svg><style></style></svg>)
     # * the breaking tag ejects trailing elements (e.g. <svg><img><style></style></svg> == <svg></svg><img><style></style>)
     #
     # the ejected elements can trigger XSS
     assert (
-        clean(data, tags=[namespace_tag, end_tag, "style"], strip_comments=False)
+        clean(data, tags=[namespace_tag, end_tag, eject_tag], strip_comments=False)
         == expected
     )
 
