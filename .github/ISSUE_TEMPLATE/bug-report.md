@@ -2,7 +2,7 @@
 name: bug report
 about: Create a report to a bug or regression
 title: 'bug: '
-labels: regression
+labels: untriaged
 assignees: ''
 
 ---
