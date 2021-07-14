@@ -1,6 +1,26 @@
 Bleach changes
 ==============
 
+Version 3.3.1 (July 14th, 2021)
+-------------------------------
+
+**Security fixes**
+
+None
+
+**Features**
+
+* add more tests for CVE-2021-23980 / GHSA-vv2x-vrpj-qqpq
+* bump python version to 3.8 for tox doc, vendorverify, and lint targets
+* update bug report template tag
+* update vendorverify script to detect and fail when extra files are vendored
+* update release process docs to check vendorverify passes locally
+
+**Bug fixes**
+
+* remove extra vendored django present in the v3.3.0 whl #595
+* duplicate h1 header doc fix (thanks Nguyễn Gia Phong / @McSinyx!)
+
 Version 3.3.0 (February 1st, 2021)
 ----------------------------------
 
