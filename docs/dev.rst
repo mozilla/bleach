@@ -76,7 +76,12 @@ Release process
          $ cd docs/
          $ make doctest
 
-   4. Verify everything works
+   4. Verify the local vendored files (the second invocation should **not** exit with ``/tmp/vendor-test exists. Please remove.`` and the exit code should be zero)::
+
+	$ ./scripts/run_tests.sh vendorverify
+	$ ./scripts/run_tests.sh vendorverify
+
+   5. Run any additional tests to verify everything else works
 
 6. Commit the changes.
 
@@ -92,14 +97,20 @@ Release process
 
      $ python setup.py sdist bdist_wheel
 
-10. Upload them to PyPI::
+10. Sanity check the release contents and sizes:
+
+    $ ls -lh dist/* # file sizes should be similar
+    $ tar tvzf dist/bleach-${VERSION}.tar.gz
+    $ unzip -v dist/bleach-${VERSION}-py2.py3-none-any.whl
+
+11. Upload them to PyPI::
 
       $ twine upload dist/*
 
-11. Push the new tag::
+12. Push the new tag::
 
       $ git push --tags official master
 
     That will push the release to PyPI.
 
-12. Blog posts, twitter, etc.
+13. Blog posts, twitter, etc.

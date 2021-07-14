@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Install vendored packages into /tmp and then compare with what's in
 # bleach/_vendor/.
 
