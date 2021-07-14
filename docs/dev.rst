@@ -97,11 +97,11 @@ Release process
 
      $ python setup.py sdist bdist_wheel
 
-10. Sanity check the release contents and sizes:
+10. Sanity check the release contents and sizes::
 
-    $ ls -lh dist/* # file sizes should be similar
-    $ tar tvzf dist/bleach-${VERSION}.tar.gz
-    $ unzip -v dist/bleach-${VERSION}-py2.py3-none-any.whl
+     $ ls -lh dist/* # file sizes should be similar
+     $ tar tvzf dist/bleach-${VERSION}.tar.gz
+     $ unzip -v dist/bleach-${VERSION}-py2.py3-none-any.whl
 
 11. Upload them to PyPI::
 
