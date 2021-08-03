@@ -48,7 +48,7 @@ Tests are run as github actions for test and pull request events.
 Release process
 ===============
 
-1. Checkout master tip.
+1. Checkout main tip.
 
 2. Check to make sure ``setup.py`` and ``requirements-dev.txt`` are
    correct and match requirements-wise.
@@ -109,7 +109,7 @@ Release process
 
 12. Push the new tag::
 
-      $ git push --tags official master
+      $ git push --tags official main
 
     That will push the release to PyPI.
 
