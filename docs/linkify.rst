@@ -101,7 +101,7 @@ For example, you could add a ``title`` attribute to all links:
    'abc <a href="http://example.com" title="link in user text">http://example.com</a> def'
 
 
-This would set the value of the ``rel`` attribute, stomping on a previous value
+This would set the value of the ``title`` attribute, stomping on a previous value
 if there was one.
 
 Here's another example that makes external links open in a new tab and look like
