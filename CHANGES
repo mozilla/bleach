@@ -1,6 +1,21 @@
 Bleach changes
 ==============
 
+Version 4.0.0 (August 3rd, 2021)
+--------------------------------
+
+**Backwards incompatible changes**
+
+* Drop support for unsupported Python versions <3.6 #520
+
+**Security fixes**
+
+None
+
+**Features**
+
+* fix attribute name in the linkify docs (thanks @CheesyFeet!)
+
 Version 3.3.1 (July 14th, 2021)
 -------------------------------
 
