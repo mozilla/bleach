@@ -55,7 +55,9 @@ Release process
 
 3. Update version numbers in ``bleach/__init__.py``.
 
-   1. Set ``__version__`` to something like ``2.0.0``. Use semver.
+   1. Set ``__version__`` to something like ``2.0.0``. Use
+      semver. Bump the minor version if a vendored library was
+      unvendored or updated.
    2. Set ``__releasedate__`` to something like ``20120731``.
 
 4. Update ``CONTRIBUTORS``, ``CHANGES`` and ``MANIFEST.in``.

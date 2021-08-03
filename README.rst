@@ -85,6 +85,9 @@ Upgrading Bleach
    <https://bleach.readthedocs.io/en/latest/changes.html>`_ for backwards
    incompatible changes, newer versions, etc.
 
+   Bleach follows `semver 2`_ versioning. Vendored libraries will not
+   be changed in patch releases.
+
 
 Basic use
 =========
@@ -114,3 +117,4 @@ etiquette guidelines. For more details please see the `CODE_OF_CONDUCT.md
 .. _GitHub: https://github.com/mozilla/bleach
 .. _ReadTheDocs: https://bleach.readthedocs.io/
 .. _PyPI: https://pypi.org/project/bleach/
+.. _semver 2: https://semver.org/
