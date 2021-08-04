@@ -19,9 +19,9 @@ case "${MODE}" in
   docs)
     tox -e docs ;;
   format)
-    black bleach/*.py tests/ tests_website/ ;;
+    black --target-version=py36 bleach/*.py tests/ tests_website/ ;;
   format-check)
-    black --check --diff bleach/*.py tests/ tests_website/ ;;
+    black --target-version=py36 --check --diff bleach/*.py tests/ tests_website/ ;;
   *)
     echo "Unknown mode $MODE."
     exit 1

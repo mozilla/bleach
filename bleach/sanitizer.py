@@ -245,7 +245,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
         attributes=ALLOWED_ATTRIBUTES,
         strip_disallowed_elements=False,
         strip_html_comments=True,
-        **kwargs
+        **kwargs,
     ):
         """Creates a BleachSanitizerFilter instance
 
