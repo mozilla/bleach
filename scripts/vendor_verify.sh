@@ -27,7 +27,7 @@ diff -r \
     --exclude="__init__.py" \
     --exclude="README.rst" \
     --exclude="vendor.txt" \
-    --exclude="pip_install_vendor.sh" \
+    --exclude="vendor_install.sh" \
     --exclude="__pycache__" \
     --exclude="RECORD" \
     bleach/_vendor/ "${DEST}"
