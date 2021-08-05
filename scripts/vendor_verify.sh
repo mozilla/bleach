@@ -18,7 +18,7 @@ mkdir "${DEST}"
 pip --version
 
 # Install vendored dependencies into temp directory
-pip install --no-binary all --no-compile --no-deps -r bleach/_vendor/vendor.txt --target "${DEST}"
+BLEACH_VENDOR_DIR=bleach/_vendor DEST="${DEST}" bleach/_vendor/vendor_install.sh
 
 # Diff contents of temp directory and bleach/_vendor/ excluding vendoring
 # infrastructure
