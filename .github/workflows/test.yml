@@ -34,9 +34,15 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-${{ matrix.python-version }}-
 
-      - name: Install dependencies
+      - name: Print and compare hashes for python and platform specific libraries
         run: |
-          python -m pip install -U pip setuptools>=18.5
+          python -m pip install -U pip setuptools>=18.5 pip-tools==6.2.0
+          pip-compile --generate-hashes requirements-dev.in > requirements-dev.tmp
+          echo "diffing requirements-dev.txt and requirements-dev.tmp"
+          diff requirements-dev.txt requirements-dev.tmp || true
+
+      - name: Install dev dependencies
+        run: |
           python -m pip install -r requirements-dev.txt
 
       - name: Tests
