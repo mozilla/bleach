@@ -1,5 +1,5 @@
 .. _linkify-chapter:
-.. highlightlang:: python
+.. highlight:: python
 
 =========================
 Linkifying text fragments
