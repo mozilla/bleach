@@ -1,5 +1,5 @@
 .. _clean-chapter:
-.. highlightlang:: python
+.. highlight:: python
 
 =========================
 Sanitizing text fragments
