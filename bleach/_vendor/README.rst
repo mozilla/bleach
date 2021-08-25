@@ -56,6 +56,6 @@ To unvendor a library:
 
 1. Remove the library and its hashes from ``vendor.txt``.
 2. Remove library files and directories from this directory.
-3. Run ``pip_install_vendor.sh`` and check the previously vendored library including
+3. Run ``install_vendor.sh`` and check the previously vendored library including
    the ``.dist-info`` directory and contents is not installed.
 4. Update the bleach minor version in the next release.

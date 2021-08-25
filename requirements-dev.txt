@@ -17,3 +17,9 @@ wheel
 
 # Requirements for updating the vendored html5lib
 hashin
+
+# Requirements for format-check most recently black==20.8b1
+black; implementation_name == "cpython"
+
+# Requirements for type-check most recently mypy==0.790 and mypy-extensions==0.4.3
+mypy; implementation_name == "cpython"
