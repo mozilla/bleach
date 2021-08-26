@@ -60,7 +60,8 @@ Release process
       unvendored or updated.
    2. Set ``__releasedate__`` to something like ``20120731``.
 
-4. Update ``CONTRIBUTORS``, ``CHANGES`` and ``MANIFEST.in``.
+4. Update ``CONTRIBUTORS``, ``CHANGES``, ``MANIFEST.in`` and
+   ``SECURITY.md`` as necessary.
 
 5. Verify correctness.
 
@@ -73,7 +74,7 @@ Release process
          $ cd docs
          $ make html
 
-   3. Run the doctests (in Python 3)::
+   3. Run the doctests::
 
          $ cd docs/
          $ make doctest
