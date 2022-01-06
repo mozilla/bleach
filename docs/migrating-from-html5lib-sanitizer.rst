@@ -8,7 +8,10 @@ The `html5lib <https://github.com/html5lib/html5lib-python>`_ module `deprecated
 
 Migration path
 ==============
-If you upgrade to html5lib 1.1+, you will start getting deprecation warnings when using its sanitizer. If you decide to follow the recommendation and use Bleach for sanitization, you should understand that Bleach has its own sanitizer (despite the fact that it vendors html5lib). You may therefore encounter slightly different results. Avoid Bleach 3.2.0 because it leaks the deprecation warnings (for the sanitizer in the vendored html5lib v1.1); this is fixed in 3.2.1+.
+If you upgrade to html5lib 1.1+, you may get deprecation warnings when using its sanitizer. If you
+follow the recommendation and switch to Bleach for sanitization, you'll need to spend time tuning the
+Bleach sanitizer to your needs because the Bleach sanitizer has different goals and is not a drop-in
+replacement for the html5lib one.
 
 Here is an example of replacing the sanitization method:
 
