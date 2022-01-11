@@ -48,7 +48,7 @@ def test_mangle_link():
     def filter_url(attrs, new=False):
         if not attrs.get((None, "href"), "").startswith("http://bouncer"):
             quoted = quote_plus(attrs[(None, "href")])
-            attrs[(None, "href")] = "http://bouncer/?u={0!s}".format(quoted)
+            attrs[(None, "href")] = "http://bouncer/?u={!s}".format(quoted)
         return attrs
 
     assert (

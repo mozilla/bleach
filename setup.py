@@ -16,10 +16,10 @@ install_requires = [
 
 
 def get_long_desc():
-    with io.open('README.rst', encoding='utf-8') as fp:
+    with open('README.rst', encoding='utf-8') as fp:
         desc = fp.read()
     desc += '\n\n'
-    with io.open('CHANGES', encoding='utf-8') as fp:
+    with open('CHANGES', encoding='utf-8') as fp:
         desc += fp.read()
     return desc
 
@@ -27,7 +27,7 @@ def get_long_desc():
 def get_version():
     fn = os.path.join('bleach', '__init__.py')
     vsre = r"""^__version__ = ['"]([^'"]*)['"]"""
-    with io.open(fn, encoding='utf-8') as fp:
+    with open(fn, encoding='utf-8') as fp:
         version_file = fp.read()
     return re.search(vsre, version_file, re.M).group(1)
 
