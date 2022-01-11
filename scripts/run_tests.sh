@@ -23,10 +23,10 @@ case "${MODE}" in
     tox -e docs
     ;;
   format)
-    black --target-version=py36 bleach/*.py tests/ tests_website/
+    black --target-version=py37 bleach/*.py tests/ tests_website/
     ;;
   format-check)
-    black --target-version=py36 --check --diff bleach/*.py tests/ tests_website/
+    black --target-version=py37 --check --diff bleach/*.py tests/ tests_website/
     ;;
   check-reqs)
     mv requirements-dev.txt requirements-dev.txt.orig
