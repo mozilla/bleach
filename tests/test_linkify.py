@@ -667,6 +667,12 @@ def test_linkify_idempotent():
     assert linkify(linkify(dirty)) == linkify(dirty)
 
 
+def test_linkify_idempotent_query():
+    """Make sure that applying the filter twice doesn't change anything."""
+    dirty = '<a href="http://example.com?foo=bar&bar=foo&amp;biz=bash">'
+    assert linkify(linkify(dirty)) == linkify(dirty)
+
+
 class TestLinkify:
     def test_no_href_links(self):
         s = '<a name="anchor">x</a>'

@@ -14,6 +14,18 @@ def test_clean_idempotent():
     assert clean(clean(dirty)) == clean(dirty)
 
 
+def test_clean_idempotent_query():
+    """Make sure that applying the filter twice doesn't change anything."""
+    dirty = '<a href="http://example.com?foo=bar&bar=foo&amp;biz=bash">'
+    assert clean(clean(dirty)) == clean(dirty)
+
+
+def test_clean_idempotent_img():
+    """Make sure that applying the filter twice doesn't change anything."""
+    dirty = '<imr src="http://example.com?foo=bar&bar=foo&amp;biz=bash">'
+    assert clean(clean(dirty, tags=IMG), tags=IMG) == clean(dirty, tags=IMG)
+
+
 def test_only_text_is_cleaned():
     some_text = "text"
     some_type = int
