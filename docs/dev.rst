@@ -19,10 +19,14 @@ To install Bleach to make changes to it:
        $ pip install -e .
 
 
+Code of conduct
+===============
+
+This project has a `code of conduct
+<https://github.com/mozilla/bleach/blob/main/CODE_OF_CONDUCT.md>`_.
+
+
 .. include:: ../CONTRIBUTING.rst
-
-
-.. include:: ../CODE_OF_CONDUCT.rst
 
 
 Docs
