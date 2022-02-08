@@ -1,6 +1,7 @@
 # Requirements for installing other packages
 pip
 setuptools>=18.5
+pip-tools==6.5.0
 
 # Requirements to run the test suite
 pytest
