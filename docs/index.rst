@@ -12,6 +12,7 @@ Contents
    goals
    dev
    changes
+   migrating
 
 
 Indices and tables
