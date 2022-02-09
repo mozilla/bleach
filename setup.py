@@ -31,6 +31,22 @@ INSTALL_REQUIRES = [
 ]
 
 
+EXTRAS_REQUIRE = {
+    "dev": [
+        "pip-tools==6.5.0",
+        "pytest==7.0.0",
+        "flake8==4.0.1",
+        "tox==3.24.5",
+        "sphinx==4.4.0",
+        "twine==3.8.0",
+        "wheel==0.37.1",
+        "hashin==0.17.0",
+        "black==22.1.0; implementation_name == 'cpython'",
+        "mypy==0.931; implementation_name=='cpython'",
+    ],
+}
+
+
 setup(
     name="bleach",
     version=get_version(),
@@ -46,6 +62,7 @@ setup(
     zip_safe=False,
     python_requires=">=3.7",
     install_requires=INSTALL_REQUIRES,
+    extras_require=EXTRAS_REQUIRE,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",

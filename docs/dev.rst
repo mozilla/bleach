@@ -11,12 +11,11 @@ To install Bleach to make changes to it:
 
        $ git clone git://github.com/mozilla/bleach.git
 
-2. Create a virtual environment using whatever method you want.
+2. Create and activate a virtual environment.
 
-3. Install Bleach into the virtual environment such that you can see
-   changes::
+3. Install Bleach and developer requirements into the virtual environment::
 
-       $ pip install -e .
+       $ pip install -e '.[dev]'
 
 
 Code of conduct
@@ -83,10 +82,12 @@ Release process
          $ cd docs/
          $ make doctest
 
-   4. Verify the local vendored files (the second invocation should **not** exit with ``/tmp/vendor-test exists. Please remove.`` and the exit code should be zero)::
+   4. Verify the local vendored files (the second invocation should **not**
+      exit with ``/tmp/vendor-test exists. Please remove.`` and the exit
+      code should be zero)::
 
-	$ ./scripts/run_tests.sh vendorverify
-	$ ./scripts/run_tests.sh vendorverify
+         $ ./scripts/run_tests.sh vendorverify
+         $ ./scripts/run_tests.sh vendorverify
 
    5. Run any additional tests to verify everything else works
 
@@ -96,27 +97,27 @@ Release process
 
 8. After CI passes, create a signed tag for the release::
 
-     $ git tag -s v0.4.0
+      $ git tag -s v0.4.0
 
    Copy the details from ``CHANGES`` into the tag comment.
 
 9. Generate distribution files::
 
-     $ python setup.py sdist bdist_wheel
+      $ python setup.py sdist bdist_wheel
 
 10. Sanity check the release contents and sizes::
 
-     $ ls -lh dist/* # file sizes should be similar
-     $ tar tvzf dist/bleach-${VERSION}.tar.gz
-     $ unzip -v dist/bleach-${VERSION}-py2.py3-none-any.whl
+       $ ls -lh dist/* # file sizes should be similar
+       $ tar tvzf dist/bleach-${VERSION}.tar.gz
+       $ unzip -v dist/bleach-${VERSION}-py2.py3-none-any.whl
 
 11. Upload them to PyPI::
 
-      $ twine upload dist/*
+       $ twine upload dist/*
 
 12. Push the new tag::
 
-      $ git push --tags official main
+       $ git push --tags official main
 
     That will push the release to PyPI.
 

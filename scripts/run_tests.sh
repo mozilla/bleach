@@ -29,12 +29,11 @@ case "${MODE}" in
     black --target-version=py37 --check --diff --exclude=_vendor setup.py bleach/ tests/ tests_website/
     ;;
   check-reqs)
-    mv requirements-dev.txt requirements-dev.txt.orig
-    pip-compile --generate-hashes requirements-dev.in
-    echo "diffing requirements-dev.txt and requirements-dev.txt.orig"
-    diff requirements-dev.txt requirements-dev.txt.orig
-    rm requirements-dev.txt
-    mv requirements-dev.txt.orig requirements-dev.txt
+    python -m venv ./tmpvenv/
+    ./tmpvenv/bin/pip install -U pip
+    ./tmpvenv/bin/install '.[dev]'
+    ./tmpvenv/bin/pip list -o
+    rm -rf ./tmpvenv/
     ;;
   *)
     echo "Unknown mode $MODE."
