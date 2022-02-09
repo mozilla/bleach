@@ -14,7 +14,7 @@ case "${MODE}" in
     pytest
     ;;
   lint)
-    flake8 bleach/
+    flake8 setup.py tests/ bleach/ tests_website/
     ;;
   vendorverify)
     ./scripts/vendor_verify.sh
@@ -23,10 +23,10 @@ case "${MODE}" in
     tox -e docs
     ;;
   format)
-    black --target-version=py37 bleach/*.py tests/ tests_website/
+    black --target-version=py37 --exclude=_vendor setup.py bleach/ tests/ tests_website/
     ;;
   format-check)
-    black --target-version=py37 --check --diff bleach/*.py tests/ tests_website/
+    black --target-version=py37 --check --diff --exclude=_vendor setup.py bleach/ tests/ tests_website/
     ;;
   check-reqs)
     mv requirements-dev.txt requirements-dev.txt.orig
