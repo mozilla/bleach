@@ -53,8 +53,7 @@ Release process
 
 1. Checkout main tip.
 
-2. Check to make sure ``setup.py`` and ``requirements-dev.txt`` are
-   correct and match requirements-wise.
+2. Check to make sure ``setup.py`` is correct and match requirements-wise.
 
 3. Update version numbers in ``bleach/__init__.py``.
 
