@@ -38,8 +38,8 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          pip install -U pip==22.0.3
-          pip install '.[dev]'
+          python -m pip install -U pip setuptools>=18.5
+          python -m pip install '.[dev]'
 
       - name: Tests
         shell: bash
