@@ -39,7 +39,7 @@ def main():
     for infn in ins:
         case_name = infn.rsplit(".test", 1)[0]
 
-        with open(infn, "r") as fin:
+        with open(infn) as fin:
             data, expected = fin.read().split("\n--\n")
             data = data.strip()
             expected = expected.strip()

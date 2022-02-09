@@ -36,4 +36,4 @@ if __name__ == "__main__":
             browser = webbrowser.get(browser_name)
             browser.open_new_tab("http://localhost:8080")
         except Exception as error:
-            print("error getting test browser %s: %s" % (browser_name, error))
+            print("error getting test browser {}: {}".format(browser_name, error))

@@ -257,7 +257,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
     """Tokenizer that doesn't consume character entities"""
 
     def __init__(self, consume_entities=False, **kwargs):
-        super(BleachHTMLTokenizer, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         self.consume_entities = consume_entities
 
@@ -267,7 +267,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
     def __iter__(self):
         last_error_token = None
 
-        for token in super(BleachHTMLTokenizer, self).__iter__():
+        for token in super().__iter__():
             if last_error_token is not None:
                 if (
                     last_error_token["data"] == "invalid-character-in-attribute-name"
@@ -342,9 +342,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
         # If this tokenizer is set to consume entities, then we can let the
         # superclass do its thing.
         if self.consume_entities:
-            return super(BleachHTMLTokenizer, self).consumeEntity(
-                allowedChar, fromAttribute
-            )
+            return super().consumeEntity(allowedChar, fromAttribute)
 
         # If this tokenizer is set to not consume entities, then we don't want
         # to consume and convert them, so this overrides the html5lib tokenizer's
@@ -364,7 +362,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
         # we've collected so far and we do that by calling start_tag() on
         # the input stream wrapper.
         self.stream.start_tag()
-        return super(BleachHTMLTokenizer, self).tagOpenState()
+        return super().tagOpenState()
 
     def emitCurrentToken(self):
         token = self.currentToken
@@ -397,7 +395,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
             self.state = self.dataState
             return
 
-        super(BleachHTMLTokenizer, self).emitCurrentToken()
+        super().emitCurrentToken()
 
 
 class BleachHTMLParser(HTMLParser):
@@ -416,7 +414,7 @@ class BleachHTMLParser(HTMLParser):
         self.tags = [tag.lower() for tag in tags] if tags is not None else None
         self.strip = strip
         self.consume_entities = consume_entities
-        super(BleachHTMLParser, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def _parse(
         self, stream, innerHTML=False, container="div", scripting=True, **kwargs
@@ -642,15 +640,14 @@ class BleachHTMLSerializer(HTMLSerializer):
         in_tag = False
         after_equals = False
 
-        for stoken in super(BleachHTMLSerializer, self).serialize(treewalker, encoding):
+        for stoken in super().serialize(treewalker, encoding):
             if in_tag:
                 if stoken == ">":
                     in_tag = False
 
                 elif after_equals:
                     if stoken != '"':
-                        for part in self.escape_base_amp(stoken):
-                            yield part
+                        yield from self.escape_base_amp(stoken)
 
                         after_equals = False
                         continue

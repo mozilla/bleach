@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import packaging.version
 
 from bleach.linkifier import (
