@@ -14,7 +14,7 @@ case "${MODE}" in
     pytest
     ;;
   lint)
-    flake8 bleach/
+    flake8 setup.py tests/ bleach/ tests_website/
     ;;
   vendorverify)
     ./scripts/vendor_verify.sh
@@ -23,18 +23,17 @@ case "${MODE}" in
     tox -e docs
     ;;
   format)
-    black --target-version=py37 bleach/*.py tests/ tests_website/
+    black --target-version=py37 --exclude=_vendor setup.py bleach/ tests/ tests_website/
     ;;
   format-check)
-    black --target-version=py37 --check --diff bleach/*.py tests/ tests_website/
+    black --target-version=py37 --check --diff --exclude=_vendor setup.py bleach/ tests/ tests_website/
     ;;
   check-reqs)
-    mv requirements-dev.txt requirements-dev.txt.orig
-    pip-compile --generate-hashes requirements-dev.in
-    echo "diffing requirements-dev.txt and requirements-dev.txt.orig"
-    diff requirements-dev.txt requirements-dev.txt.orig
-    rm requirements-dev.txt
-    mv requirements-dev.txt.orig requirements-dev.txt
+    python -m venv ./tmpvenv/
+    ./tmpvenv/bin/pip install -U pip
+    ./tmpvenv/bin/install '.[dev]'
+    ./tmpvenv/bin/pip list -o
+    rm -rf ./tmpvenv/
     ;;
   *)
     echo "Unknown mode $MODE."
