@@ -8,10 +8,27 @@ from bleach.sanitizer import ALLOWED_PROTOCOLS, Cleaner
 from bleach._vendor.html5lib.constants import rcdataElements
 
 
-def test_clean_idempotent():
+@pytest.mark.parametrize(
+    "data",
+    [
+        "<span>text & </span>",
+        "a < b",
+        "link http://link.com",
+        "text<em>",
+        "jim &current joe",
+        # Link with querystring items
+        '<a href="http://example.com?foo=bar&bar=foo&amp;biz=bash">',
+    ],
+)
+def test_clean_idempotent(data):
     """Make sure that applying the filter twice doesn't change anything."""
-    dirty = "<span>invalid & </span> < extra http://link.com<em>"
-    assert clean(clean(dirty)) == clean(dirty)
+    assert clean(clean(data)) == clean(data)
+
+
+def test_clean_idempotent_img():
+    tags = ["img"]
+    dirty = '<imr src="http://example.com?foo=bar&bar=foo&amp;biz=bash">'
+    assert clean(clean(dirty, tags=tags), tags=tags) == clean(dirty, tags=tags)
 
 
 def test_only_text_is_cleaned():
