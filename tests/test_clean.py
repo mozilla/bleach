@@ -1094,7 +1094,10 @@ def test_strip_respects_block_level_elements():
 
     # newlines are used to keep lists and other elements readable
     text = "<div><p>This is our <b>description!</b> &amp;</p><p>1</p><ul><li>a</li><li>b</li><li>c</li></ul></div><p>nice!</p>"
-    assert clean(text, tags=[], strip=True) == "\nThis is our description! &amp;\n1\n\na\nb\nc\nnice!"
+    assert (
+        clean(text, tags=[], strip=True)
+        == "\nThis is our description! &amp;\n1\n\na\nb\nc\nnice!"
+    )
 
 
 def get_ids_and_tests():
