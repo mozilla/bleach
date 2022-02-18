@@ -1,5 +1,3 @@
-import packaging.version
-
 from bleach.linkifier import (
     DEFAULT_CALLBACKS,
     Linker,
@@ -17,7 +15,6 @@ from bleach.sanitizer import (
 __releasedate__ = "20210825"
 # x.y.z or x.y.z.dev0 -- semver
 __version__ = "4.1.0"
-VERSION = packaging.version.Version(__version__)
 
 
 __all__ = ["clean", "linkify"]
