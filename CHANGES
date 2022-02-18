@@ -205,23 +205,38 @@ None
 
 **Backwards incompatible changes**
 
-None
+* Drop support for Python 3.4. Thank you, @hugovk!
+
+* Drop deprecated ``setup.py test`` support. Thank you, @jdufresne! (#507)
 
 **Features**
 
-* Add relative link to code of conduct. (#442)
+* Add support for Python 3.8. Thank you, @jdufresne!
 
-* Drop deprecated 'setup.py test' support. (#507)
+* Add support for PyPy 7. Thank you, @hugovk!
 
-* Fix typo: curren -> current in tests/test_clean.py (#504)
-
-* Test on PyPy 7
-
-* Drop test support for end of life Python 3.4
+* Add pypy3 testing to tox and travis. Thank you, @jdufresne!
 
 **Bug fixes**
 
-None
+* Add relative link to code of conduct. (#442)
+
+* Fix typo: curren -> current in tests/test_clean.py Thank you, timgates42! (#504)
+
+* Fix handling of non-ascii style attributes. Thank you, @sekineh! (#426)
+
+* Simplify tox configuration. Thank you, @jdufresne!
+
+* Make documentation reproducible. Thank you, @lamby!
+
+* Fix typos in code comments. Thank you, @zborboa-g!
+
+* Fix exception value testing. Thank you, @mastizada!
+
+* Fix parser-tags NoneType exception. Thank you, @bope!
+
+* Improve TLD support in linkify. Thank you, @pc-coholic!
+
 
 Version 3.1.2 (March 11th, 2020)
 --------------------------------
