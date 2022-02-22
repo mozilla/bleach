@@ -150,6 +150,28 @@ that bleach properly strips or escapes language-specific syntax like
 Angular templates before using bleach-sanitized output with your
 framework or template language.
 
+Protect against CSS-based XSS attacks in legacy browsers
+--------------------------------------------------------
+
+Bleach will not protect against CSS-based XSS vectors that only worked
+in legacy IE, Opera, or Netscape/Mozilla/Firefox browsers. For
+example, it will not remove ``expression`` or ``url`` functions in CSS
+component values in style elements or attributes and `other vectors
+https://html5sec.org/#css`_.
+
+
+Protect against privacy, cross site, or HTTP leaks
+--------------------------------------------------
+
+Bleach does not prevent output from fingerprinting users or leaking
+information about users via requests to external sites. For example,
+it will not remove CSS Media Queries or tracking pixels.
+
+See also:
+
+* `browser leaks https://browserleaks.com/`_
+* `HTTP leaks https://github.com/cure53/HTTPLeaks`_
+* `XS leaks https://xsleaks.dev/`_
 
 Bleach vs html5lib
 ==================
