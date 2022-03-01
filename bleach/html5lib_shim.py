@@ -512,13 +512,13 @@ def convert_entities(text):
 def match_entity(stream):
     """Returns first entity in stream or None if no entity exists
 
-    Note: For Bleach purposes, entities must start with a "&" and end with
-    a ";". This ignoresambiguous character entities that have no ";" at the
-    end.
+    Note: For Bleach purposes, entities must start with a "&" and end with a
+    ";". This ignores ambiguous character entities that have no ";" at the end.
 
     :arg stream: the character stream
 
-    :returns: ``None`` or the entity string without "&" or ";"
+    :returns: the entity string without "&" or ";" if it's a valid character
+        entity; ``None`` otherwise
 
     """
     # Nix the & at the beginning
@@ -557,13 +557,19 @@ def match_entity(stream):
     # Handle character entities
     while stream and stream[0] not in end_characters:
         c = stream.pop(0)
-        if not ENTITIES_TRIE.has_keys_with_prefix(possible_entity):
-            break
+        print(1, stream, c, possible_entity)
         possible_entity += c
+        if not ENTITIES_TRIE.has_keys_with_prefix(possible_entity):
+            # If it's not a prefix, then it's not an entity and we're
+            # out
+            return None
 
+    print(2, stream, possible_entity)
     if possible_entity and stream and stream[0] == ";":
+        print(3, possible_entity)
         return possible_entity
 
+    print(3, "NONE")
     return None
 
 
