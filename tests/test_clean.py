@@ -11,11 +11,14 @@ from bleach._vendor.html5lib.constants import rcdataElements
 @pytest.mark.parametrize(
     "data",
     [
-        "<span>text & </span>",
         "a < b",
         "link http://link.com",
         "text<em>",
+        # Verify idempotentcy with character entity handling
+        "<span>text & </span>",
         "jim &current joe",
+        "&&nbsp; &nbsp;&",
+        "jim &xx; joe",
         # Link with querystring items
         '<a href="http://example.com?foo=bar&bar=foo&amp;biz=bash">',
     ],
