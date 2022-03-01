@@ -557,19 +557,15 @@ def match_entity(stream):
     # Handle character entities
     while stream and stream[0] not in end_characters:
         c = stream.pop(0)
-        print(1, stream, c, possible_entity)
         possible_entity += c
         if not ENTITIES_TRIE.has_keys_with_prefix(possible_entity):
             # If it's not a prefix, then it's not an entity and we're
             # out
             return None
 
-    print(2, stream, possible_entity)
     if possible_entity and stream and stream[0] == ";":
-        print(3, possible_entity)
         return possible_entity
 
-    print(3, "NONE")
     return None
 
 
