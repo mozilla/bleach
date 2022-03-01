@@ -11,11 +11,14 @@ from bleach._vendor.html5lib.constants import rcdataElements
 @pytest.mark.parametrize(
     "data",
     [
-        "<span>text & </span>",
         "a < b",
         "link http://link.com",
         "text<em>",
+        # Verify idempotentcy with character entity handling
+        "<span>text & </span>",
         "jim &current joe",
+        "&&nbsp; &nbsp;&",
+        "jim &xx; joe",
         # Link with querystring items
         '<a href="http://example.com?foo=bar&bar=foo&amp;biz=bash">',
     ],
@@ -156,41 +159,47 @@ def test_bare_entities_get_escaped_correctly(text, expected):
 @pytest.mark.parametrize(
     "text, expected",
     [
-        # Test character entities
+        # Test character entities in text don't get escaped
         ("&amp;", "&amp;"),
         ("&nbsp;", "&nbsp;"),
         ("&nbsp; test string &nbsp;", "&nbsp; test string &nbsp;"),
         ("&lt;em&gt;strong&lt;/em&gt;", "&lt;em&gt;strong&lt;/em&gt;"),
-        # Test character entity at beginning of string
+        # Test character entity at beginning of string doesn't get escaped
         ("&amp;is cool", "&amp;is cool"),
-        # Test it at the end of the string
+        # Test character entity at end of the string doesn't get escaped
         ("cool &amp;", "cool &amp;"),
-        # Test bare ampersands and entities at beginning
+        # Test bare ampersands before an entity at the beginning of the string
+        # gets escaped
         ("&&amp; is cool", "&amp;&amp; is cool"),
-        # Test entities and bare ampersand at end
+        # Test ampersand after an entity at the end of the string gets escaped
         ("&amp; is cool &amp;&", "&amp; is cool &amp;&amp;"),
-        # Test missing semi-colon means we don't treat it like an entity
+        # Test missing semi-colons mean we don't treat the thing as an entity--Bleach
+        # only recognizes character entities that start with & and end with ;
         ("this &amp that", "this &amp;amp that"),
-        # Test a thing that looks like a character entity, but isn't because it's
-        # missing a ; (&current)
         (
             "http://example.com?active=true&current=true",
             "http://example.com?active=true&amp;current=true",
         ),
-        # Test character entities in attribute values are left alone
+        # Test character entities in attribute values are not escaped
         ('<a href="?art&amp;copy">foo</a>', '<a href="?art&amp;copy">foo</a>'),
         ('<a href="?this=&gt;that">foo</a>', '<a href="?this=&gt;that">foo</a>'),
-        # Ambiguous ampersands get escaped in attributes
+        # Things in attributes that aren't character entities get escaped
         (
             '<a href="http://example.com/&xx;">foo</a>',
             '<a href="http://example.com/&amp;xx;">foo</a>',
         ),
         (
+            '<a href="http://example.com?&adp;">foo</a>',
+            '<a href="http://example.com?&amp;adp;">foo</a>',
+        ),
+        (
             '<a href="http://example.com?active=true&current=true">foo</a>',
             '<a href="http://example.com?active=true&amp;current=true">foo</a>',
         ),
-        # Ambiguous ampersands in text are not escaped
-        ("&xx;", "&xx;"),
+        # Things in text that aren't character entities get escaped
+        ("&xx;", "&amp;xx;"),
+        ("&adp;", "&amp;adp;"),
+        ("&currdupe;", "&amp;currdupe;"),
         # Test numeric entities
         ("&#39;", "&#39;"),
         ("&#34;", "&#34;"),
