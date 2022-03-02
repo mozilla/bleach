@@ -24,6 +24,7 @@ def get_version():
 
 
 INSTALL_REQUIRES = [
+    "tinycss2>=1.1.0",
     # html5lib requirements
     "six>=1.9.0",
     "webencodings",

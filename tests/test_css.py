@@ -94,11 +94,11 @@ def test_valid_css():
     styles = ["color", "float"]
     assert (
         clean('<p style="float: left; color: ">foo</p>', styles=styles)
-        == '<p style="float: left;">foo</p>'
+        == '<p style="float: left; color: ;">foo</p>'
     )
     assert (
         clean('<p style="color: float: left;">foo</p>', styles=styles)
-        == '<p style="">foo</p>'
+        == '<p style="color: float: left;">foo</p>'
     )
 
 
@@ -110,40 +110,39 @@ def test_valid_css():
             '<p style="background: #00D;">foo</p>',
             '<p style="background: #00D;">foo</p>',
         ),
-        # Verify urls with no quotes, single quotes, and double quotes are all dropped
         (
             '<p style="background: url(topbanner.png) #00D;">foo</p>',
-            '<p style="background: #00D;">foo</p>',
+            '<p style="background: url(topbanner.png) #00D;">foo</p>',
         ),
         (
             "<p style=\"background: url('topbanner.png') #00D;\">foo</p>",
-            '<p style="background: #00D;">foo</p>',
+            "<p style='background: url(\"topbanner.png\") #00D;'>foo</p>",
         ),
         (
             "<p style='background: url(\"topbanner.png\") #00D;'>foo</p>",
-            '<p style="background: #00D;">foo</p>',
+            "<p style='background: url(\"topbanner.png\") #00D;'>foo</p>",
         ),
         # Verify urls with spacing
         (
             "<p style=\"background: url(  'topbanner.png') #00D;\">foo</p>",
-            '<p style="background: #00D;">foo</p>',
+            "<p style='background: url(  \"topbanner.png\") #00D;'>foo</p>",
         ),
         (
             "<p style=\"background: url('topbanner.png'  ) #00D;\">foo</p>",
-            '<p style="background: #00D;">foo</p>',
+            "<p style='background: url(\"topbanner.png\"  ) #00D;'>foo</p>",
         ),
         (
             "<p style=\"background: url(  'topbanner.png'  ) #00D;\">foo</p>",
-            '<p style="background: #00D;">foo</p>',
+            "<p style='background: url(  \"topbanner.png\"  ) #00D;'>foo</p>",
         ),
         (
             "<p style=\"background: url (  'topbanner.png'  ) #00D;\">foo</p>",
-            '<p style="background: #00D;">foo</p>',
+            "<p style='background: url (  \"topbanner.png\"  ) #00D;'>foo</p>",
         ),
         # Verify urls with character entities
         (
             "<p style=\"background: url&#x09;('topbanner.png') #00D;\">foo</p>",
-            '<p style="background: #00D;">foo</p>',
+            '<p style="background: url&#x09;">foo</p>',
         ),
     ],
 )
@@ -239,9 +238,11 @@ def test_style_hang():
             '<p style="font-family: Droid Sans, serif; white-space: pre-wrap;">text</p>',
         ),
         (
-            '<p style="font-family: &quot;Droid Sans&quot;, serif; white-space: pre-wrap;">text</p>',
-            ["font-family", "white-space"],
-            "<p style='font-family: \"Droid Sans\", serif; white-space: pre-wrap;'>text</p>",
+            "<p style=\"content: '&nbsp;';\">text</p>",
+            ["content"],
+            # This seems wrong, but it's right. Character entities aren't a
+            # thing in CSS, so this is treated as text.
+            "<p style='content: \"&amp;nbsp;\";'>text</p>",
         ),
     ],
 )

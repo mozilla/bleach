@@ -3,6 +3,7 @@ import re
 import warnings
 
 from bleach._vendor.parse import urlparse
+import tinycss2
 from xml.sax.saxutils import unescape
 
 from bleach import html5lib_shim
@@ -596,44 +597,34 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
 
     def sanitize_css(self, style):
         """Sanitizes css in style tags"""
-        # Convert entities in the style so that it can be parsed as CSS
-        style = html5lib_shim.convert_entities(style)
+        parsed = tinycss2.parse_declaration_list(style)
 
-        # Drop any url values before we do anything else
-        style = re.compile(r"url\s*\(\s*[^\s)]+?\s*\)\s*").sub(" ", style)
-
-        # The gauntlet of sanitization
-
-        # Validate the css in the style tag and if it's not valid, then drop
-        # the whole thing.
-        parts = style.split(";")
-        gauntlet = re.compile(
-            r"""^(  # consider a style attribute value as composed of:
-[/:,#%!.\s\w]    # a non-newline character
-|\w-\w           # 3 characters in the form \w-\w
-|'[\s\w]+'\s*    # a single quoted string of [\s\w]+ with trailing space
-|"[\s\w]+"       # a double quoted string of [\s\w]+
-|\([\d,%\.\s]+\) # a parenthesized string of one or more digits, commas, periods, ...
-)*$""",  # ... percent signs, or whitespace e.g. from 'color: hsl(30,100%,50%)'
-            flags=re.U | re.VERBOSE,
-        )
-
-        for part in parts:
-            if not gauntlet.match(part):
-                return ""
-
-        if not re.match(r"^\s*([-\w]+\s*:[^:;]*(;\s*|$))*$", style):
+        if not parsed:
             return ""
 
-        clean = []
-        for prop, value in re.findall(r"([-\w]+)\s*:\s*([^:;]*)", style):
-            if not value:
-                continue
+        # decl.name.lower() in self.allowed_css_properties
+        # or decl.name.lower() in self.allowed_svg_properties
 
-            if prop.lower() in self.allowed_css_properties:
-                clean.append(prop + ": " + value + ";")
+        new_tokens = []
+        for token in parsed:
+            if token.type == "at-rule":
+                print("omg")
+            elif token.type == "declaration":
+                if (
+                    token.lower_name in self.allowed_css_properties
+                    or token.lower_name in self.allowed_svg_properties
+                ):
+                    new_tokens.append(token)
+            elif token.type in ("comment", "whitespace"):
+                if new_tokens and new_tokens[-1].type != token.type:
+                    new_tokens.append(token)
+            # Declaration
+            # AtRule
+            # Comment
+            # WhitespaceToken
+            # ParseError
 
-            elif prop.lower() in self.allowed_svg_properties:
-                clean.append(prop + ": " + value + ";")
+        if not new_tokens:
+            return ""
 
-        return " ".join(clean)
+        return tinycss2.serialize(new_tokens).strip()
