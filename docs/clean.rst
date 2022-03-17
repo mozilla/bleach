@@ -5,25 +5,20 @@
 Sanitizing text fragments
 =========================
 
-:py:func:`bleach.clean` is Bleach's HTML sanitization method.
+Bleach sanitizes text fragments for use in an HTML context. It provides a
+:py:func:`bleach.clean` function and a more configurable
+:py:class:`bleach.sanitizer.Cleaner` class with safe defaults.
 
-Given a fragment of HTML, Bleach will parse it according to the HTML5 parsing
-algorithm and sanitize any disallowed tags or attributes. This algorithm also
-takes care of things like unclosed and (some) misnested tags.
-
-You may pass in a ``string`` or a ``unicode`` object, but Bleach will always
-return ``unicode``.
-
-.. Note::
-
-   :py:func:`bleach.clean` is for sanitizing HTML **fragments** and not entire
-   HTML documents.
-
+Given a text fragment, Bleach will parse it according to the HTML5 parsing
+algorithm and sanitize tags, attributes, and other aspects. This also handles
+unescaped characters and unclosed and misnested tags. The result is text that
+can be used in HTML as is.
 
 .. Warning::
 
    :py:func:`bleach.clean` is for sanitising HTML fragments to use in an HTML
-   context--not for HTML attributes, CSS, JSON, xhtml, SVG, or other contexts.
+   context--not for use in HTML attributes, CSS, JSON, xhtml, SVG, or other
+   contexts.
 
    For example, this is a safe use of ``clean`` output in an HTML context::
 
@@ -32,18 +27,15 @@ return ``unicode``.
      </p>
 
 
-   This is a **not safe** use of ``clean`` output in an HTML attribute::
+   This is **not a safe** use of ``clean`` output in an HTML attribute::
 
      <body data-bio="{{ bleach.clean(user_bio) }}">
 
 
-   If you need to use the output of ``bleach.clean()`` in an HTML attribute, you
-   need to pass it through your template library's escape function. For example,
-   Jinja2's ``escape`` or ``django.utils.html.escape`` or something like that.
-
    If you need to use the output of ``bleach.clean()`` in any other context,
    you need to pass it through an appropriate sanitizer/escaper for that
-   context.
+   context. For example, if you wanted to use the output in an HTML attribute
+   value, you would need to pass it through Jinja's or Django's escape function.
 
 
 .. autofunction:: bleach.clean
@@ -108,10 +100,9 @@ For example:
    >>> bleach.clean(
    ...     '<p class="foo" style="color: red; font-weight: bold;">blah blah blah</p>',
    ...     tags=['p'],
-   ...     attributes=['style'],
-   ...     styles=['color'],
+   ...     attributes=['class'],
    ... )
-   '<p style="color: red;">blah blah blah</p>'
+   '<p class="foo">blah blah blah</p>'
 
 
 As a dict
@@ -201,41 +192,6 @@ attributes for specified tags:
    value.
 
 
-Allowed styles (``styles``)
-===========================
-
-If you allow the ``style`` attribute, you will also need to specify the allowed
-styles users are allowed to set, for example ``color`` and ``background-color``.
-
-The default value is an empty list. In other words, the ``style`` attribute will
-be allowed but no style declaration names will be allowed.
-
-For example, to allow users to set the color and font-weight of text:
-
-.. doctest::
-
-   >>> import bleach
-
-   >>> tags = ['p', 'em', 'strong']
-   >>> attrs = {
-   ...     '*': ['style']
-   ... }
-   >>> styles = ['color', 'font-weight']
-
-   >>> bleach.clean(
-   ...     '<p style="font-weight: heavy;">my html</p>',
-   ...     tags=tags,
-   ...     attributes=attrs,
-   ...     styles=styles
-   ... )
-   '<p style="font-weight: heavy;">my html</p>'
-
-
-Default styles are stored in ``bleach.sanitizer.ALLOWED_STYLES``.
-
-.. autodata:: bleach.sanitizer.ALLOWED_STYLES
-
-
 Allowed protocols (``protocols``)
 =================================
 
@@ -323,6 +279,50 @@ By default, Bleach will strip out HTML comments. To disable this behavior, set
    'my<!-- commented --> html'
 
 
+Sanitizing CSS
+==============
+
+Bleach can sanitize CSS properties as part of sanitizing text fragments. Bleach
+provides a :py:class:`bleach.css_sanitizer.CSSSanitizer` class that has a
+``sanitize:css`` method. This takes a style attribute value as text and returns
+a sanitized version of that value.
+
+For example:
+
+.. doctest::
+
+   >>> import bleach
+   >>> from bleach.css_sanitizer import CSSSanitizer
+
+   >>> css_sanitizer = CSSSanitizer(allowed_css_properties=["color", "font-weight"])
+
+   >>> tags = ['p', 'em', 'strong']
+   >>> attrs = {
+   ...     '*': ['style']
+   ... }
+
+   >>> bleach.clean(
+   ...     '<p style="font-weight: heavy;">my html</p>',
+   ...     tags=tags,
+   ...     attributes=attrs,
+   ...     css_sanitizer=css_sanitizer
+   ... )
+   '<p style="font-weight: heavy;">my html</p>'
+
+
+Defaults are stored in ``bleach.css_sanitizer.ALLOWED_CSS_PROPERTIES`` and
+``bleach.css_sanitizer.ALLOWED_SVG_PROPERTIES``.
+
+.. autodata:: bleach.css_sanitizer.ALLOWED_CSS_PROPERTIES
+
+.. autodata:: bleach.css_sanitizer.ALLOWED_SVG_PROPERTIES
+
+.. autoclass:: bleach.css_sanitizer.CSSSanitizer
+   :autodoc_preserve_defaults:
+
+.. versionadded:: 5.0
+
+
 Using ``bleach.sanitizer.Cleaner``
 ==================================
 
@@ -394,4 +394,3 @@ use an html5lib filter.
 .. autoclass:: bleach.sanitizer.BleachSanitizerFilter
 
 
-.. versionadded:: 2.0

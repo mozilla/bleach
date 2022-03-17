@@ -3,7 +3,6 @@ import re
 import warnings
 
 from bleach._vendor.parse import urlparse
-import tinycss2
 from xml.sax.saxutils import unescape
 
 from bleach import html5lib_shim
@@ -32,9 +31,6 @@ ALLOWED_ATTRIBUTES = {
     "abbr": ["title"],
     "acronym": ["title"],
 }
-
-#: List of allowed styles
-ALLOWED_STYLES = []
 
 #: List of allowed protocols
 ALLOWED_PROTOCOLS = ["http", "https", "mailto"]
@@ -85,11 +81,11 @@ class Cleaner:
         self,
         tags=ALLOWED_TAGS,
         attributes=ALLOWED_ATTRIBUTES,
-        styles=ALLOWED_STYLES,
         protocols=ALLOWED_PROTOCOLS,
         strip=False,
         strip_comments=True,
         filters=None,
+        css_sanitizer=None,
     ):
         """Initializes a Cleaner
 
@@ -98,9 +94,6 @@ class Cleaner:
 
         :arg dict attributes: allowed attributes; can be a callable, list or dict;
             defaults to ``bleach.sanitizer.ALLOWED_ATTRIBUTES``
-
-        :arg list styles: allowed list of css styles; defaults to
-            ``bleach.sanitizer.ALLOWED_STYLES``
 
         :arg list protocols: allowed list of protocols for links; defaults
             to ``bleach.sanitizer.ALLOWED_PROTOCOLS``
@@ -118,14 +111,17 @@ class Cleaner:
                Using filters changes the output of ``bleach.Cleaner.clean``.
                Make sure the way the filters change the output are secure.
 
+        :arg CSSSanitizer css_sanitizer: instance with a "sanitize_css" method for
+            sanitizing style attribute values and style text; defaults to None
+
         """
         self.tags = tags
         self.attributes = attributes
-        self.styles = styles
         self.protocols = protocols
         self.strip = strip
         self.strip_comments = strip_comments
         self.filters = filters or []
+        self.css_sanitizer = css_sanitizer
 
         self.parser = html5lib_shim.BleachHTMLParser(
             tags=self.tags,
@@ -175,11 +171,10 @@ class Cleaner:
             attributes=self.attributes,
             strip_disallowed_elements=self.strip,
             strip_html_comments=self.strip_comments,
+            css_sanitizer=self.css_sanitizer,
             # html5lib-sanitizer things
             allowed_elements=self.tags,
-            allowed_css_properties=self.styles,
             allowed_protocols=self.protocols,
-            allowed_svg_properties=[],
         )
 
         # Apply any filters after the BleachSanitizerFilter
@@ -242,25 +237,25 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
     def __init__(
         self,
         source,
+        allowed_elements=ALLOWED_TAGS,
         attributes=ALLOWED_ATTRIBUTES,
+        allowed_protocols=ALLOWED_PROTOCOLS,
         strip_disallowed_elements=False,
         strip_html_comments=True,
+        css_sanitizer=None,
         **kwargs,
     ):
         """Creates a BleachSanitizerFilter instance
 
         :arg Treewalker source: stream
 
-        :arg list tags: allowed list of tags; defaults to
+        :arg list allowed_elements: allowed list of tags; defaults to
             ``bleach.sanitizer.ALLOWED_TAGS``
 
         :arg dict attributes: allowed attributes; can be a callable, list or dict;
             defaults to ``bleach.sanitizer.ALLOWED_ATTRIBUTES``
 
-        :arg list styles: allowed list of css styles; defaults to
-            ``bleach.sanitizer.ALLOWED_STYLES``
-
-        :arg list protocols: allowed list of protocols for links; defaults
+        :arg list allowed_protocols: allowed list of protocols for links; defaults
             to ``bleach.sanitizer.ALLOWED_PROTOCOLS``
 
         :arg bool strip_disallowed_elements: whether or not to strip disallowed
@@ -268,10 +263,14 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
 
         :arg bool strip_html_comments: whether or not to strip HTML comments
 
+        :arg CSSSanitizer css_sanitizer: instance with a "sanitize_css" method for
+            sanitizing style attribute values and style text; defaults to None
+
         """
         self.attr_filter = attribute_filter_factory(attributes)
         self.strip_disallowed_elements = strip_disallowed_elements
         self.strip_html_comments = strip_html_comments
+        self.css_sanitizer = css_sanitizer
 
         # filter out html5lib deprecation warnings to use bleach from BleachSanitizerFilter init
         warnings.filterwarnings(
@@ -280,7 +279,12 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
             category=DeprecationWarning,
             module="bleach._vendor.html5lib",
         )
-        return super().__init__(source, **kwargs)
+        return super().__init__(
+            source,
+            allowed_elements=allowed_elements,
+            allowed_protocols=allowed_protocols,
+            **kwargs,
+        )
 
     def sanitize_stream(self, token_iterator):
         for token in token_iterator:
@@ -542,7 +546,16 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
 
                 # If it's a style attribute, sanitize it
                 if namespaced_name == (None, "style"):
-                    val = self.sanitize_css(val)
+                    if self.css_sanitizer:
+                        val = self.css_sanitizer.sanitize_css(val)
+                    else:
+                        # FIXME(willkg): if style is allowed, but no
+                        # css_sanitizer was set up, then this is probably a
+                        # mistake and we should raise an error here
+                        #
+                        # For now, we're going to set the value to "" because
+                        # there was no sanitizer set
+                        val = ""
 
                 # At this point, we want to keep the attribute, so add it in
                 attrs[namespaced_name] = val
@@ -594,37 +607,3 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
 
         del token["name"]
         return token
-
-    def sanitize_css(self, style):
-        """Sanitizes css in style tags"""
-        parsed = tinycss2.parse_declaration_list(style)
-
-        if not parsed:
-            return ""
-
-        # decl.name.lower() in self.allowed_css_properties
-        # or decl.name.lower() in self.allowed_svg_properties
-
-        new_tokens = []
-        for token in parsed:
-            if token.type == "at-rule":
-                print("omg")
-            elif token.type == "declaration":
-                if (
-                    token.lower_name in self.allowed_css_properties
-                    or token.lower_name in self.allowed_svg_properties
-                ):
-                    new_tokens.append(token)
-            elif token.type in ("comment", "whitespace"):
-                if new_tokens and new_tokens[-1].type != token.type:
-                    new_tokens.append(token)
-            # Declaration
-            # AtRule
-            # Comment
-            # WhitespaceToken
-            # ParseError
-
-        if not new_tokens:
-            return ""
-
-        return tinycss2.serialize(new_tokens).strip()

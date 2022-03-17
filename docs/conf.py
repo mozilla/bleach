@@ -90,6 +90,7 @@ pygments_style = 'sphinx'
 
 # Display the class docstring and __init__ docstring concatenated
 autoclass_content = 'both'
+autodoc_preserve_defaults = True
 
 
 # -- Options for HTML output ---------------------------------------------------

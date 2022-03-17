@@ -24,7 +24,6 @@ def get_version():
 
 
 INSTALL_REQUIRES = [
-    "tinycss2>=1.1.0",
     # html5lib requirements
     "six>=1.9.0",
     "webencodings",
@@ -32,6 +31,9 @@ INSTALL_REQUIRES = [
 
 
 EXTRAS_REQUIRE = {
+    "css": [
+        "tinycss2>=1.1.0<1.2",
+    ],
     "dev": [
         "pip-tools==6.5.0",
         "pytest==7.0.0",

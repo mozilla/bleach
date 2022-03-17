@@ -36,6 +36,8 @@ from bleach._vendor.html5lib.filters.base import (
 )  # noqa: E402 module level import not at top of file
 from bleach._vendor.html5lib.filters.sanitizer import (
     allowed_protocols,
+    allowed_css_properties,
+    allowed_svg_properties,
 )  # noqa: E402 module level import not at top of file
 from bleach._vendor.html5lib.filters.sanitizer import (
     Filter as SanitizerFilter,
