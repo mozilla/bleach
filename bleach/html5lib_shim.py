@@ -425,15 +425,19 @@ class BleachHTMLTokenizer(HTMLTokenizer):
             # allowed list, then it gets stripped or escaped. In both of these
             # cases it gets converted to a Characters token.
             if self.parser.strip:
-                # If we're stripping the token, we just throw in an empty
-                # string token.
-                new_data = ""
                 if (
                     self.emitted_last_token
                     and token["type"] == TAG_TOKEN_TYPE_START
                     and token["name"].lower() in HTML_TAGS_BLOCK_LEVEL
                 ):
+                    # If this is a block level tag we're stripping, we drop it
+                    # for a newline because that's what a browser would parse
+                    # it as
                     new_data = "\n"
+                else:
+                    # For all other things being stripped, we throw in an empty
+                    # string token
+                    new_data = ""
 
             else:
                 # If we're escaping the token, we want to escape the exact
