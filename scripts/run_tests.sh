@@ -31,7 +31,7 @@ case "${MODE}" in
   check-reqs)
     python -m venv ./tmpvenv/
     ./tmpvenv/bin/pip install -U pip
-    ./tmpvenv/bin/install '.[dev]'
+    ./tmpvenv/bin/pip install '.[dev,css]'
     ./tmpvenv/bin/pip list -o
     rm -rf ./tmpvenv/
     ;;

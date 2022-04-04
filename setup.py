@@ -31,17 +31,20 @@ INSTALL_REQUIRES = [
 
 
 EXTRAS_REQUIRE = {
+    "css": [
+        "tinycss2>=1.1.0<1.2",
+    ],
     "dev": [
-        "pip-tools==6.5.0",
-        "pytest==7.0.0",
+        "pip-tools==6.5.1",
+        "pytest==7.1.1",
         "flake8==4.0.1",
         "tox==3.24.5",
         "sphinx==4.3.2",
-        "twine==3.8.0",
+        "twine==4.0.0",
         "wheel==0.37.1",
         "hashin==0.17.0",
-        "black==22.1.0; implementation_name == 'cpython'",
-        "mypy==0.931; implementation_name=='cpython'",
+        "black==22.3.0; implementation_name == 'cpython'",
+        "mypy==0.942; implementation_name=='cpython'",
     ],
 }
 

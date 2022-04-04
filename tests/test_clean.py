@@ -324,20 +324,6 @@ def test_stripping_tags_is_safe(data, expected):
     assert clean(data, strip=True) == expected
 
 
-def test_allowed_styles():
-    """Test allowed styles"""
-    ATTRS = ["style"]
-    STYLE = ["color"]
-
-    assert clean('<b style="top:0"></b>', attributes=ATTRS) == '<b style=""></b>'
-
-    text = '<b style="color: blue;"></b>'
-    assert clean(text, attributes=ATTRS, styles=STYLE) == text
-
-    text = '<b style="top: 0; color: blue;"></b>'
-    assert clean(text, attributes=ATTRS, styles=STYLE) == '<b style="color: blue;"></b>'
-
-
 def test_href_with_wrong_tag():
     assert clean('<em href="fail">no link</em>') == "<em>no link</em>"
 

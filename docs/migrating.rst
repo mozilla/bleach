@@ -92,15 +92,20 @@ module and reading them dynamically) because
 
 .. code::
 
-   SAFE_ELEMENTS = ["b", "p", "div"]
-   SAFE_ATTRIBUTES = ["style"]
-   SAFE_CSS_PROPERTIES = ["color"]
+   import bleach
+
+   from bleach.css_sanitizer import CSSSanitizer
+
+   ALLOWED_ELEMENTS = ["b", "p", "div"]
+   ALLOWED_ATTRIBUTES = ["style"]
+   ALLOWED_CSS_PROPERTIES = ["color"]
 
    fragment = "some unsafe html"
 
+   css_sanitizer = CSSSanitizer(allowed_css_properties=ALLOWED_CSS_PROPERTIES)
    safe_html = bleach.clean(
        fragment,
-       tags=SAFE_ELEMENTS,
-       attributes=SAFE_ATTRIBUTES,
-       styles=SAFE_CSS_PROPERTIES
-    )
+       tags=ALLOWED_ELEMENTS,
+       attributes=ALLOWED_ATTRIBUTES,
+       css_sanitizer=css_sanitizer,
+   )

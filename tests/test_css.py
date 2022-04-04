@@ -1,9 +1,11 @@
 from functools import partial
-from timeit import timeit
 
 import pytest
 
-from bleach import clean
+tinycss2 = pytest.importorskip("tinycss2")
+
+from bleach import clean  # noqa
+from bleach.css_sanitizer import CSSSanitizer  # noqa
 
 
 clean = partial(clean, tags=["p"], attributes=["style"])
@@ -38,12 +40,10 @@ clean = partial(clean, tags=["p"], attributes=["style"])
             '<p style="color: red;">bar</p>',
         ),
         # Handle leading - in attributes
-        # regressed with the fix for bug 1623633
         pytest.param(
             '<p style="cursor: -moz-grab;">bar</p>',
             ["cursor"],
             '<p style="cursor: -moz-grab;">bar</p>',
-            marks=pytest.mark.xfail,
         ),
         # Handle () in attributes
         (
@@ -57,20 +57,16 @@ clean = partial(clean, tags=["p"], attributes=["style"])
             '<p style="color: rgba(255,0,0,0.4);">bar</p>',
         ),
         # Handle ' in attributes
-        # regressed with the fix for bug 1623633
         pytest.param(
             "<p style=\"text-overflow: ',' ellipsis;\">bar</p>",
             ["text-overflow"],
-            "<p style=\"text-overflow: ',' ellipsis;\">bar</p>",
-            marks=pytest.mark.xfail,
+            "<p style='text-overflow: \",\" ellipsis;'>bar</p>",
         ),
         # Handle " in attributes
-        # regressed with the fix for bug 1623633
         pytest.param(
             "<p style='text-overflow: \",\" ellipsis;'>bar</p>",
             ["text-overflow"],
             "<p style='text-overflow: \",\" ellipsis;'>bar</p>",
-            marks=pytest.mark.xfail,
         ),
         (
             "<p style='font-family: \"Arial\";'>bar</p>",
@@ -86,19 +82,20 @@ clean = partial(clean, tags=["p"], attributes=["style"])
     ],
 )
 def test_allowed_css(data, styles, expected):
-    assert clean(data, styles=styles) == expected
+    css_sanitizer = CSSSanitizer(allowed_css_properties=styles)
+    assert clean(data, css_sanitizer=css_sanitizer) == expected
 
 
 def test_valid_css():
     """The sanitizer should fix missing CSS values."""
-    styles = ["color", "float"]
+    css_sanitizer = CSSSanitizer(allowed_css_properties=["color", "float"])
     assert (
-        clean('<p style="float: left; color: ">foo</p>', styles=styles)
-        == '<p style="float: left;">foo</p>'
+        clean('<p style="float: left; color: ">foo</p>', css_sanitizer=css_sanitizer)
+        == '<p style="float: left; color: ;">foo</p>'
     )
     assert (
-        clean('<p style="color: float: left;">foo</p>', styles=styles)
-        == '<p style="">foo</p>'
+        clean('<p style="color: float: left;">foo</p>', css_sanitizer=css_sanitizer)
+        == '<p style="color: float: left;">foo</p>'
     )
 
 
@@ -110,45 +107,45 @@ def test_valid_css():
             '<p style="background: #00D;">foo</p>',
             '<p style="background: #00D;">foo</p>',
         ),
-        # Verify urls with no quotes, single quotes, and double quotes are all dropped
         (
             '<p style="background: url(topbanner.png) #00D;">foo</p>',
-            '<p style="background: #00D;">foo</p>',
+            '<p style="background: url(topbanner.png) #00D;">foo</p>',
         ),
         (
             "<p style=\"background: url('topbanner.png') #00D;\">foo</p>",
-            '<p style="background: #00D;">foo</p>',
+            "<p style='background: url(\"topbanner.png\") #00D;'>foo</p>",
         ),
         (
             "<p style='background: url(\"topbanner.png\") #00D;'>foo</p>",
-            '<p style="background: #00D;">foo</p>',
+            "<p style='background: url(\"topbanner.png\") #00D;'>foo</p>",
         ),
         # Verify urls with spacing
         (
             "<p style=\"background: url(  'topbanner.png') #00D;\">foo</p>",
-            '<p style="background: #00D;">foo</p>',
+            "<p style='background: url(  \"topbanner.png\") #00D;'>foo</p>",
         ),
         (
             "<p style=\"background: url('topbanner.png'  ) #00D;\">foo</p>",
-            '<p style="background: #00D;">foo</p>',
+            "<p style='background: url(\"topbanner.png\"  ) #00D;'>foo</p>",
         ),
         (
             "<p style=\"background: url(  'topbanner.png'  ) #00D;\">foo</p>",
-            '<p style="background: #00D;">foo</p>',
+            "<p style='background: url(  \"topbanner.png\"  ) #00D;'>foo</p>",
         ),
         (
             "<p style=\"background: url (  'topbanner.png'  ) #00D;\">foo</p>",
-            '<p style="background: #00D;">foo</p>',
+            "<p style='background: url (  \"topbanner.png\"  ) #00D;'>foo</p>",
         ),
         # Verify urls with character entities
         (
             "<p style=\"background: url&#x09;('topbanner.png') #00D;\">foo</p>",
-            '<p style="background: #00D;">foo</p>',
+            '<p style="background: url&#x09;">foo</p>',
         ),
     ],
 )
 def test_urls(data, expected):
-    assert clean(data, styles=["background"]) == expected
+    css_sanitizer = CSSSanitizer(allowed_css_properties=["background"])
+    assert clean(data, css_sanitizer=css_sanitizer) == expected
 
 
 def test_style_hang():
@@ -227,7 +224,8 @@ def test_style_hang():
         '">Hello world</p>'
     )
 
-    assert clean(html, styles=styles) == expected
+    css_sanitizer = CSSSanitizer(allowed_css_properties=styles)
+    assert clean(html, css_sanitizer=css_sanitizer) == expected
 
 
 @pytest.mark.parametrize(
@@ -239,31 +237,20 @@ def test_style_hang():
             '<p style="font-family: Droid Sans, serif; white-space: pre-wrap;">text</p>',
         ),
         (
-            '<p style="font-family: &quot;Droid Sans&quot;, serif; white-space: pre-wrap;">text</p>',
-            ["font-family", "white-space"],
-            "<p style='font-family: \"Droid Sans\", serif; white-space: pre-wrap;'>text</p>",
+            "<p style=\"content: '&nbsp;';\">text</p>",
+            ["content"],
+            # This seems wrong, but it's right. Character entities aren't a
+            # thing in CSS, so this is treated as text.
+            "<p style='content: \"&amp;nbsp;\";'>text</p>",
         ),
     ],
 )
 def test_css_parsing_with_entities(data, styles, expected):
     """The sanitizer should be ok with character entities"""
+    css_sanitizer = CSSSanitizer(allowed_css_properties=styles)
     assert (
-        clean(data, tags=["p"], attributes={"p": ["style"]}, styles=styles) == expected
-    )
-
-
-@pytest.mark.parametrize("overlap_test_char", ['"', "'", "-"])
-def test_css_parsing_gauntlet_regex_backtracking(overlap_test_char):
-    """The sanitizer gauntlet regex should not catastrophically backtrack"""
-    # refs: https://bugzilla.mozilla.org/show_bug.cgi?id=1623633
-
-    def time_clean(test_char, size):
-        style_attr_value = (test_char + "a" + test_char) * size + "^"
-        stmt = (
-            """clean('''<a style='%s'></a>''', attributes={'a': ['style']})"""
-            % style_attr_value
+        clean(
+            data, tags=["p"], attributes={"p": ["style"]}, css_sanitizer=css_sanitizer
         )
-        return timeit(stmt=stmt, setup="from bleach import clean", number=1)
-
-    # should complete in less than one second
-    assert time_clean(overlap_test_char, 22) < 1.0
+        == expected
+    )

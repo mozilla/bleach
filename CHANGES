@@ -11,6 +11,14 @@ Version 5.0.0 (In development)
 
 * Drop support for Python 3.6. Thank you, @hugovk! (#629)
 
+* CSS sanitization in style tags is completely different now. If you're using
+  Bleach ``clean`` to sanitize css in style tags, you'll need to update your
+  code and you'll need to install the ``css`` extras::
+
+      pip install 'bleach[css]'
+
+  See the documentation on sanitizing CSS for how to do it. (#633)
+
 **Bug fixes**
 
 * Rework dev dependencies. We no longer have

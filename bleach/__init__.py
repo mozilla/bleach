@@ -5,7 +5,6 @@ from bleach.linkifier import (
 from bleach.sanitizer import (
     ALLOWED_ATTRIBUTES,
     ALLOWED_PROTOCOLS,
-    ALLOWED_STYLES,
     ALLOWED_TAGS,
     Cleaner,
 )
@@ -24,10 +23,10 @@ def clean(
     text,
     tags=ALLOWED_TAGS,
     attributes=ALLOWED_ATTRIBUTES,
-    styles=ALLOWED_STYLES,
     protocols=ALLOWED_PROTOCOLS,
     strip=False,
     strip_comments=True,
+    css_sanitizer=None,
 ):
     """Clean an HTML fragment of malicious content and return it
 
@@ -59,9 +58,6 @@ def clean(
     :arg dict attributes: allowed attributes; can be a callable, list or dict;
         defaults to ``bleach.sanitizer.ALLOWED_ATTRIBUTES``
 
-    :arg list styles: allowed list of css styles; defaults to
-        ``bleach.sanitizer.ALLOWED_STYLES``
-
     :arg list protocols: allowed list of protocols for links; defaults
         to ``bleach.sanitizer.ALLOWED_PROTOCOLS``
 
@@ -69,16 +65,19 @@ def clean(
 
     :arg bool strip_comments: whether or not to strip HTML comments
 
+    :arg CSSSanitizer css_sanitizer: instance with a "sanitize_css" method for
+        sanitizing style attribute values and style text; defaults to None
+
     :returns: cleaned text as unicode
 
     """
     cleaner = Cleaner(
         tags=tags,
         attributes=attributes,
-        styles=styles,
         protocols=protocols,
         strip=strip,
         strip_comments=strip_comments,
+        css_sanitizer=css_sanitizer,
     )
     return cleaner.clean(text)
 
