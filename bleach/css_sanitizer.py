@@ -85,9 +85,7 @@ class CSSSanitizer:
 
         new_tokens = []
         for token in parsed:
-            if token.type == "at-rule":
-                print("omg")
-            elif token.type == "declaration":
+            if token.type == "declaration":
                 if (
                     token.lower_name in self.allowed_css_properties
                     or token.lower_name in self.allowed_svg_properties
@@ -96,11 +94,9 @@ class CSSSanitizer:
             elif token.type in ("comment", "whitespace"):
                 if new_tokens and new_tokens[-1].type != token.type:
                     new_tokens.append(token)
-            # Declaration
-            # AtRule
-            # Comment
-            # WhitespaceToken
-            # ParseError
+
+            # NOTE(willkg): We currently don't handle AtRule or ParseError and
+            # so both get silently thrown out
 
         if not new_tokens:
             return ""
