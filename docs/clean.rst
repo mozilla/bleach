@@ -17,8 +17,9 @@ can be used in HTML as is.
 .. Warning::
 
    :py:func:`bleach.clean` is for sanitising HTML fragments to use in an HTML
-   context--not for use in HTML attributes, CSS, JSON, xhtml, SVG, or other
-   contexts.
+   context--not for use in HTML attributes, CSS, JavaScript, JavaScript
+   templates (mustache, handlebars, angular, jsx, etc), JSON, xhtml, SVG, or
+   other contexts.
 
    For example, this is a safe use of ``clean`` output in an HTML context::
 
@@ -312,6 +313,13 @@ For example:
 
 Defaults are stored in ``bleach.css_sanitizer.ALLOWED_CSS_PROPERTIES`` and
 ``bleach.css_sanitizer.ALLOWED_SVG_PROPERTIES``.
+
+.. Note::
+
+   This silently drops ParseError and AtRule tokens in CSS parsing. If you need
+   to sanitize style values that have ``@media`` or need to do something with
+   CSS parse errors, you should implement your own
+   :py:class:`bleach.css_sanitizer.CSSSanitizer`.
 
 .. autodata:: bleach.css_sanitizer.ALLOWED_CSS_PROPERTIES
 
