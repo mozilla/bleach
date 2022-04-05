@@ -1083,7 +1083,7 @@ def test_html_comments_escaped(namespace_tag, end_tag, eject_tag, data, expected
             "This is our description! &amp;\nnice!",
         ),
         (
-            # double-wrap causes an initial newline--this can"t really be
+            # note: double-wrap causes an initial newline--this can't really be
             # handled under the current design
             "<div><p>This is our <b>description!</b> &amp;</p></div><p>nice!</p>",
             "\nThis is our description! &amp;\nnice!",
