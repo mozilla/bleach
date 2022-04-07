@@ -1,0 +1,3 @@
+# NOTE: this gets run during the RTD build from the parent directory with:
+# python -m pip install --exists-action=w --no-cache-dir -r docs/requirements.txt
+-e .[dev,css]
