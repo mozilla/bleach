@@ -283,10 +283,14 @@ By default, Bleach will strip out HTML comments. To disable this behavior, set
 Sanitizing CSS
 ==============
 
-Bleach can sanitize CSS properties as part of sanitizing text fragments. Bleach
-provides a :py:class:`bleach.css_sanitizer.CSSSanitizer` class that has a
-``sanitize:css`` method. This takes a style attribute value as text and returns
-a sanitized version of that value.
+Bleach can sanitize CSS in style attribute values. In order to use this feature,
+you have to install additional dependencies::
+
+   pip install 'bleach[css]'
+
+Bleach provides a :py:class:`bleach.css_sanitizer.CSSSanitizer` class that has
+a ``sanitize:css`` method. This takes a style attribute value as text and
+returns a sanitized version of that value.
 
 For example:
 

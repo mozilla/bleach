@@ -17,7 +17,8 @@ Version 5.0.0 (April 7th, 2022)
 
       pip install 'bleach[css]'
 
-  See the documentation on sanitizing CSS for how to do it. (#633)
+  See `the documentation on sanitizing CSS for how to do it
+  <https://bleach.readthedocs.io/en/latest/clean.html#sanitizing-css>`_. (#633)
 
 **Bug fixes**
 
