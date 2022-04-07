@@ -28,6 +28,8 @@ Version 5.0.0 (In development)
   See `development docs <https://bleach.readthedocs.io/en/latest/dev.html>`_
   for more details. (#620)
 
+* Add newline when dropping block-level tags. Thank you, @jvanasco! (#369)
+
 Version 4.1.0 (August 25th, 2021)
 ---------------------------------
 

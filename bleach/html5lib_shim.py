@@ -70,8 +70,10 @@ TAG_TOKEN_TYPES = {
     constants.tokenTypes["EndTag"],
     constants.tokenTypes["EmptyTag"],
 }
-CHARACTERS_TYPE = constants.tokenTypes["Characters"]
-PARSEERROR_TYPE = constants.tokenTypes["ParseError"]
+TAG_TOKEN_TYPE_START = constants.tokenTypes["StartTag"]
+TAG_TOKEN_TYPE_END = constants.tokenTypes["EndTag"]
+TAG_TOKEN_TYPE_CHARACTERS = constants.tokenTypes["Characters"]
+TAG_TOKEN_TYPE_PARSEERROR = constants.tokenTypes["ParseError"]
 
 
 #: List of valid HTML tags, from WHATWG HTML Living Standard as of 2018-10-17
@@ -192,6 +194,48 @@ HTML_TAGS = [
 ]
 
 
+#: List of block level HTML tags, as per https://github.com/mozilla/bleach/issues/369
+#: from mozilla on 2019.07.11
+#: https://developer.mozilla.org/en-US/docs/Web/HTML/Block-level_elements#Elements
+HTML_TAGS_BLOCK_LEVEL = frozenset(
+    [
+        "address",
+        "article",
+        "aside",
+        "blockquote",
+        "details",
+        "dialog",
+        "dd",
+        "div",
+        "dl",
+        "dt",
+        "fieldset",
+        "figcaption",
+        "figure",
+        "footer",
+        "form",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "header",
+        "hgroup",
+        "hr",
+        "li",
+        "main",
+        "nav",
+        "ol",
+        "p",
+        "pre",
+        "section",
+        "table",
+        "ul",
+    ]
+)
+
+
 class InputStreamWithMemory:
     """Wraps an HTMLInputStream to remember characters since last <
 
@@ -266,6 +310,9 @@ class BleachHTMLTokenizer(HTMLTokenizer):
         # Wrap the stream with one that remembers the history
         self.stream = InputStreamWithMemory(self.stream)
 
+        # Remember the last token emitted; needed for block element spacing
+        self.emitted_last_token = None
+
     def __iter__(self):
         last_error_token = None
 
@@ -311,12 +358,12 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                     # If this is not an allowed tag, then we convert it to
                     # characters and it'll get escaped in the sanitizer.
                     token["data"] = self.stream.get_tag()
-                    token["type"] = CHARACTERS_TYPE
+                    token["type"] = TAG_TOKEN_TYPE_CHARACTERS
 
                     last_error_token = None
                     yield token
 
-                elif token["type"] == PARSEERROR_TYPE:
+                elif token["type"] == TAG_TOKEN_TYPE_PARSEERROR:
                     # If the token is a parse error, then let the last_error_token
                     # go, and make token the new last_error_token
                     yield last_error_token
@@ -331,7 +378,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
 
             # If the token is a ParseError, we hold on to it so we can get the
             # next token and potentially fix it.
-            if token["type"] == PARSEERROR_TYPE:
+            if token["type"] == TAG_TOKEN_TYPE_PARSEERROR:
                 last_error_token = token
                 continue
 
@@ -356,7 +403,7 @@ class BleachHTMLTokenizer(HTMLTokenizer):
             self.currentToken["data"][-1][1] += "&"
 
         else:
-            self.tokenQueue.append({"type": CHARACTERS_TYPE, "data": "&"})
+            self.tokenQueue.append({"type": TAG_TOKEN_TYPE_CHARACTERS, "data": "&"})
 
     def tagOpenState(self):
         # This state marks a < that is either a StartTag, EndTag, EmptyTag,
@@ -378,9 +425,19 @@ class BleachHTMLTokenizer(HTMLTokenizer):
             # allowed list, then it gets stripped or escaped. In both of these
             # cases it gets converted to a Characters token.
             if self.parser.strip:
-                # If we're stripping the token, we just throw in an empty
-                # string token.
-                new_data = ""
+                if (
+                    self.emitted_last_token
+                    and token["type"] == TAG_TOKEN_TYPE_START
+                    and token["name"].lower() in HTML_TAGS_BLOCK_LEVEL
+                ):
+                    # If this is a block level tag we're stripping, we drop it
+                    # for a newline because that's what a browser would parse
+                    # it as
+                    new_data = "\n"
+                else:
+                    # For all other things being stripped, we throw in an empty
+                    # string token
+                    new_data = ""
 
             else:
                 # If we're escaping the token, we want to escape the exact
@@ -390,13 +447,14 @@ class BleachHTMLTokenizer(HTMLTokenizer):
                 # string and use that.
                 new_data = self.stream.get_tag()
 
-            new_token = {"type": CHARACTERS_TYPE, "data": new_data}
+            new_token = {"type": TAG_TOKEN_TYPE_CHARACTERS, "data": new_data}
 
-            self.currentToken = new_token
+            self.currentToken = self.emitted_last_token = new_token
             self.tokenQueue.append(new_token)
             self.state = self.dataState
             return
 
+        self.emitted_last_token = self.currentToken
         super().emitCurrentToken()
 
 

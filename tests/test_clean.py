@@ -1070,6 +1070,42 @@ def test_html_comments_escaped(namespace_tag, end_tag, eject_tag, data, expected
     )
 
 
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        (
+            "<p>Te<b>st</b>!</p><p>Hello</p>",
+            "Test!\nHello",
+        ),
+        (
+            # with an internal space and escaped character
+            "<p>This is our <b>description!</b> &amp;</p><p>nice!</p>",
+            "This is our description! &amp;\nnice!",
+        ),
+        (
+            # note: double-wrap causes an initial newline--this can't really be
+            # handled under the current design
+            "<div><p>This is our <b>description!</b> &amp;</p></div><p>nice!</p>",
+            "\nThis is our description! &amp;\nnice!",
+        ),
+        (
+            # newlines are used to keep lists and other elements readable
+            (
+                "<div><p>This is our <b>description!</b> &amp;</p><p>1</p>"
+                "<ul><li>a</li><li>b</li><li>c</li></ul></div><p>nice!</p>"
+            ),
+            "\nThis is our description! &amp;\n1\n\na\nb\nc\nnice!",
+        ),
+    ],
+)
+def test_strip_respects_block_level_elements(text, expected):
+    """
+    Insert a newline between block level elements
+    https://github.com/mozilla/bleach/issues/369
+    """
+    assert clean(text, tags=[], strip=True) == expected
+
+
 def get_ids_and_tests():
     """Retrieves regression tests from data/ directory
 
