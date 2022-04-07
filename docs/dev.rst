@@ -15,7 +15,7 @@ To install Bleach to make changes to it:
 
 3. Install Bleach and developer requirements into the virtual environment::
 
-       $ pip install -e '.[dev]'
+       $ pip install -e '.[css,dev]'
 
 
 Code of conduct
