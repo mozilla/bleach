@@ -32,7 +32,7 @@ INSTALL_REQUIRES = [
 
 EXTRAS_REQUIRE = {
     "css": [
-        "tinycss2>=1.1.0<1.2",
+        "tinycss2>=1.1.0,<1.2",
     ],
     "dev": [
         "pip-tools==6.5.1",
