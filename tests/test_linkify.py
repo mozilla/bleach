@@ -104,6 +104,17 @@ def test_mangle_text():
         ),
         # Incorrect email
         ('"\\\n"@opa.ru', True, '"\\\n"@opa.ru'),
+        # RFC2368 special characters
+        (
+            "gorby%kremvax@example.com",
+            True,
+            '<a href="mailto:gorby%25kremvax@example.com">gorby%kremvax@example.com</a>',
+        ),
+        (
+            "unlikely?address@example.com",
+            True,
+            '<a href="mailto:unlikely%3Faddress@example.com">unlikely?address@example.com</a>',
+        ),
     ],
 )
 def test_email_link(data, parse_email, expected):
