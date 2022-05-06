@@ -104,7 +104,7 @@ def test_mangle_text():
         ),
         # Incorrect email
         ('"\\\n"@opa.ru', True, '"\\\n"@opa.ru'),
-        # RFC2368 special characters
+        # RFC6068 special characters
         (
             "gorby%kremvax@example.com",
             True,
