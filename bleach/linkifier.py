@@ -308,7 +308,7 @@ class LinkifyFilter(html5lib_shim.Filter):
                     # Run attributes through the callbacks to see what we
                     # should do with this match
                     attrs = {
-                        (None, "href"): "mailto:%s" % address),
+                        (None, "href"): "mailto:%s" % address,
                         "_text": match.group(0),
                     }
                     attrs = self.apply_callbacks(attrs, True)
