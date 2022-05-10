@@ -1,5 +1,7 @@
 import re
 
+from urllib.parse import quote
+
 from bleach import callbacks as linkify_callbacks
 from bleach import html5lib_shim
 
@@ -298,10 +300,15 @@ class LinkifyFilter(html5lib_shim.Filter):
                             {"type": "Characters", "data": text[end : match.start()]}
                         )
 
+                    # URL-encode the "local-part" according to RFC6068
+                    parts = match.group(0).split("@")
+                    parts[0] = quote(parts[0])
+                    address = "@".join(parts)
+
                     # Run attributes through the callbacks to see what we
                     # should do with this match
                     attrs = {
-                        (None, "href"): "mailto:%s" % match.group(0),
+                        (None, "href"): "mailto:%s" % address,
                         "_text": match.group(0),
                     }
                     attrs = self.apply_callbacks(attrs, True)

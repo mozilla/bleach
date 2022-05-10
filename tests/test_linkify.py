@@ -104,6 +104,17 @@ def test_mangle_text():
         ),
         # Incorrect email
         ('"\\\n"@opa.ru', True, '"\\\n"@opa.ru'),
+        # RFC6068 special characters
+        (
+            "gorby%kremvax@example.com",
+            True,
+            '<a href="mailto:gorby%25kremvax@example.com">gorby%kremvax@example.com</a>',
+        ),
+        (
+            "unlikely?address@example.com",
+            True,
+            '<a href="mailto:unlikely%3Faddress@example.com">unlikely?address@example.com</a>',
+        ),
     ],
 )
 def test_email_link(data, parse_email, expected):
@@ -115,15 +126,15 @@ def test_email_link(data, parse_email, expected):
     [
         (
             '"james"@example.com',
-            """<a href='mailto:"james"@example.com'>"james"@example.com</a>""",
+            """<a href="mailto:%22james%22@example.com">"james"@example.com</a>""",
         ),
         (
             '"j\'ames"@example.com',
-            """<a href="mailto:&quot;j'ames&quot;@example.com">"j'ames"@example.com</a>""",
+            """<a href="mailto:%22j%27ames%22@example.com">"j'ames"@example.com</a>""",
         ),
         (
             '"ja>mes"@example.com',
-            """<a href='mailto:"ja>mes"@example.com'>"ja&gt;mes"@example.com</a>""",
+            """<a href="mailto:%22ja%3Emes%22@example.com">"ja&gt;mes"@example.com</a>""",
         ),
     ],
 )
