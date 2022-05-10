@@ -126,15 +126,15 @@ def test_email_link(data, parse_email, expected):
     [
         (
             '"james"@example.com',
-            """<a href='mailto:"james"@example.com'>"james"@example.com</a>""",
+            """<a href="mailto:%22james%22@example.com">"james"@example.com</a>""",
         ),
         (
             '"j\'ames"@example.com',
-            """<a href="mailto:&quot;j'ames&quot;@example.com">"j'ames"@example.com</a>""",
+            """<a href="mailto:%22j%27ames%22@example.com">"j'ames"@example.com</a>""",
         ),
         (
             '"ja>mes"@example.com',
-            """<a href='mailto:"ja>mes"@example.com'>"ja&gt;mes"@example.com</a>""",
+            """<a href="mailto:%22ja%3Emes%22@example.com">"ja&gt;mes"@example.com</a>""",
         ),
     ],
 )
