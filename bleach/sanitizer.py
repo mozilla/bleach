@@ -247,7 +247,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
     ):
         """Creates a BleachSanitizerFilter instance
 
-        :arg Treewalker source: stream
+        :arg source: html5lib TreeWalker stream as an html5lib TreeWalker
 
         :arg list allowed_elements: allowed list of tags; defaults to
             ``bleach.sanitizer.ALLOWED_TAGS``

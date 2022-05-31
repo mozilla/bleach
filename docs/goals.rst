@@ -157,7 +157,7 @@ Bleach will not protect against CSS-based XSS vectors that only worked
 in legacy IE, Opera, or Netscape/Mozilla/Firefox browsers. For
 example, it will not remove ``expression`` or ``url`` functions in CSS
 component values in style elements or attributes and `other vectors
-https://html5sec.org/#css`_.
+<https://html5sec.org/#css>`_.
 
 
 Protect against privacy, cross site, or HTTP leaks
@@ -169,9 +169,9 @@ it will not remove CSS Media Queries or tracking pixels.
 
 See also:
 
-* `browser leaks https://browserleaks.com/`_
-* `HTTP leaks https://github.com/cure53/HTTPLeaks`_
-* `XS leaks https://xsleaks.dev/`_
+* `browser leaks <https://browserleaks.com/>`__
+* `HTTP leaks <https://github.com/cure53/HTTPLeaks>`__
+* `XS leaks <https://xsleaks.dev/>`__
 
 Bleach vs html5lib
 ==================

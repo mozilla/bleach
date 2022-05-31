@@ -126,11 +126,11 @@ class Linker:
 
         :arg bool parse_email: whether or not to linkify email addresses
 
-        :arg re url_re: url matching regex
+        :arg url_re: url matching regex
 
-        :arg re email_re: email matching regex
+        :arg email_re: email matching regex
 
-        :arg list-of-strings recognized_tags: the list of tags that linkify knows about;
+        :arg list recognized_tags: the list of tags that linkify knows about;
             everything else gets escaped
 
         :returns: linkified text as unicode
@@ -213,7 +213,7 @@ class LinkifyFilter(html5lib_shim.Filter):
     ):
         """Creates a LinkifyFilter instance
 
-        :arg TreeWalker source: stream
+        :arg source: stream as an html5lib TreeWalker
 
         :arg list callbacks: list of callbacks to run when adjusting tag attributes;
             defaults to ``bleach.linkifier.DEFAULT_CALLBACKS``
@@ -224,9 +224,9 @@ class LinkifyFilter(html5lib_shim.Filter):
 
         :arg bool parse_email: whether or not to linkify email addresses
 
-        :arg re url_re: url matching regex
+        :arg url_re: url matching regex
 
-        :arg re email_re: email matching regex
+        :arg email_re: email matching regex
 
         """
         super().__init__(source)
