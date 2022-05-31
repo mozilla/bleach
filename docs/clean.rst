@@ -330,7 +330,6 @@ Defaults are stored in ``bleach.css_sanitizer.ALLOWED_CSS_PROPERTIES`` and
 .. autodata:: bleach.css_sanitizer.ALLOWED_SVG_PROPERTIES
 
 .. autoclass:: bleach.css_sanitizer.CSSSanitizer
-   :autodoc_preserve_defaults:
 
 .. versionadded:: 5.0
 
@@ -352,7 +351,7 @@ html5lib Filters (``filters``)
 
 Bleach sanitizing is implemented as an html5lib filter. The consequence of this
 is that we can pass the streamed content through additional specified filters
-after the :py:class:`bleach.sanitizer.BleachSanitizingFilter` filter has run.
+after the :py:class:`bleach.sanitizer.BleachSanitizerFilter` filter has run.
 
 This lets you add data, drop data and change data as it is being serialized back
 to a unicode.

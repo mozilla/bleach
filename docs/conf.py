@@ -90,6 +90,9 @@ pygments_style = 'sphinx'
 
 # Display the class docstring and __init__ docstring concatenated
 autoclass_content = 'both'
+# Reduce complexity of function signatures by not evaluating the argument
+# default values.
+# NOTE(willkg) This is experimental in Sphinx 4.
 autodoc_preserve_defaults = True
 
 

@@ -39,7 +39,7 @@ EXTRAS_REQUIRE = {
         "pytest==7.1.1",
         "flake8==4.0.1",
         "tox==3.24.5",
-        "sphinx==4.3.2",
+        "Sphinx==4.3.2",
         "twine==4.0.0",
         "wheel==0.37.1",
         "hashin==0.17.0",
