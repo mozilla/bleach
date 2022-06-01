@@ -159,6 +159,22 @@ def test_bare_entities_get_escaped_correctly(text, expected):
 @pytest.mark.parametrize(
     "text, expected",
     [
+        ("x<y", "x&lt;y"),
+        ("<y", "&lt;y"),
+        ("x < y", "x &lt; y"),
+        ("<y>", "&lt;y&gt;"),
+    ],
+)
+def test_lessthan_escaping(text, expected):
+    # Tests whether < gets escaped correctly in a series of edge cases where
+    # the html5lib tokenizer hits an error because it's not the beginning of a
+    # tag.
+    assert clean(text) == expected
+
+
+@pytest.mark.parametrize(
+    "text, expected",
+    [
         # Test character entities in text don't get escaped
         ("&amp;", "&amp;"),
         ("&nbsp;", "&nbsp;"),
