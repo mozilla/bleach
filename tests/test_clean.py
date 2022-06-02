@@ -542,10 +542,15 @@ def test_attributes_list():
             {"protocols": []},
             '<a href="#example.com">foo</a>',
         ),
-        # Allow implicit http if allowed
+        # Allow implicit http/https if allowed
         (
             '<a href="/path">valid</a>',
             {"protocols": ["http"]},
+            '<a href="/path">valid</a>',
+        ),
+        (
+            '<a href="/path">valid</a>',
+            {"protocols": ["https"]},
             '<a href="/path">valid</a>',
         ),
         (
@@ -586,7 +591,7 @@ def test_attributes_list():
             ),
             marks=pytest.mark.xfail,
         ),
-        # Disallow implicit http if disallowed
+        # Disallow implicit http/https if disallowed
         ('<a href="example.com">foo</a>', {"protocols": []}, "<a>foo</a>"),
         ('<a href="example.com:8000">foo</a>', {"protocols": []}, "<a>foo</a>"),
         ('<a href="localhost">foo</a>', {"protocols": []}, "<a>foo</a>"),

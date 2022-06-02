@@ -488,9 +488,9 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
             if ":" in new_value and new_value.split(":")[0] in allowed_protocols:
                 return value
 
-            # If there's no protocol/scheme specified, then assume it's "http"
-            # and see if that's allowed
-            if "http" in allowed_protocols:
+            # If there's no protocol/scheme specified, then assume it's "http" or
+            # "https" and see if that's allowed
+            if "http" in allowed_protocols or "https" in allowed_protocols:
                 return value
 
         return None
