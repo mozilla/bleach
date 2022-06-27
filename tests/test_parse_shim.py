@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import inspect
 
 import pytest
 
@@ -80,6 +81,8 @@ class ParseResult:
             "http://f:00000000000000000000080/c",
             ParseResult(scheme="http", netloc="f:00000000000000000000080", path="/c"),
         ),
+        # This is an invalid ipv6 url
+        ("http://2001::1]", ValueError),
         # NOTE(willkg): The wpt tests show this as a parse error, but our
         # parser "parses" it.
         ("http://f:b/c", ParseResult(scheme="http", netloc="f:b", path="/c")),
@@ -92,10 +95,17 @@ class ParseResult:
     ],
 )
 def test_urlparse(uri, expected):
-    parsed = urlparse(uri)
-    assert parsed.scheme == expected.scheme
-    assert parsed.netloc == expected.netloc
-    assert parsed.path == expected.path
-    assert parsed.params == expected.params
-    assert parsed.query == expected.query
-    assert parsed.fragment == expected.fragment
+
+    if inspect.isclass(expected) and issubclass(expected, BaseException):
+        with pytest.raises(expected):
+            urlparse(uri)
+
+    else:
+        parsed = urlparse(uri)
+        print(parsed)
+        assert parsed.scheme == expected.scheme
+        assert parsed.netloc == expected.netloc
+        assert parsed.path == expected.path
+        assert parsed.params == expected.params
+        assert parsed.query == expected.query
+        assert parsed.fragment == expected.fragment
