@@ -1,6 +1,24 @@
 Bleach changes
 ==============
 
+Version 5.0.1 (June 27th, 2022)
+-------------------------------
+
+**Bugs**
+
+* Add missing comma to tinycss2 require. Thank you, @shadchin!
+
+* Add url parse tests based on wpt url tests. (#688)
+
+* Support scheme-less urls if "https" is in allow list. (#662)
+
+* Handle escaping ``<`` in edge cases where it doesn't start a tag. (#544)
+
+* Fix reference warnings in docs. (#660)
+
+* Correctly urlencode email address parts. Thank you, @larseggert! (#659)
+
+
 Version 5.0.0 (April 7th, 2022)
 -------------------------------
 
