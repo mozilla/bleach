@@ -21,8 +21,7 @@ jobs:
         with:
           path: ~/.cache/pip
           key:
-            ${{ matrix.os }}-${{ matrix.python-version }}-${{ hashFiles('**/setup.py')
-            }}
+            ${{ matrix.os }}-${{ matrix.python-version }}-${{ hashFiles('**/setup.py') }}
           restore-keys: |
             ${{ matrix.os }}-${{ matrix.python-version }}-
 
