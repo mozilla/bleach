@@ -42,10 +42,10 @@ Run::
 
     $ tox
 
-That'll run Bleach tests in all the supported Python environments. Note
-that you need the necessary Python binaries for them all to be tested.
+That'll run Bleach tests in all the supported Python environments. Note that
+you need the necessary Python binaries for them all to be tested.
 
-Tests are run as github actions for test and pull request events.
+Tests are run as GitHub actions for test and pull request events.
 
 
 Release process
@@ -67,7 +67,7 @@ Release process
 
 5. Verify correctness.
 
-   1. Run tests with tox::
+   1. Run linting, tests, and everything else with tox::
 
          $ tox
 
@@ -85,8 +85,7 @@ Release process
       exit with ``/tmp/vendor-test exists. Please remove.`` and the exit
       code should be zero)::
 
-         $ ./scripts/run_tests.sh vendorverify
-         $ ./scripts/run_tests.sh vendorverify
+         $ make vendorverify
 
    5. Run any additional tests to verify everything else works
 
@@ -102,7 +101,7 @@ Release process
 
 9. Generate distribution files::
 
-      $ python setup.py sdist bdist_wheel
+      $ python -m build
 
 10. Sanity check the release contents and sizes::
 
@@ -110,13 +109,13 @@ Release process
        $ tar tvzf dist/bleach-${VERSION}.tar.gz
        $ unzip -v dist/bleach-${VERSION}-py2.py3-none-any.whl
 
-11. Upload them to PyPI::
+11. Using a PyPI API token, upload dist files to PyPI::
 
-       $ twine upload dist/*
+       $ twine upload -r [REPO] dist/*
 
 12. Push the new tag::
 
-       $ git push --tags official main
+       $ git push --tags [REMOTE] main
 
     That will push the release to PyPI.
 

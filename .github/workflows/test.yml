@@ -40,6 +40,6 @@ jobs:
           python -m pip install -U pip setuptools>=18.5
           python -m pip install -r requirements-dev.txt
 
-      - name: Tests
+      - name: Run tests, linting, and everything else
         shell: bash
         run: tox
