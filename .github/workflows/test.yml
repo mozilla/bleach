@@ -38,7 +38,7 @@ jobs:
         shell: bash
         run: |
           python -m pip install -U pip setuptools>=18.5
-          python -m pip install '.[dev]'
+          python -m pip install -r requirements-dev.txt
 
       - name: Tests
         shell: bash
