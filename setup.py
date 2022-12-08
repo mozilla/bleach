@@ -34,19 +34,6 @@ EXTRAS_REQUIRE = {
     "css": [
         "tinycss2>=1.1.0,<1.2",
     ],
-    "dev": [
-        "black==22.3.0; implementation_name == 'cpython'",
-        "build==0.8.0",
-        "flake8==4.0.1",
-        "hashin==0.17.0",
-        "mypy==0.961; implementation_name=='cpython'",
-        "pip-tools==6.6.2",
-        "pytest==7.1.2",
-        "Sphinx==4.3.2",
-        "tox==3.25.0",
-        "twine==4.0.1",
-        "wheel==0.37.1",
-    ],
 }
 
 
