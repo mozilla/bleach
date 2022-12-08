@@ -1,13 +1,14 @@
 include CHANGES
-include CONTRIBUTORS
-include CONTRIBUTING.rst
 include CODE_OF_CONDUCT.md
-include SECURITY.md
-include tox.ini
+include CONTRIBUTING.rst
+include CONTRIBUTORS
 include LICENSE
+include Makefile
 include README.rst
 include requirements-dev.txt
 include requirements-flake8.txt
+include SECURITY.md
+include tox.ini
 
 include docs/conf.py
 include docs/Makefile
