@@ -28,13 +28,6 @@ case "${MODE}" in
   format-check)
     black --target-version=py37 --check --diff --exclude=_vendor setup.py bleach/ tests/ tests_website/
     ;;
-  check-reqs)
-    python -m venv ./tmpvenv/
-    ./tmpvenv/bin/pip install -U pip
-    ./tmpvenv/bin/pip install '.[dev,css]'
-    ./tmpvenv/bin/pip list -o
-    rm -rf ./tmpvenv/
-    ;;
   *)
     echo "Unknown mode $MODE."
     exit 1

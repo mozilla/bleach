@@ -6,6 +6,8 @@ include SECURITY.md
 include tox.ini
 include LICENSE
 include README.rst
+include requirements-dev.txt
+include requirements-flake8.txt
 
 include docs/conf.py
 include docs/Makefile
@@ -13,7 +15,7 @@ include docs/requirements.txt
 
 include scripts/*
 
-recursive-include bleach *.py *.json *.rst *.sh *.txt INSTALLER METADATA RECORD WHEEL LICENSE REQUESTED *.SHA256SUM
+recursive-include bleach *.py *.rst *.sh *.txt INSTALLER METADATA RECORD WHEEL LICENSE REQUESTED *.SHA256SUM
 recursive-include docs *.rst
 recursive-include tests *.py *.test
 recursive-include tests_website *.html *.py *.rst
