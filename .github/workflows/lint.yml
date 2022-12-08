@@ -37,4 +37,4 @@ jobs:
 
       - name: Tests
         shell: bash
-        run: ./scripts/run_tests.sh ${{ matrix.mode }}
+        run: tox -e ${{ matrix.mode }}
