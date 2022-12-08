@@ -6,6 +6,7 @@ mypy==0.991; implementation_name =='cpython'
 pip-tools==6.11.0
 pytest==7.2.0
 Sphinx==5.3.0
-tox==4.0.2
+tox==3.27.1
+tox-gh-actions==2.11.0
 twine==4.0.2
 wheel==0.38.4

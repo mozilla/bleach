@@ -42,4 +42,4 @@ jobs:
 
       - name: Tests
         shell: bash
-        run: ./scripts/run_tests.sh
+        run: tox
