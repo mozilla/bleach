@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "pypy-3.8"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "pypy3.8"]
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
@@ -26,7 +26,7 @@ jobs:
           echo "::set-output name=dir::$(pip cache dir)"
 
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key:
@@ -40,6 +40,6 @@ jobs:
           python -m pip install -U pip setuptools>=18.5
           python -m pip install -r requirements-dev.txt
 
-      - name: Tests
+      - name: Run tests, linting, and everything else
         shell: bash
-        run: ./scripts/run_tests.sh
+        run: tox
