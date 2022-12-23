@@ -48,6 +48,10 @@ INVISIBLE_CHARACTERS_RE = re.compile("[" + INVISIBLE_CHARACTERS + "]", re.UNICOD
 INVISIBLE_REPLACEMENT_CHAR = "?"
 
 
+class NoCssSanitizerWarning(UserWarning):
+    pass
+
+
 class Cleaner:
     """Cleaner for cleaning HTML fragments of malicious content
 
@@ -142,6 +146,25 @@ class Cleaner:
             # clean preserves attr order
             alphabetical_attributes=False,
         )
+
+        if css_sanitizer is None:
+            # FIXME(willkg): this doesn't handle when attributes or an
+            # attributes value is a callable
+            attributes_values = []
+            if isinstance(attributes, list):
+                attributes_values = attributes
+
+            elif isinstance(attributes, dict):
+                attributes_values = []
+                for values in attributes.values():
+                    if isinstance(values, (list, tuple)):
+                        attributes_values.extend(values)
+
+            if "style" in attributes_values:
+                warnings.warn(
+                    "'style' attribute specified, but css_sanitizer not set.",
+                    category=NoCssSanitizerWarning,
+                )
 
     def clean(self, text):
         """Cleans text and returns sanitized result as unicode

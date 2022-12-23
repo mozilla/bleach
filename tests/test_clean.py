@@ -4,7 +4,7 @@ import pytest
 
 from bleach import clean
 from bleach.html5lib_shim import Filter
-from bleach.sanitizer import ALLOWED_PROTOCOLS, Cleaner
+from bleach.sanitizer import ALLOWED_PROTOCOLS, Cleaner, NoCssSanitizerWarning
 from bleach._vendor.html5lib.constants import rcdataElements
 
 
@@ -1174,6 +1174,20 @@ def test_preserves_attributes_order():
     cleaned_html = clean(html, tags=["a"], attributes={"a": ["href", "target"]})
 
     assert cleaned_html == html
+
+
+@pytest.mark.parametrize(
+    "attr",
+    (
+        ["style"],
+        {"*": ["style"]},
+    ),
+)
+def test_css_sanitizer_warning(attr):
+    # If you have "style" in attributes, but don't set a css_sanitizer, it
+    # should raise a warning.
+    with pytest.warns(NoCssSanitizerWarning):
+        clean("foo", attributes=attr)
 
 
 class TestCleaner:
