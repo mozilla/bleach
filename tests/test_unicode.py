@@ -30,22 +30,14 @@ def test_mixed_linkify():
 
 
 @pytest.mark.parametrize(
-    "test,expected",
+    "uri",
     [
-        ("http://éxámplé.com/", "http://éxámplé.com/"),
-        ("http://éxámplé.com/íàñá/", "http://éxámplé.com/íàñá/"),
-        ("http://éxámplé.com/íàñá/?foo=bar", "http://éxámplé.com/íàñá/?foo=bar"),
-        ("http://éxámplé.com/íàñá/?fóo=bár", "http://éxámplé.com/íàñá/?fóo=bár"),
+        "http://éxámplé.com/",
+        "http://éxámplé.com/íàñá/",
+        "http://éxámplé.com/íàñá/?foo=bar",
+        "http://éxámplé.com/íàñá/?fóo=bár",
     ],
 )
-def test_url_utf8(test, expected):
+def test_url_utf8(uri):
     """Allow UTF8 characters in URLs themselves."""
-    outs = (
-        '<a href="{0!s}" rel="nofollow">{0!s}</a>',
-        '<a rel="nofollow" href="{0!s}">{0!s}</a>',
-    )
-
-    out = lambda url: [x.format(url) for x in outs]
-
-    expected = out(expected)
-    assert linkify(test) in expected
+    assert linkify(uri) == f'<a href="{uri}" rel="nofollow">{uri}</a>'
