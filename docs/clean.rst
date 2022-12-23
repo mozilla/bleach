@@ -79,6 +79,12 @@ The default value is also a conservative dict found in
 ``bleach.sanitizer.ALLOWED_ATTRIBUTES``.
 
 
+.. Note::
+
+   If you allow ``style``, you need to also sanitize css. See
+   :ref:`clean-chapter-sanitizing-css` for details.
+
+
 .. autodata:: bleach.sanitizer.ALLOWED_ATTRIBUTES
 
 .. versionchanged:: 2.0
@@ -279,6 +285,8 @@ By default, Bleach will strip out HTML comments. To disable this behavior, set
    >>> bleach.clean(html, strip_comments=False)
    'my<!-- commented --> html'
 
+
+.. _clean-chapter-sanitizing-css:
 
 Sanitizing CSS
 ==============
