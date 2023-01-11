@@ -324,11 +324,15 @@ def test_link_fragment():
     )
 
 
-def test_link_entities():
+def test_link_entities_in_qs():
     assert (
         linkify("http://xx.com/?a=1&b=2")
         == '<a href="http://xx.com/?a=1&amp;b=2" rel="nofollow">http://xx.com/?a=1&amp;b=2</a>'
     )
+
+
+def test_link_entities_in_characters_token():
+    assert linkify("foo &nbsp; bar") == "foo &nbsp; bar"
 
 
 def test_escaped_html():
