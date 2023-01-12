@@ -147,13 +147,16 @@ class Linker:
         self.parser = html5lib_shim.BleachHTMLParser(
             tags=recognized_tags,
             strip=False,
-            consume_entities=True,
+            consume_entities=False,
             namespaceHTMLElements=False,
         )
         self.walker = html5lib_shim.getTreeWalker("etree")
         self.serializer = html5lib_shim.BleachHTMLSerializer(
             quote_attr_values="always",
             omit_optional_tags=False,
+            # We want to leave entities as they are without escaping or
+            # resolving or expanding
+            resolve_entities=False,
             # linkify does not sanitize
             sanitize=False,
             # linkify preserves attr order
@@ -510,6 +513,62 @@ class LinkifyFilter(html5lib_shim.Filter):
                 yield {"type": "Characters", "data": str(new_text)}
                 yield token_buffer[-1]
 
+    def extract_entities(self, token):
+        """Handles Characters tokens with entities
+
+        Our overridden tokenizer doesn't do anything with entities. However,
+        that means that the serializer will convert all ``&`` in Characters
+        tokens to ``&amp;``.
+
+        Since we don't want that, we extract entities here and convert them to
+        Entity tokens so the serializer will let them be.
+
+        :arg token: the Characters token to work on
+
+        :returns: generator of tokens
+
+        """
+        data = token.get("data", "")
+
+        # If there isn't a & in the data, we can return now
+        if "&" not in data:
+            yield token
+            return
+
+        new_tokens = []
+
+        # For each possible entity that starts with a "&", we try to extract an
+        # actual entity and re-tokenize accordingly
+        for part in html5lib_shim.next_possible_entity(data):
+            if not part:
+                continue
+
+            if part.startswith("&"):
+                entity = html5lib_shim.match_entity(part)
+                if entity is not None:
+                    if entity == "amp":
+                        # LinkifyFilter can't match urls across token boundaries
+                        # which is problematic with &amp; since that shows up in
+                        # querystrings all the time. This special-cases &amp;
+                        # and converts it to a & and sticks it in as a
+                        # Characters token. It'll get merged with surrounding
+                        # tokens in the BleachSanitizerfilter.__iter__ and
+                        # escaped in the serializer.
+                        new_tokens.append({"type": "Characters", "data": "&"})
+                    else:
+                        new_tokens.append({"type": "Entity", "name": entity})
+
+                    # Length of the entity plus 2--one for & at the beginning
+                    # and one for ; at the end
+                    remainder = part[len(entity) + 2 :]
+                    if remainder:
+                        new_tokens.append({"type": "Characters", "data": remainder})
+                    continue
+
+            new_tokens.append({"type": "Characters", "data": part})
+
+        yield from new_tokens
+
     def __iter__(self):
         in_a = False
         in_skip_tag = None
@@ -564,8 +623,8 @@ class LinkifyFilter(html5lib_shim.Filter):
 
                 new_stream = self.handle_links(new_stream)
 
-                for token in new_stream:
-                    yield token
+                for new_token in new_stream:
+                    yield from self.extract_entities(new_token)
 
                 # We've already yielded this token, so continue
                 continue
