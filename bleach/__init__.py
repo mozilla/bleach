@@ -52,7 +52,7 @@ def clean(
 
     :arg str text: the text to clean
 
-    :arg list tags: allowed list of tags; defaults to
+    :arg set tags: set of allowed tags; defaults to
         ``bleach.sanitizer.ALLOWED_TAGS``
 
     :arg dict attributes: allowed attributes; can be a callable, list or dict;
