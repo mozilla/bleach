@@ -319,7 +319,7 @@ instance.
 
    >>> from bleach.linkifier import Linker
 
-   >>> linker = Linker(skip_tags=['pre'])
+   >>> linker = Linker(skip_tags={'pre'})
    >>> linker.linkify('a b c http://example.com d e f')
    'a b c <a href="http://example.com" rel="nofollow">http://example.com</a> d e f'
 
@@ -410,11 +410,11 @@ For example, using all the defaults:
    >>> from bleach import Cleaner
    >>> from bleach.linkifier import LinkifyFilter
 
-   >>> cleaner = Cleaner(tags=['pre'])
+   >>> cleaner = Cleaner(tags={'pre'})
    >>> cleaner.clean('<pre>http://example.com</pre>')
    '<pre>http://example.com</pre>'
 
-   >>> cleaner = Cleaner(tags=['pre'], filters=[LinkifyFilter])
+   >>> cleaner = Cleaner(tags={'pre'}, filters=[LinkifyFilter])
    >>> cleaner.clean('<pre>http://example.com</pre>')
    '<pre><a href="http://example.com" rel="nofollow">http://example.com</a></pre>'
 
@@ -429,8 +429,8 @@ And passing parameters to ``LinkifyFilter``:
    >>> from bleach.linkifier import LinkifyFilter
 
    >>> cleaner = Cleaner(
-   ...     tags=['pre'],
-   ...     filters=[partial(LinkifyFilter, skip_tags=['pre'])]
+   ...     tags={'pre'},
+   ...     filters=[partial(LinkifyFilter, skip_tags={'pre'})]
    ... )
    ...
    >>> cleaner.clean('<pre>http://example.com</pre>')

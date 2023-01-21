@@ -120,8 +120,8 @@ class Linker:
         :arg list callbacks: list of callbacks to run when adjusting tag attributes;
             defaults to ``bleach.linkifier.DEFAULT_CALLBACKS``
 
-        :arg list skip_tags: list of tags that you don't want to linkify the
-            contents of; for example, you could set this to ``['pre']`` to skip
+        :arg set skip_tags: set of tags that you don't want to linkify the
+            contents of; for example, you could set this to ``{'pre'}`` to skip
             linkifying contents of ``pre`` tags
 
         :arg bool parse_email: whether or not to linkify email addresses
@@ -130,7 +130,7 @@ class Linker:
 
         :arg email_re: email matching regex
 
-        :arg list recognized_tags: the list of tags that linkify knows about;
+        :arg set recognized_tags: the list of tags that linkify knows about;
             everything else gets escaped
 
         :returns: linkified text as unicode
@@ -145,7 +145,7 @@ class Linker:
         # Create a parser/tokenizer that allows all HTML tags and escapes
         # anything not in that list.
         self.parser = html5lib_shim.BleachHTMLParser(
-            tags=recognized_tags,
+            tags=frozenset(recognized_tags),
             strip=False,
             consume_entities=False,
             namespaceHTMLElements=False,
@@ -221,8 +221,8 @@ class LinkifyFilter(html5lib_shim.Filter):
         :arg list callbacks: list of callbacks to run when adjusting tag attributes;
             defaults to ``bleach.linkifier.DEFAULT_CALLBACKS``
 
-        :arg list skip_tags: list of tags that you don't want to linkify the
-            contents of; for example, you could set this to ``['pre']`` to skip
+        :arg set skip_tags: set of tags that you don't want to linkify the
+            contents of; for example, you could set this to ``{'pre'}`` to skip
             linkifying contents of ``pre`` tags
 
         :arg bool parse_email: whether or not to linkify email addresses
@@ -235,7 +235,7 @@ class LinkifyFilter(html5lib_shim.Filter):
         super().__init__(source)
 
         self.callbacks = callbacks or []
-        self.skip_tags = skip_tags or []
+        self.skip_tags = skip_tags or {}
         self.parse_email = parse_email
 
         self.url_re = url_re

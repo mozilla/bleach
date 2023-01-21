@@ -21,14 +21,18 @@ can be used in HTML as is.
    templates (mustache, handlebars, angular, jsx, etc), JSON, xhtml, SVG, or
    other contexts.
 
-   For example, this is a safe use of ``clean`` output in an HTML context::
+   For example, this is a safe use of ``clean`` output in an HTML context:
+
+   .. code-block:: html
 
      <p>
        {{ bleach.clean(user_bio) }}
      </p>
 
 
-   This is **not a safe** use of ``clean`` output in an HTML attribute::
+   This is **not a safe** use of ``clean`` output in an HTML attribute:
+
+   .. code-block:: html
 
      <body data-bio="{{ bleach.clean(user_bio) }}">
 
@@ -106,7 +110,7 @@ For example:
 
    >>> bleach.clean(
    ...     '<p class="foo" style="color: red; font-weight: bold;">blah blah blah</p>',
-   ...     tags=['p'],
+   ...     tags={'p'},
    ...     attributes=['class'],
    ... )
    '<p class="foo">blah blah blah</p>'
@@ -134,7 +138,7 @@ and "class" for any tag (including "a" and "img"):
 
    >>> bleach.clean(
    ...    '<img alt="an example" width=500>',
-   ...    tags=['img'],
+   ...    tags={'img'},
    ...    attributes=attrs
    ... )
    '<img alt="an example">'
@@ -160,7 +164,7 @@ For example:
 
    >>> bleach.clean(
    ...    '<a href="http://example.com" title="link">link</a>',
-   ...    tags=['a'],
+   ...    tags={'a'},
    ...    attributes=allow_h,
    ... )
    '<a href="http://example.com">link</a>'
@@ -184,7 +188,7 @@ attributes for specified tags:
 
    >>> bleach.clean(
    ...    '<img src="http://example.com" alt="an example">',
-   ...    tags=['img'],
+   ...    tags={'img'},
    ...    attributes={
    ...        'img': allow_src
    ...    }
@@ -213,7 +217,7 @@ For example, this sets allowed protocols to http, https and smb:
 
    >>> bleach.clean(
    ...     '<a href="smb://more_text">allowed protocol</a>',
-   ...     protocols=['http', 'https', 'smb']
+   ...     protocols={'http', 'https', 'smb'}
    ... )
    '<a href="smb://more_text">allowed protocol</a>'
 
@@ -224,9 +228,10 @@ This adds smb to the Bleach-specified set of allowed protocols:
 
    >>> import bleach
 
+   >>> my_protocols = bleach.ALLOWED_PROTOCOLS.union({'smb'})
    >>> bleach.clean(
    ...     '<a href="smb://more_text">allowed protocol</a>',
-   ...     protocols=bleach.ALLOWED_PROTOCOLS + ['smb']
+   ...     protocols=my_protocols
    ... )
    '<a href="smb://more_text">allowed protocol</a>'
 
@@ -249,7 +254,7 @@ and invalid markup. For example:
    >>> bleach.clean('<span>is not allowed</span>')
    '&lt;span&gt;is not allowed&lt;/span&gt;'
 
-   >>> bleach.clean('<b><span>is not allowed</span></b>', tags=['b'])
+   >>> bleach.clean('<b><span>is not allowed</span></b>', tags={'b'})
    '<b>&lt;span&gt;is not allowed&lt;/span&gt;</b>'
 
 
@@ -263,7 +268,7 @@ If you would rather Bleach stripped this markup entirely, you can pass
    >>> bleach.clean('<span>is not allowed</span>', strip=True)
    'is not allowed'
 
-   >>> bleach.clean('<b><span>is not allowed</span></b>', tags=['b'], strip=True)
+   >>> bleach.clean('<b><span>is not allowed</span></b>', tags={'b'}, strip=True)
    '<b>is not allowed</b>'
 
 
@@ -309,7 +314,7 @@ For example:
 
    >>> css_sanitizer = CSSSanitizer(allowed_css_properties=["color", "font-weight"])
 
-   >>> tags = ['p', 'em', 'strong']
+   >>> tags = {'p', 'em', 'strong'}
    >>> attrs = {
    ...     '*': ['style']
    ... }
@@ -386,7 +391,7 @@ Trivial Filter example:
    ...     'img': ['rel', 'src']
    ... }
    ...
-   >>> TAGS = ['img']
+   >>> TAGS = {'img'}
    >>> cleaner = Cleaner(tags=TAGS, attributes=ATTRS, filters=[MooFilter])
    >>> dirty = 'this is cute! <img src="http://example.com/puppy.jpg" rel="nofollow">'
    >>> cleaner.clean(dirty)
@@ -411,5 +416,3 @@ Using ``bleach.sanitizer.BleachSanitizerFilter``
 use an html5lib filter.
 
 .. autoclass:: bleach.sanitizer.BleachSanitizerFilter
-
-

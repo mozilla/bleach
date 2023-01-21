@@ -35,7 +35,7 @@ ALLOWED_ATTRIBUTES = {
 }
 
 #: List of allowed protocols
-ALLOWED_PROTOCOLS = ["http", "https", "mailto"]
+ALLOWED_PROTOCOLS = frozenset(("http", "https", "mailto"))
 
 #: Invisible characters--0 to and including 31 except 9 (tab), 10 (lf), and 13 (cr)
 INVISIBLE_CHARACTERS = "".join(
@@ -180,9 +180,8 @@ class Cleaner:
         """
         if not isinstance(text, str):
             message = (
-                "argument cannot be of '{name}' type, must be of text type".format(
-                    name=text.__class__.__name__
-                )
+                f"argument cannot be of {text.__class__.__name__!r} type, "
+                + "must be of text type"
             )
             raise TypeError(message)
 
@@ -308,7 +307,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
         html5lib_shim.Filter.__init__(self, source)
 
         self.allowed_tags = frozenset(allowed_tags)
-        self.allowed_protocols = allowed_protocols
+        self.allowed_protocols = frozenset(allowed_protocols)
 
         self.attr_filter = attribute_filter_factory(attributes)
         self.strip_disallowed_tags = strip_disallowed_tags
@@ -603,7 +602,7 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
     def disallowed_token(self, token):
         token_type = token["type"]
         if token_type == "EndTag":
-            token["data"] = "</%s>" % token["name"]
+            token["data"] = f"</{token['name']}>"
 
         elif token["data"]:
             assert token_type in ("StartTag", "EmptyTag")
@@ -619,25 +618,19 @@ class BleachSanitizerFilter(html5lib_shim.SanitizerFilter):
                 if ns is None or ns not in html5lib_shim.prefixes:
                     namespaced_name = name
                 else:
-                    namespaced_name = "{}:{}".format(html5lib_shim.prefixes[ns], name)
+                    namespaced_name = f"{html5lib_shim.prefixes[ns]}:{name}"
 
-                attrs.append(
-                    ' %s="%s"'
-                    % (
-                        namespaced_name,
-                        # NOTE(willkg): HTMLSerializer escapes attribute values
-                        # already, so if we do it here (like HTMLSerializer does),
-                        # then we end up double-escaping.
-                        v,
-                    )
-                )
-            token["data"] = "<{}{}>".format(token["name"], "".join(attrs))
+                # NOTE(willkg): HTMLSerializer escapes attribute values
+                # already, so if we do it here (like HTMLSerializer does),
+                # then we end up double-escaping.
+                attrs.append(f' {namespaced_name}="{v}"')
+            token["data"] = f"<{token['name']}{''.join(attrs)}>"
 
         else:
-            token["data"] = "<%s>" % token["name"]
+            token["data"] = f"<{token['name']}>"
 
         if token.get("selfClosing"):
-            token["data"] = token["data"][:-1] + "/>"
+            token["data"] = f"{token['data'][:-1]}/>"
 
         token["type"] = "Characters"
 
