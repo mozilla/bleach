@@ -8,7 +8,7 @@ from bleach import clean  # noqa
 from bleach.css_sanitizer import CSSSanitizer  # noqa
 
 
-clean = partial(clean, tags=["p"], attributes=["style"])
+clean = partial(clean, tags={"p"}, attributes=["style"])
 
 
 @pytest.mark.parametrize(
@@ -250,7 +250,7 @@ def test_css_parsing_with_entities(data, styles, expected):
     css_sanitizer = CSSSanitizer(allowed_css_properties=styles)
     assert (
         clean(
-            data, tags=["p"], attributes={"p": ["style"]}, css_sanitizer=css_sanitizer
+            data, tags={"p"}, attributes={"p": ["style"]}, css_sanitizer=css_sanitizer
         )
         == expected
     )

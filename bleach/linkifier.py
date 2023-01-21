@@ -122,7 +122,8 @@ class Linker:
 
         :arg set skip_tags: set of tags that you don't want to linkify the
             contents of; for example, you could set this to ``{'pre'}`` to skip
-            linkifying contents of ``pre`` tags
+            linkifying contents of ``pre`` tags; ``None`` means you don't
+            want linkify to skip any tags
 
         :arg bool parse_email: whether or not to linkify email addresses
 
