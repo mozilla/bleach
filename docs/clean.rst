@@ -61,7 +61,7 @@ For example:
 
    >>> bleach.clean(
    ...     '<b><i>an example</i></b>',
-   ...     tags=['b'],
+   ...     tags={'b'},
    ... )
    '<b>&lt;i&gt;an example&lt;/i&gt;</b>'
 
