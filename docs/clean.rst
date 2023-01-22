@@ -228,10 +228,9 @@ This adds smb to the Bleach-specified set of allowed protocols:
 
    >>> import bleach
 
-   >>> my_protocols = bleach.ALLOWED_PROTOCOLS.union({'smb'})
    >>> bleach.clean(
    ...     '<a href="smb://more_text">allowed protocol</a>',
-   ...     protocols=my_protocols
+   ...     protocols=bleach.ALLOWED_PROTOCOLS | {'smb'}
    ... )
    '<a href="smb://more_text">allowed protocol</a>'
 
