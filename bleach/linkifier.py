@@ -131,7 +131,7 @@ class Linker:
 
         :arg email_re: email matching regex
 
-        :arg set recognized_tags: the list of tags that linkify knows about;
+        :arg set recognized_tags: the set of tags that linkify knows about;
             everything else gets escaped
 
         :returns: linkified text as unicode
