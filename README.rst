@@ -35,6 +35,10 @@ fixes. You can find full documentation on `ReadTheDocs`_.
 :Issue tracker:  https://github.com/mozilla/bleach/issues
 :License:        Apache License v2; see LICENSE file
 
+.. Note::
+
+   2023-01-23: Bleach is deprecated. https://github.com/mozilla/bleach/issues/698
+
 
 Reporting Bugs
 ==============
