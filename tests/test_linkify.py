@@ -287,18 +287,16 @@ def test_add_rel_nofollow():
 
 
 def test_url_with_path():
-    assert (
-        linkify("http://example.com/path/to/file")
-        == '<a href="http://example.com/path/to/file" rel="nofollow">'
-        "http://example.com/path/to/file</a>"
+    assert linkify("http://example.com/path/to/file") == (
+        '<a href="http://example.com/path/to/file" rel="nofollow">'
+        + "http://example.com/path/to/file</a>"
     )
 
 
 def test_link_ftp():
-    assert (
-        linkify("ftp://ftp.mozilla.org/some/file")
-        == '<a href="ftp://ftp.mozilla.org/some/file" rel="nofollow">'
-        "ftp://ftp.mozilla.org/some/file</a>"
+    assert linkify("ftp://ftp.mozilla.org/some/file") == (
+        '<a href="ftp://ftp.mozilla.org/some/file" rel="nofollow">'
+        + "ftp://ftp.mozilla.org/some/file</a>"
     )
 
 
@@ -342,10 +340,9 @@ def test_escaped_html():
 
 
 def test_link_http_complete():
-    assert (
-        linkify("https://user:pass@ftp.mozilla.org/x/y.exe?a=b&c=d&e#f")
-        == '<a href="https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f" rel="nofollow">'
-        "https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f</a>"
+    assert linkify("https://user:pass@ftp.mozilla.org/x/y.exe?a=b&c=d&e#f") == (
+        '<a href="https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f" rel="nofollow">'
+        + "https://user:pass@ftp.mozilla.org/x/y.exe?a=b&amp;c=d&amp;e#f</a>"
     )
 
 
@@ -381,17 +378,17 @@ def test_skip_tags():
         + '<pre><a href="http://xx.com" rel="nofollow">http://xx.com'
         + "</a></pre>"
     )
-    assert linkify(simple, skip_tags=["pre"]) == linked
+    assert linkify(simple, skip_tags={"pre"}) == linked
     assert linkify(simple) == all_linked
 
     already_linked = '<pre><a href="http://xx.com">xx</a></pre>'
     nofollowed = '<pre><a href="http://xx.com" rel="nofollow">xx</a></pre>'
     assert linkify(already_linked) == nofollowed
-    assert linkify(already_linked, skip_tags=["pre"]) == nofollowed
+    assert linkify(already_linked, skip_tags={"pre"}) == nofollowed
 
     assert linkify(
         "<pre><code>http://example.com</code></pre>http://example.com",
-        skip_tags=["pre"],
+        skip_tags={"pre"},
     ) == (
         "<pre><code>http://example.com</code></pre>"
         + '<a href="http://example.com" rel="nofollow">http://example.com</a>'
@@ -415,7 +412,6 @@ def test_libgl():
 )
 def test_end_of_sentence(url, periods):
     """example.com. should match."""
-
     assert (
         linkify(f"{url}{periods}")
         == f'<a href="http://{url}" rel="nofollow">{url}</a>{periods}'
@@ -723,14 +719,14 @@ def test_email_re_arg():
 def test_recognized_tags_arg():
     """Verifies that recognized_tags works"""
     # The html parser doesn't recognize "sarcasm" as a tag, so it escapes it
-    linker = Linker(recognized_tags=["p"])
+    linker = Linker(recognized_tags={"p"})
     assert (
         linker.linkify("<p>http://example.com/</p><sarcasm>")
         == '<p><a href="http://example.com/" rel="nofollow">http://example.com/</a></p>&lt;sarcasm&gt;'  # noqa
     )
 
     # The html parser recognizes "sarcasm" as a tag and fixes it
-    linker = Linker(recognized_tags=["p", "sarcasm"])
+    linker = Linker(recognized_tags={"p", "sarcasm"})
     assert (
         linker.linkify("<p>http://example.com/</p><sarcasm>")
         == '<p><a href="http://example.com/" rel="nofollow">http://example.com/</a></p><sarcasm></sarcasm>'  # noqa
