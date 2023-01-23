@@ -11,6 +11,9 @@ Bleach
 .. image:: https://badge.fury.io/py/bleach.svg
    :target: http://badge.fury.io/py/bleach
 
+**NOTE: 2023-01-23: Bleach is deprecated.** See issue:
+`<https://github.com/mozilla/bleach/issues/698>`__
+
 Bleach is an allowed-list-based HTML sanitizing library that escapes or strips
 markup and attributes.
 
@@ -34,10 +37,6 @@ fixes. You can find full documentation on `ReadTheDocs`_.
 :Documentation:  https://bleach.readthedocs.io/
 :Issue tracker:  https://github.com/mozilla/bleach/issues
 :License:        Apache License v2; see LICENSE file
-
-.. Note::
-
-   2023-01-23: Bleach is deprecated. https://github.com/mozilla/bleach/issues/698
 
 
 Reporting Bugs
