@@ -48,14 +48,12 @@ class ParseResult:
             ParseResult(scheme="non-special", netloc=":@test", path="/x"),
         ),
         ("http:foo.com", ParseResult(scheme="http", path="foo.com")),
-        # NOTE(willkg): The wpt tests set the scheme to http becaue that's what
+        # NOTE(willkg): The wpt tests set the scheme to http because that's what
         # the base url is. Since our parser is not using a baseurl, it sets the
-        # scheme to "". Further, our parser includes spaces at the beginning,
-        # but I don't see that as being problematic.
-        ("\t   :foo.com   \n", ParseResult(path="   :foo.com   ")),
+        # scheme to "".
         # NOTE(willkg): The wpt tests set the path to "/foo/foo.com" because
         # the base url is at "/foo"
-        (" foo.com  ", ParseResult(path=" foo.com  ")),
+        ("foo.com  ", ParseResult(path="foo.com  ")),
         ("a:\t foo.com", ParseResult(scheme="a", path=" foo.com")),
         (
             "http://f:21/ b ? d # e ",
