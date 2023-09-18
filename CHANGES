@@ -1,6 +1,20 @@
 Bleach changes
 ==============
 
+Version 6.1.0 (in development)
+------------------------------
+
+**Backwards incompatibel changes**
+
+* Dropped support for Python 3.7. (#709)
+
+**Security fixes**
+
+None
+
+**Bug fixes**
+
+
 Version 6.0.0 (January 23rd, 2023)
 ----------------------------------
 
