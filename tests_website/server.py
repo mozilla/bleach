@@ -20,7 +20,6 @@ PORT = 8080
 
 
 class BleachCleanHandler(http.server.SimpleHTTPRequestHandler):
-
     # Prevent 'cannot bind to address' errors on restart
     allow_reuse_address = True
 
