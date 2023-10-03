@@ -95,7 +95,6 @@ class ParseResult:
     ],
 )
 def test_urlparse(uri, expected):
-
     if inspect.isclass(expected) and issubclass(expected, BaseException):
         with pytest.raises(expected):
             urlparse(uri)
