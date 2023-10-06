@@ -591,7 +591,7 @@ class LinkifyFilter(html5lib_shim.Filter):
                     in_a = False
                     token_buffer = []
                 else:
-                    token_buffer.append(token)
+                    token_buffer.extend(list(self.extract_entities(token)))
                 continue
 
             if token["type"] in ["StartTag", "EmptyTag"]:
