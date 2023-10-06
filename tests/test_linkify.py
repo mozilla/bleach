@@ -323,6 +323,7 @@ def test_link_fragment():
 
 
 def test_link_entities_in_qs():
+    """Entities in the querystring get escaped"""
     assert (
         linkify("http://xx.com/?a=1&b=2")
         == '<a href="http://xx.com/?a=1&amp;b=2" rel="nofollow">http://xx.com/?a=1&amp;b=2</a>'
@@ -330,7 +331,16 @@ def test_link_entities_in_qs():
 
 
 def test_link_entities_in_characters_token():
+    """Entitites in a Characters token don't get escaped"""
     assert linkify("foo &nbsp; bar") == "foo &nbsp; bar"
+
+
+def test_link_entities_in_a_tag():
+    """Entitites between an a start tag and an a end tag don't get escaped"""
+    assert (
+        linkify('<a href="/">Some&nbsp;entity&rsquo;s</a>', callbacks=[])
+        == '<a href="/">Some&nbsp;entity&rsquo;s</a>'
+    )
 
 
 def test_escaped_html():
