@@ -163,6 +163,10 @@ def test_bare_entities_get_escaped_correctly(text, expected):
         ("<y", "&lt;y"),
         ("x < y", "x &lt; y"),
         ("<y>", "&lt;y&gt;"),
+        # this is an eof-in-attribute-name parser error
+        ("<some thing", "&lt;some thing"),
+        # this is an eof-in-attribute-value-no-quotes parser error
+        ("<some thing=foo", "&lt;some thing=foo"),
     ],
 )
 def test_lessthan_escaping(text, expected):
