@@ -16,7 +16,7 @@ None
 
 * Add support for Python 3.12. (#710)
 * Fix linkify with arrays in querystring (#436)
-* Handle more cases with < folloed by character data (#705)
+* Handle more cases with < followed by character data (#705)
 * Fix entities inside a tags in linkification (#704)
 * Update cap for tinycss2 to <1.3 (#702)
 * Updated Sphinx requirement
