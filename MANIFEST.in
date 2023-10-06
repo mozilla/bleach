@@ -12,7 +12,6 @@ include tox.ini
 
 include docs/conf.py
 include docs/Makefile
-include docs/requirements.txt
 
 include scripts/*
 
