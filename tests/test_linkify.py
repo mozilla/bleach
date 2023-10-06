@@ -300,6 +300,14 @@ def test_link_ftp():
     )
 
 
+def test_link_with_qs_with_array():
+    """Test that urls pick up [] in querystring"""
+    assert linkify("http://test.com?array[]=1&params_in[]=2") == (
+        '<a href="http://test.com?array[]=1&amp;params_in[]=2" '
+        + 'rel="nofollow">http://test.com?array[]=1&amp;params_in[]=2</a>'
+    )
+
+
 def test_link_query():
     assert (
         linkify("http://xx.com/?test=win")
