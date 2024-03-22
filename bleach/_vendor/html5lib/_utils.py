@@ -1,21 +1,13 @@
-from __future__ import absolute_import, division, unicode_literals
-
 from types import ModuleType
 
 try:
     from collections.abc import Mapping
 except ImportError:
-    from collections import Mapping
+    from collections.abc import Mapping
 
 from six import text_type, PY3
 
-if PY3:
-    import xml.etree.ElementTree as default_etree
-else:
-    try:
-        import xml.etree.cElementTree as default_etree
-    except ImportError:
-        import xml.etree.ElementTree as default_etree
+import xml.etree.ElementTree as default_etree
 
 
 __all__ = ["default_etree", "MethodDispatcher", "isSurrogatePair",
@@ -31,10 +23,10 @@ __all__ = ["default_etree", "MethodDispatcher", "isSurrogatePair",
 # escapes.
 try:
     _x = eval('"\\uD800"')  # pylint:disable=eval-used
-    if not isinstance(_x, text_type):
+    if not isinstance(_x, str):
         # We need this with u"" because of http://bugs.jython.org/issue2039
         _x = eval('u"\\uD800"')  # pylint:disable=eval-used
-        assert isinstance(_x, text_type)
+        assert isinstance(_x, str)
 except Exception:
     supports_lone_surrogates = False
 else:
@@ -122,7 +114,7 @@ def moduleFactoryFactory(factory):
     moduleCache = {}
 
     def moduleFactory(baseModule, *args, **kwargs):
-        if isinstance(ModuleType.__name__, type("")):
+        if isinstance(ModuleType.__name__, str):
             name = "_%s_factory" % baseModule.__name__
         else:
             name = b"_%s_factory" % baseModule.__name__

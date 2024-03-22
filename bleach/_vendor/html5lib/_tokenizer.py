@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, unicode_literals
-
 from six import unichr as chr
 
 from collections import deque, OrderedDict
@@ -18,13 +16,10 @@ from ._trie import Trie
 
 entitiesTrie = Trie(entities)
 
-if version_info >= (3, 7):
-    attributeMap = dict
-else:
-    attributeMap = OrderedDict
+attributeMap = dict
 
 
-class HTMLTokenizer(object):
+class HTMLTokenizer:
     """ This class takes care of tokenizing HTML.
 
     * self.currentToken
@@ -50,7 +45,7 @@ class HTMLTokenizer(object):
 
         # The current token being created
         self.currentToken = None
-        super(HTMLTokenizer, self).__init__()
+        super().__init__()
 
     def __iter__(self):
         """ This is where the magic happens.

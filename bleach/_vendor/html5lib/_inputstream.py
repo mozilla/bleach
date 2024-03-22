@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, unicode_literals
-
 from six import text_type
 from six.moves import http_client, urllib
 
@@ -48,7 +46,7 @@ ascii_punctuation_re = re.compile("[\u0009-\u000D\u0020-\u002F\u003A-\u0040\u005
 charsUntilRegEx = {}
 
 
-class BufferedStream(object):
+class BufferedStream:
     """Buffering for streams that do not have buffering of their own
 
     The buffer is implemented as a list of chunks on the assumption that
@@ -131,9 +129,9 @@ def HTMLInputStream(source, **kwargs):
          isinstance(source.fp, http_client.HTTPResponse))):
         isUnicode = False
     elif hasattr(source, "read"):
-        isUnicode = isinstance(source.read(0), text_type)
+        isUnicode = isinstance(source.read(0), str)
     else:
-        isUnicode = isinstance(source, text_type)
+        isUnicode = isinstance(source, str)
 
     if isUnicode:
         encodings = [x for x in kwargs if x.endswith("_encoding")]
@@ -145,7 +143,7 @@ def HTMLInputStream(source, **kwargs):
         return HTMLBinaryInputStream(source, **kwargs)
 
 
-class HTMLUnicodeInputStream(object):
+class HTMLUnicodeInputStream:
     """Provides a unicode stream of characters to the HTMLTokenizer.
 
     This class takes care of character encoding and removing or replacing
@@ -524,7 +522,7 @@ class HTMLBinaryInputStream(HTMLUnicodeInputStream):
             self.rawStream.seek(0)
             self.charEncoding = (newEncoding, "certain")
             self.reset()
-            raise _ReparseException("Encoding changed from %s to %s" % (self.charEncoding[0], newEncoding))
+            raise _ReparseException("Encoding changed from {} to {}".format(self.charEncoding[0], newEncoding))
 
     def detectBOM(self):
         """Attempts to detect at BOM at the start of the stream. If
@@ -673,7 +671,7 @@ class EncodingBytes(bytes):
         return True
 
 
-class EncodingParser(object):
+class EncodingParser:
     """Mini parser for detecting character encoding from meta elements"""
 
     def __init__(self, data):
@@ -861,7 +859,7 @@ class EncodingParser(object):
                 attrValue.append(c)
 
 
-class ContentAttrParser(object):
+class ContentAttrParser:
     def __init__(self, data):
         assert isinstance(data, bytes)
         self.data = data

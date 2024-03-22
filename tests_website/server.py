@@ -26,7 +26,7 @@ class BleachCleanHandler(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
         content_len = int(self.headers.get("content-length", 0))
         body = self.rfile.read(content_len)
-        print("read {} bytes: {}".format(content_len, body))
+        print(f"read {content_len} bytes: {body}")
 
         body = body.decode("utf-8")
         print("input: %r" % body)

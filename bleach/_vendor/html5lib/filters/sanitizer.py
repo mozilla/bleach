@@ -6,13 +6,12 @@ is recommended as a replacement. Please let us know in the aforementioned issue
 if Bleach is unsuitable for your needs.
 
 """
-from __future__ import absolute_import, division, unicode_literals
 
 import re
 import warnings
 from xml.sax.saxutils import escape, unescape
 
-from six.moves import urllib_parse as urlparse
+from urllib import parse as urlparse
 
 from . import base
 from ..constants import namespaces, prefixes
@@ -766,7 +765,7 @@ class Filter(base.Filter):
             hrefs--these are removed
 
         """
-        super(Filter, self).__init__(source)
+        super().__init__(source)
 
         warnings.warn(_deprecation_msg, DeprecationWarning)
 
@@ -874,8 +873,8 @@ class Filter(base.Filter):
             assert token_type in ("StartTag", "EmptyTag")
             attrs = []
             for (ns, name), v in token["data"].items():
-                attrs.append(' %s="%s"' % (name if ns is None else "%s:%s" % (prefixes[ns], name), escape(v)))
-            token["data"] = "<%s%s>" % (token["name"], ''.join(attrs))
+                attrs.append(' {}="{}"'.format(name if ns is None else "{}:{}".format(prefixes[ns], name), escape(v)))
+            token["data"] = "<{}{}>".format(token["name"], ''.join(attrs))
         else:
             token["data"] = "<%s>" % token["name"]
         if token.get("selfClosing"):

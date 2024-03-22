@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, unicode_literals
-
 import re
 import warnings
 
@@ -184,7 +182,7 @@ nonXmlNameFirstBMPRegexp = re.compile('[\x00-@\\[-\\^`\\{-\xbf\xd7\xf7\u0132-\u0
 nonPubidCharRegexp = re.compile("[^\x20\x0D\x0Aa-zA-Z0-9\\-'()+,./:=?;!*#@$_%]")
 
 
-class InfosetFilter(object):
+class InfosetFilter:
     replacementRegexp = re.compile(r"U[\dA-F]{5,5}")
 
     def __init__(self,

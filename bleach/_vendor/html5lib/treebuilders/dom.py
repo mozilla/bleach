@@ -1,10 +1,7 @@
-from __future__ import absolute_import, division, unicode_literals
-
-
 try:
     from collections.abc import MutableMapping
 except ImportError:  # Python 2.7
-    from collections import MutableMapping
+    from collections.abc import MutableMapping
 from xml.dom import minidom, Node
 import weakref
 
@@ -191,25 +188,25 @@ def getDomBuilder(DomImplementation):
                         rv.append("""|%s<!DOCTYPE %s "%s" "%s">""" %
                                   (' ' * indent, element.name, publicId, systemId))
                     else:
-                        rv.append("|%s<!DOCTYPE %s>" % (' ' * indent, element.name))
+                        rv.append("|{}<!DOCTYPE {}>".format(' ' * indent, element.name))
                 else:
-                    rv.append("|%s<!DOCTYPE >" % (' ' * indent,))
+                    rv.append("|{}<!DOCTYPE >".format(' ' * indent))
             elif element.nodeType == Node.DOCUMENT_NODE:
                 rv.append("#document")
             elif element.nodeType == Node.DOCUMENT_FRAGMENT_NODE:
                 rv.append("#document-fragment")
             elif element.nodeType == Node.COMMENT_NODE:
-                rv.append("|%s<!-- %s -->" % (' ' * indent, element.nodeValue))
+                rv.append("|{}<!-- {} -->".format(' ' * indent, element.nodeValue))
             elif element.nodeType == Node.TEXT_NODE:
-                rv.append("|%s\"%s\"" % (' ' * indent, element.nodeValue))
+                rv.append("|{}\"{}\"".format(' ' * indent, element.nodeValue))
             else:
                 if (hasattr(element, "namespaceURI") and
                         element.namespaceURI is not None):
-                    name = "%s %s" % (constants.prefixes[element.namespaceURI],
+                    name = "{} {}".format(constants.prefixes[element.namespaceURI],
                                       element.nodeName)
                 else:
                     name = element.nodeName
-                rv.append("|%s<%s>" % (' ' * indent, name))
+                rv.append("|{}<{}>".format(' ' * indent, name))
                 if element.hasAttributes():
                     attributes = []
                     for i in range(len(element.attributes)):
@@ -218,13 +215,13 @@ def getDomBuilder(DomImplementation):
                         value = attr.value
                         ns = attr.namespaceURI
                         if ns:
-                            name = "%s %s" % (constants.prefixes[ns], attr.localName)
+                            name = "{} {}".format(constants.prefixes[ns], attr.localName)
                         else:
                             name = attr.nodeName
                         attributes.append((name, value))
 
                     for name, value in sorted(attributes):
-                        rv.append('|%s%s="%s"' % (' ' * (indent + 2), name, value))
+                        rv.append('|{}{}="{}"'.format(' ' * (indent + 2), name, value))
             indent += 2
             for child in element.childNodes:
                 serializeElement(child, indent)

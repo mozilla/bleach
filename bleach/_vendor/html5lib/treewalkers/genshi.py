@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, unicode_literals
-
 from genshi.core import QName
 from genshi.core import START, END, XML_NAMESPACE, DOCTYPE, TEXT
 from genshi.core import START_NS, END_NS, START_CDATA, END_CDATA, PI, COMMENT
@@ -15,14 +13,12 @@ class TreeWalker(base.TreeWalker):
         previous = None
         for event in self.tree:
             if previous is not None:
-                for token in self.tokens(previous, event):
-                    yield token
+                yield from self.tokens(previous, event)
             previous = event
 
         # Don't forget the final event!
         if previous is not None:
-            for token in self.tokens(previous, None):
-                yield token
+            yield from self.tokens(previous, None)
 
     def tokens(self, event, next):
         kind, data, _ = event
@@ -38,10 +34,9 @@ class TreeWalker(base.TreeWalker):
                     converted_attribs[(None, k)] = v
 
             if namespace == namespaces["html"] and name in voidElements:
-                for token in self.emptyTag(namespace, name, converted_attribs,
+                yield from self.emptyTag(namespace, name, converted_attribs,
                                            not next or next[0] != END or
-                                           next[1] != tag):
-                    yield token
+                                           next[1] != tag)
             else:
                 yield self.startTag(namespace, name, converted_attribs)
 
@@ -55,8 +50,7 @@ class TreeWalker(base.TreeWalker):
             yield self.comment(data)
 
         elif kind == TEXT:
-            for token in self.text(data):
-                yield token
+            yield from self.text(data)
 
         elif kind == DOCTYPE:
             yield self.doctype(*data)

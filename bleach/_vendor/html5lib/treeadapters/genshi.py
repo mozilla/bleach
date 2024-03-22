@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, unicode_literals
-
 from genshi.core import QName, Attrs
 from genshi.core import START, END, TEXT, COMMENT, DOCTYPE
 
@@ -23,7 +21,7 @@ def to_genshi(walker):
 
         if type in ("StartTag", "EmptyTag"):
             if token["namespace"]:
-                name = "{%s}%s" % (token["namespace"], token["name"])
+                name = "{{{}}}{}".format(token["namespace"], token["name"])
             else:
                 name = token["name"]
             attrs = Attrs([(QName("{%s}%s" % attr if attr[0] is not None else attr[1]), value)
@@ -34,7 +32,7 @@ def to_genshi(walker):
 
         if type == "EndTag":
             if token["namespace"]:
-                name = "{%s}%s" % (token["namespace"], token["name"])
+                name = "{{{}}}{}".format(token["namespace"], token["name"])
             else:
                 name = token["name"]
 

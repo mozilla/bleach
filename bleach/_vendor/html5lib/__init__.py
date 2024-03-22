@@ -20,7 +20,6 @@ For convenience, this module re-exports the following names:
 * :func:`~.serializer.serialize`
 """
 
-from __future__ import absolute_import, division, unicode_literals
 
 from .html5parser import HTMLParser, parse, parseFragment
 from .treebuilders import getTreeBuilder

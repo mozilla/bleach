@@ -1,4 +1,3 @@
-from __future__ import absolute_import, division, unicode_literals
 from six import text_type
 
 from collections import OrderedDict
@@ -14,13 +13,13 @@ from .. import _ihatexml
 def ensure_str(s):
     if s is None:
         return None
-    elif isinstance(s, text_type):
+    elif isinstance(s, str):
         return s
     else:
         return s.decode("ascii", "strict")
 
 
-class Root(object):
+class Root:
     def __init__(self, et):
         self.elementtree = et
         self.children = []
@@ -58,7 +57,7 @@ class Root(object):
         return 1
 
 
-class Doctype(object):
+class Doctype:
     def __init__(self, root_node, name, public_id, system_id):
         self.root_node = root_node
         self.name = name
@@ -81,7 +80,7 @@ class FragmentRoot(Root):
         return None
 
 
-class FragmentWrapper(object):
+class FragmentWrapper:
     def __init__(self, fragment_root, obj):
         self.root_node = fragment_root
         self.obj = obj

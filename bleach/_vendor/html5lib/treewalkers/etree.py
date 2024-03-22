@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, unicode_literals
-
 from collections import OrderedDict
 import re
 
@@ -51,7 +49,7 @@ def getETreeBuilder(ElementTreeImplementation):
                 return base.COMMENT, node.text
 
             else:
-                assert isinstance(node.tag, string_types), type(node.tag)
+                assert isinstance(node.tag, str), type(node.tag)
                 # This is assumed to be an ordinary element
                 match = tag_regexp.match(node.tag)
                 if match:

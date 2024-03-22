@@ -126,7 +126,7 @@ def _coerce_args(*args):
     return _decode_args(args) + (_encode_result,)
 
 # Result objects are more helpful than simple tuples
-class _ResultMixinStr(object):
+class _ResultMixinStr:
     """Standard approach to encoding parsed results from str to bytes"""
     __slots__ = ()
 
@@ -134,7 +134,7 @@ class _ResultMixinStr(object):
         return self._encoded_counterpart(*(x.encode(encoding, errors) for x in self))
 
 
-class _ResultMixinBytes(object):
+class _ResultMixinBytes:
     """Standard approach to decoding parsed results from bytes to str"""
     __slots__ = ()
 
@@ -142,7 +142,7 @@ class _ResultMixinBytes(object):
         return self._decoded_counterpart(*(x.decode(encoding, errors) for x in self))
 
 
-class _NetlocResultMixinBase(object):
+class _NetlocResultMixinBase:
     """Shared methods for the parsed result objects containing a netloc element"""
     __slots__ = ()
 
@@ -485,7 +485,7 @@ def urlunparse(components):
     scheme, netloc, url, params, query, fragment, _coerce_result = (
                                                   _coerce_args(*components))
     if params:
-        url = "%s;%s" % (url, params)
+        url = "{};{}".format(url, params)
     return _coerce_result(urlunsplit((scheme, netloc, url, query, fragment)))
 
 def urlunsplit(components):
@@ -745,7 +745,7 @@ def parse_qsl(qs, keep_blank_values=False, strict_parsing=False,
         nv = name_value.split('=', 1)
         if len(nv) != 2:
             if strict_parsing:
-                raise ValueError("bad query field: %r" % (name_value,))
+                raise ValueError("bad query field: {!r}".format(name_value))
             # Handle case of a control-name with no equal sign
             if keep_blank_values:
                 nv.append('')
@@ -791,11 +791,11 @@ class Quoter(collections.defaultdict):
 
     def __repr__(self):
         # Without this, will just display as a defaultdict
-        return "<%s %r>" % (self.__class__.__name__, dict(self))
+        return "<{} {!r}>".format(self.__class__.__name__, dict(self))
 
     def __missing__(self, b):
         # Handle a cache miss. Store quoted string in cache and return.
-        res = chr(b) if b in self.safe else '%{:02X}'.format(b)
+        res = chr(b) if b in self.safe else f'%{b:02X}'
         self[b] = res
         return res
 

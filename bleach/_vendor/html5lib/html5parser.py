@@ -1,4 +1,3 @@
-from __future__ import absolute_import, division, unicode_literals
 from six import with_metaclass, viewkeys
 
 import types
@@ -83,7 +82,7 @@ def method_decorator_metaclass(function):
     return Decorated
 
 
-class HTMLParser(object):
+class HTMLParser:
     """HTML parser
 
     Generates a tree structure from a stream of (possibly malformed) HTML.
@@ -423,7 +422,7 @@ def getPhases(debug):
             return type
 
     # pylint:disable=unused-argument
-    class Phase(with_metaclass(getMetaclass(debug, log))):
+    class Phase(metaclass=getMetaclass(debug, log)):
         """Base class for helper object that implements each phase of processing
         """
         __slots__ = ("parser", "tree", "__startTagCache", "__endTagCache")
@@ -944,7 +943,7 @@ def getPhases(debug):
         __slots__ = ("processSpaceCharacters",)
 
         def __init__(self, *args, **kwargs):
-            super(InBodyPhase, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
             # Set this to the default handler
             self.processSpaceCharacters = self.processSpaceCharactersNonPre
 
@@ -1844,7 +1843,7 @@ def getPhases(debug):
         __slots__ = ("originalPhase", "characterTokens")
 
         def __init__(self, *args, **kwargs):
-            super(InTableTextPhase, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
             self.originalPhase = None
             self.characterTokens = []
 
@@ -2776,7 +2775,7 @@ def getPhases(debug):
 
 
 def adjust_attributes(token, replacements):
-    needs_adjustment = viewkeys(token['data']) & viewkeys(replacements)
+    needs_adjustment = token['data'].keys() & replacements.keys()
     if needs_adjustment:
         token['data'] = type(token['data'])((replacements.get(k, k), v)
                                             for k, v in token['data'].items())

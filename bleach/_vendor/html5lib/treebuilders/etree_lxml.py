@@ -9,7 +9,6 @@ Docypes with no name
 When any of these things occur, we emit a DataLossWarning
 """
 
-from __future__ import absolute_import, division, unicode_literals
 # pylint:disable=protected-access
 
 import warnings
@@ -19,7 +18,7 @@ import sys
 try:
     from collections.abc import MutableMapping
 except ImportError:
-    from collections import MutableMapping
+    from collections.abc import MutableMapping
 
 from . import base
 from ..constants import DataLossWarning
@@ -37,14 +36,14 @@ tag_regexp = re.compile("{([^}]*)}(.*)")
 comment_type = etree.Comment("asd").tag
 
 
-class DocumentType(object):
+class DocumentType:
     def __init__(self, name, publicId, systemId):
         self.name = name
         self.publicId = publicId
         self.systemId = systemId
 
 
-class Document(object):
+class Document:
     def __init__(self):
         self._elementTree = None
         self._childNodes = []
@@ -76,11 +75,11 @@ def testSerializer(element):
                             element.docinfo.system_url):
                         dtd_str = "<!DOCTYPE %s>" % element.docinfo.root_name
                     else:
-                        dtd_str = """<!DOCTYPE %s "%s" "%s">""" % (
+                        dtd_str = """<!DOCTYPE {} "{}" "{}">""".format(
                             element.docinfo.root_name,
                             element.docinfo.public_id,
                             element.docinfo.system_url)
-                    rv.append("|%s%s" % (' ' * (indent + 2), dtd_str))
+                    rv.append("|{}{}".format(' ' * (indent + 2), dtd_str))
                 next_element = element.getroot()
                 while next_element.getprevious() is not None:
                     next_element = next_element.getprevious()
@@ -90,16 +89,16 @@ def testSerializer(element):
             elif isinstance(element, str) or isinstance(element, bytes):
                 # Text in a fragment
                 assert isinstance(element, str) or sys.version_info[0] == 2
-                rv.append("|%s\"%s\"" % (' ' * indent, element))
+                rv.append("|{}\"{}\"".format(' ' * indent, element))
             else:
                 # Fragment case
                 rv.append("#document-fragment")
                 for next_element in element:
                     serializeElement(next_element, indent + 2)
         elif element.tag == comment_type:
-            rv.append("|%s<!-- %s -->" % (' ' * indent, element.text))
+            rv.append("|{}<!-- {} -->".format(' ' * indent, element.text))
             if hasattr(element, "tail") and element.tail:
-                rv.append("|%s\"%s\"" % (' ' * indent, element.tail))
+                rv.append("|{}\"{}\"".format(' ' * indent, element.tail))
         else:
             assert isinstance(element, etree._Element)
             nsmatch = etree_builders.tag_regexp.match(element.tag)
@@ -107,10 +106,10 @@ def testSerializer(element):
                 ns = nsmatch.group(1)
                 tag = nsmatch.group(2)
                 prefix = constants.prefixes[ns]
-                rv.append("|%s<%s %s>" % (' ' * indent, prefix,
+                rv.append("|{}<{} {}>".format(' ' * indent, prefix,
                                           infosetFilter.fromXmlName(tag)))
             else:
-                rv.append("|%s<%s>" % (' ' * indent,
+                rv.append("|{}<{}>".format(' ' * indent,
                                        infosetFilter.fromXmlName(element.tag)))
 
             if hasattr(element, "attrib"):
@@ -121,21 +120,21 @@ def testSerializer(element):
                         ns, name = nsmatch.groups()
                         name = infosetFilter.fromXmlName(name)
                         prefix = constants.prefixes[ns]
-                        attr_string = "%s %s" % (prefix, name)
+                        attr_string = "{} {}".format(prefix, name)
                     else:
                         attr_string = infosetFilter.fromXmlName(name)
                     attributes.append((attr_string, value))
 
                 for name, value in sorted(attributes):
-                    rv.append('|%s%s="%s"' % (' ' * (indent + 2), name, value))
+                    rv.append('|{}{}="{}"'.format(' ' * (indent + 2), name, value))
 
             if element.text:
-                rv.append("|%s\"%s\"" % (' ' * (indent + 2), element.text))
+                rv.append("|{}\"{}\"".format(' ' * (indent + 2), element.text))
             indent += 2
             for child in element:
                 serializeElement(child, indent)
             if hasattr(element, "tail") and element.tail:
-                rv.append("|%s\"%s\"" % (' ' * (indent - 2), element.tail))
+                rv.append("|{}\"{}\"".format(' ' * (indent - 2), element.tail))
     serializeElement(element, 0)
 
     return "\n".join(rv)
@@ -156,23 +155,23 @@ def tostring(element):
             serializeElement(element.getroot())
 
         elif element.tag == comment_type:
-            rv.append("<!--%s-->" % (element.text,))
+            rv.append("<!--{}-->".format(element.text))
 
         else:
             # This is assumed to be an ordinary element
             if not element.attrib:
-                rv.append("<%s>" % (element.tag,))
+                rv.append("<{}>".format(element.tag))
             else:
-                attr = " ".join(["%s=\"%s\"" % (name, value)
+                attr = " ".join(["{}=\"{}\"".format(name, value)
                                  for name, value in element.attrib.items()])
-                rv.append("<%s %s>" % (element.tag, attr))
+                rv.append("<{} {}>".format(element.tag, attr))
             if element.text:
                 rv.append(element.text)
 
             for child in element:
                 serializeElement(child)
 
-            rv.append("</%s>" % (element.tag,))
+            rv.append("</{}>".format(element.tag))
 
         if hasattr(element, "tail") and element.tail:
             rv.append(element.tail)
@@ -201,14 +200,14 @@ class TreeBuilder(base.TreeBuilder):
 
             def _coerceKey(self, key):
                 if isinstance(key, tuple):
-                    name = "{%s}%s" % (key[2], infosetFilter.coerceAttribute(key[1]))
+                    name = "{{{}}}{}".format(key[2], infosetFilter.coerceAttribute(key[1]))
                 else:
                     name = infosetFilter.coerceAttribute(key)
                 return name
 
             def __getitem__(self, key):
                 value = self._element._element.attrib[self._coerceKey(key)]
-                if not PY3 and isinstance(value, binary_type):
+                if not PY3 and isinstance(value, bytes):
                     value = value.decode("ascii")
                 return value
 
@@ -332,7 +331,7 @@ class TreeBuilder(base.TreeBuilder):
         if (parent == self.document and
                 self.document._elementTree.getroot()[-1].tag == comment_type):
             warnings.warn("lxml cannot represent adjacent comments beyond the root elements", DataLossWarning)
-        super(TreeBuilder, self).insertComment(data, parent)
+        super().insertComment(data, parent)
 
     def insertRoot(self, token):
         # Because of the way libxml2 works, it doesn't seem to be possible to
@@ -379,7 +378,7 @@ class TreeBuilder(base.TreeBuilder):
         if namespace is None:
             etree_tag = name
         else:
-            etree_tag = "{%s}%s" % (namespace, name)
+            etree_tag = "{{{}}}{}".format(namespace, name)
         root.tag = etree_tag
 
         # Add the root element to the internal child/open data structures
