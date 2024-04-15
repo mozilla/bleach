@@ -10,7 +10,10 @@ def test_japanese_safe_simple():
 
 def test_japanese_strip():
     assert clean("<em>ヘルプとチュートリアル</em>") == "<em>ヘルプとチュートリアル</em>"
-    assert clean("<span>ヘルプとチュートリアル</span>") == "&lt;span&gt;ヘルプとチュートリアル&lt;/span&gt;"
+    assert (
+        clean("<span>ヘルプとチュートリアル</span>")
+        == "&lt;span&gt;ヘルプとチュートリアル&lt;/span&gt;"
+    )
 
 
 def test_russian_simple():
