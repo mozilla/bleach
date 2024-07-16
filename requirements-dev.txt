@@ -1,13 +1,13 @@
 -e .
 
-black==24.4.0; implementation_name == 'cpython'
+black==24.4.2; implementation_name == 'cpython'
 build==1.2.1
-mypy==1.5.1; implementation_name =='cpython'
-pytest==7.4.2
-setuptools==69.5.1
-tox==4.14.2
+mypy==1.10.1; implementation_name =='cpython'
+pytest==8.2.2
+setuptools==70.3.0
+tox==4.16.0
 tox-gh-actions==3.2.0
-twine==5.0.0
+twine==5.1.1
 wheel==0.43.0
 
-Sphinx==7.2.6; python_version > "3.8"
+Sphinx==7.4.4; python_version > "3.8"
