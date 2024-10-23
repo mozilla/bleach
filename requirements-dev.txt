@@ -10,4 +10,4 @@ tox-gh-actions==3.2.0
 twine==5.1.1
 wheel==0.43.0
 
-Sphinx==7.4.4; python_version > "3.8"
+Sphinx==7.4.4

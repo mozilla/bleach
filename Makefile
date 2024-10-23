@@ -16,7 +16,7 @@ docs:  ## Build docs
 
 .PHONY: lint
 lint:  ## Lint files
-	tox exec -e py39-format-check -- black --target-version=py38 --exclude=_vendor setup.py bleach/ tests/ tests_website/
+	tox exec -e py39-format-check -- black --target-version=py39 --exclude=_vendor setup.py bleach/ tests/ tests_website/
 	tox -e py39-lint
 	tox -e py39-format-check
 
