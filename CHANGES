@@ -13,7 +13,7 @@ None
 
 **Bug fixes**
 
-None
+* Add support for Python 3.13. (#736)
 
 
 Version 6.1.0 (October 6th, 2023)
