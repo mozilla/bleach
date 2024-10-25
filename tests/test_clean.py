@@ -167,6 +167,10 @@ def test_bare_entities_get_escaped_correctly(text, expected):
         ("<some thing", "&lt;some thing"),
         # this is an eof-in-attribute-value-no-quotes parser error
         ("<some thing=foo", "&lt;some thing=foo"),
+        # this is a duplicate-attribute parser error
+        ("<some thing thing", "&lt;some thing thing"),
+        # this is an expected-end-of-tag-but-got-eof parser error
+        ("<some thing thing2 ", "&lt;some thing thing2 "),
     ],
 )
 def test_lessthan_escaping(text, expected):
