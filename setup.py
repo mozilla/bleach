@@ -32,7 +32,7 @@ INSTALL_REQUIRES = [
 
 EXTRAS_REQUIRE = {
     "css": [
-        "tinycss2>=1.1.0,<1.3",
+        "tinycss2>=1.1.0,<1.5",
     ],
 }
 
