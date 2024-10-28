@@ -5,7 +5,8 @@ set -e
 # Install vendored packages into /tmp and then compare with what's in
 # bleach/_vendor/.
 
-DEST=/tmp/vendor-test
+export DEST=/tmp/vendor-test
+export BLEACH_VENDOR_DIR=bleach/_vendor
 
 if [[ -e "${DEST}" ]]; then
     echo "${DEST} exists. Please remove."
@@ -14,11 +15,16 @@ fi
 
 mkdir "${DEST}"
 
-# Get versions of pip and python
+# Get diagnostic information
 pip --version
+echo "DEST: ${DEST}"
+echo "BLEACH_VENDOR_DIR: ${BLEACH_VENDOR_DIR}"
+
+# Copy patch files to dest directory
+cp bleach/_vendor/*.patch "${DEST}"
 
 # Install vendored dependencies into temp directory
-BLEACH_VENDOR_DIR=bleach/_vendor DEST="${DEST}" bleach/_vendor/vendor_install.sh
+bleach/_vendor/vendor_install.sh
 
 # Diff contents of temp directory and bleach/_vendor/ excluding vendoring
 # infrastructure
