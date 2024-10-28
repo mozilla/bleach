@@ -1,0 +1,167 @@
+diff --git bleach/_vendor/html5lib/_inputstream.py bleach/_vendor/html5lib/_inputstream.py
+index 0207dd2..0976251 100644
+--- bleach/_vendor/html5lib/_inputstream.py
++++ bleach/_vendor/html5lib/_inputstream.py
+@@ -1,7 +1,7 @@
+ from __future__ import absolute_import, division, unicode_literals
+ 
+-from six import text_type
+-from six.moves import http_client, urllib
++from bleach.six_shim import text_type
++from bleach.six_shim import http_client, urllib
+ 
+ import codecs
+ import re
+diff --git bleach/_vendor/html5lib/_tokenizer.py bleach/_vendor/html5lib/_tokenizer.py
+index 4748a19..d884801 100644
+--- bleach/_vendor/html5lib/_tokenizer.py
++++ bleach/_vendor/html5lib/_tokenizer.py
+@@ -1,6 +1,6 @@
+ from __future__ import absolute_import, division, unicode_literals
+ 
+-from six import unichr as chr
++from bleach.six_shim import unichr as chr
+ 
+ from collections import deque, OrderedDict
+ from sys import version_info
+diff --git bleach/_vendor/html5lib/_trie/py.py bleach/_vendor/html5lib/_trie/py.py
+index c2ba3da..56f66bd 100644
+--- bleach/_vendor/html5lib/_trie/py.py
++++ bleach/_vendor/html5lib/_trie/py.py
+@@ -1,5 +1,5 @@
+ from __future__ import absolute_import, division, unicode_literals
+-from six import text_type
++from bleach.six_shim import text_type
+ 
+ from bisect import bisect_left
+ 
+diff --git bleach/_vendor/html5lib/_utils.py bleach/_vendor/html5lib/_utils.py
+index 9ea5794..635bb02 100644
+--- bleach/_vendor/html5lib/_utils.py
++++ bleach/_vendor/html5lib/_utils.py
+@@ -7,7 +7,7 @@ try:
+ except ImportError:
+     from collections import Mapping
+ 
+-from six import text_type, PY3
++from bleach.six_shim import text_type, PY3
+ 
+ if PY3:
+     import xml.etree.ElementTree as default_etree
+diff --git bleach/_vendor/html5lib/filters/lint.py bleach/_vendor/html5lib/filters/lint.py
+index acd4d7a..1340d97 100644
+--- bleach/_vendor/html5lib/filters/lint.py
++++ bleach/_vendor/html5lib/filters/lint.py
+@@ -1,6 +1,6 @@
+ from __future__ import absolute_import, division, unicode_literals
+ 
+-from six import text_type
++from bleach.six_shim import text_type
+ 
+ from . import base
+ from ..constants import namespaces, voidElements
+diff --git bleach/_vendor/html5lib/filters/sanitizer.py bleach/_vendor/html5lib/filters/sanitizer.py
+index 70ef906..5c31e97 100644
+--- bleach/_vendor/html5lib/filters/sanitizer.py
++++ bleach/_vendor/html5lib/filters/sanitizer.py
+@@ -12,7 +12,7 @@ import re
+ import warnings
+ from xml.sax.saxutils import escape, unescape
+ 
+-from six.moves import urllib_parse as urlparse
++from bleach.six_shim import urllib_parse as urlparse
+ 
+ from . import base
+ from ..constants import namespaces, prefixes
+diff --git bleach/_vendor/html5lib/html5parser.py bleach/_vendor/html5lib/html5parser.py
+index 74d829d..5427b7d 100644
+--- bleach/_vendor/html5lib/html5parser.py
++++ bleach/_vendor/html5lib/html5parser.py
+@@ -1,5 +1,5 @@
+ from __future__ import absolute_import, division, unicode_literals
+-from six import with_metaclass, viewkeys
++from bleach.six_shim import viewkeys
+ 
+ import types
+ 
+@@ -423,7 +423,7 @@ def getPhases(debug):
+             return type
+ 
+     # pylint:disable=unused-argument
+-    class Phase(with_metaclass(getMetaclass(debug, log))):
++    class Phase(metaclass=getMetaclass(debug, log)):
+         """Base class for helper object that implements each phase of processing
+         """
+         __slots__ = ("parser", "tree", "__startTagCache", "__endTagCache")
+diff --git bleach/_vendor/html5lib/serializer.py bleach/_vendor/html5lib/serializer.py
+index c66df68..5666f49 100644
+--- bleach/_vendor/html5lib/serializer.py
++++ bleach/_vendor/html5lib/serializer.py
+@@ -1,5 +1,5 @@
+ from __future__ import absolute_import, division, unicode_literals
+-from six import text_type
++from bleach.six_shim import text_type
+ 
+ import re
+ 
+diff --git bleach/_vendor/html5lib/treebuilders/base.py bleach/_vendor/html5lib/treebuilders/base.py
+index e4a3d71..2869da0 100644
+--- bleach/_vendor/html5lib/treebuilders/base.py
++++ bleach/_vendor/html5lib/treebuilders/base.py
+@@ -1,5 +1,5 @@
+ from __future__ import absolute_import, division, unicode_literals
+-from six import text_type
++from bleach.six_shim import text_type
+ 
+ from ..constants import scopingElements, tableInsertModeElements, namespaces
+ 
+diff --git bleach/_vendor/html5lib/treebuilders/etree.py bleach/_vendor/html5lib/treebuilders/etree.py
+index 086bed4..5ccfc4d 100644
+--- bleach/_vendor/html5lib/treebuilders/etree.py
++++ bleach/_vendor/html5lib/treebuilders/etree.py
+@@ -1,7 +1,7 @@
+ from __future__ import absolute_import, division, unicode_literals
+ # pylint:disable=protected-access
+ 
+-from six import text_type
++from bleach.six_shim import text_type
+ 
+ import re
+ 
+diff --git bleach/_vendor/html5lib/treebuilders/etree_lxml.py bleach/_vendor/html5lib/treebuilders/etree_lxml.py
+index e73de61..f462232 100644
+--- bleach/_vendor/html5lib/treebuilders/etree_lxml.py
++++ bleach/_vendor/html5lib/treebuilders/etree_lxml.py
+@@ -28,7 +28,7 @@ from . import etree as etree_builders
+ from .. import _ihatexml
+ 
+ import lxml.etree as etree
+-from six import PY3, binary_type
++from bleach.six_shim import PY3, binary_type
+ 
+ 
+ fullTree = True
+diff --git bleach/_vendor/html5lib/treewalkers/etree.py bleach/_vendor/html5lib/treewalkers/etree.py
+index 4465337..a9d9450 100644
+--- bleach/_vendor/html5lib/treewalkers/etree.py
++++ bleach/_vendor/html5lib/treewalkers/etree.py
+@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, unicode_literals
+ from collections import OrderedDict
+ import re
+ 
+-from six import string_types
++from bleach.six_shim import string_types
+ 
+ from . import base
+ from .._utils import moduleFactoryFactory
+diff --git bleach/_vendor/html5lib/treewalkers/etree_lxml.py bleach/_vendor/html5lib/treewalkers/etree_lxml.py
+index a614ac5..ef42163 100644
+--- bleach/_vendor/html5lib/treewalkers/etree_lxml.py
++++ bleach/_vendor/html5lib/treewalkers/etree_lxml.py
+@@ -1,5 +1,5 @@
+ from __future__ import absolute_import, division, unicode_literals
+-from six import text_type
++from bleach.six_shim import text_type
+ 
+ from collections import OrderedDict
+ 
