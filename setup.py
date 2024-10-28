@@ -25,7 +25,6 @@ def get_version():
 
 INSTALL_REQUIRES = [
     # html5lib requirements
-    "six>=1.9.0",
     "webencodings",
 ]
 
