@@ -1,8 +1,8 @@
 Bleach changes
 ==============
 
-Version 6.2.0 (in development)
-------------------------------
+Version 6.2.0 (October 29th, 2024)
+----------------------------------
 **Backwards incompatible changes**
 
 * Dropped support for Python 3.8. (#737)
@@ -14,6 +14,9 @@ None
 **Bug fixes**
 
 * Add support for Python 3.13. (#736)
+* Remove six depdenncy. (#618)
+* Update known-good versions for tinycss2. (#732)
+* Fix additional < followed by characters and EOF issues. (#728)
 
 
 Version 6.1.0 (October 6th, 2023)
