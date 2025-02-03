@@ -58,7 +58,7 @@ def clean(
     :arg dict attributes: allowed attributes; can be a callable, list or dict;
         defaults to ``bleach.sanitizer.ALLOWED_ATTRIBUTES``
 
-    :arg list protocols: allowed list of protocols for links; defaults
+    :arg set protocols: set of allowed protocols for links; defaults
         to ``bleach.sanitizer.ALLOWED_PROTOCOLS``
 
     :arg bool strip: whether or not to strip disallowed elements
