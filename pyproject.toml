@@ -1,0 +1,53 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=77.0"]
+
+[project]
+name = "bleach"
+license = "Apache-2.0"
+license-files = [
+  "LICENSE",
+  "CONTRIBUTORS",
+  "bleach/_vendor/**/LICENSE",
+  "bleach/_vendor/**/AUTHORS.rst"
+]
+description = "An easy safelist-based HTML-sanitizing tool."
+maintainers = [{ name = "Will Kahn-Greene", email = "willkg@mozilla.com" }]
+requires-python = ">=3.9"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Web Environment",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+  # html5lib requirements
+  "webencodings",
+]
+dynamic = ["version", "readme"]
+
+[project.optional-dependencies]
+css = [
+  "tinycss2>=1.1.0,<1.5",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/mozilla/bleach"
+
+[tool.setuptools.dynamic]
+version = { attr = "bleach.__version__"}
+readme = { file = ["README.rst", "CHANGES"] }
+
+[tool.setuptools.packages.find]
+include = ["bleach*"]
