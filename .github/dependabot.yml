@@ -5,6 +5,4 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-    reviewers:
-      - "willkg"
     rebase-strategy: "disabled"
