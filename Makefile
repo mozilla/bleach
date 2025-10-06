@@ -12,17 +12,17 @@ test:  ## Run tests
 
 .PHONY: docs
 docs:  ## Build docs
-	tox -e py39-docs
+	tox -e py310-docs
 
 .PHONY: lint
 lint:  ## Lint files
-	tox exec -e py39-format-check -- black --target-version=py39 --exclude=_vendor setup.py bleach/ tests/ tests_website/
-	tox -e py39-lint
-	tox -e py39-format-check
+	tox exec -e py310-format-check -- black --target-version=py310 --exclude=_vendor setup.py bleach/ tests/ tests_website/
+	tox -e py310-lint
+	tox -e py310-format-check
 
 .PHONY: vendorverify
 vendorverify:  ## Verify vendored files
-	tox -e py39-vendorverify
+	tox -e py310-vendorverify
 
 .PHONY: clean
 clean:  ## Clean build artifacts
