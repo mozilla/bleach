@@ -1,0 +1,26 @@
+diff --git bleach/_vendor/html5lib/constants.py b/bleach/_vendor/html5lib/constants.py
+index fe3e237..11184e0 100644
+--- bleach/_vendor/html5lib/constants.py
++++ bleach/_vendor/html5lib/constants.py
+@@ -571,7 +571,8 @@ voidElements = frozenset([
+     "col",
+     "input",
+     "source",
+-    "track"
++    "track",
++    "wbr",
+ ])
+ 
+ cdataElements = frozenset(['title', 'textarea'])
+diff --git bleach/_vendor/html5lib/filters/sanitizer.py b/bleach/_vendor/html5lib/filters/sanitizer.py
+index 5c31e97..74a7c91 100644
+--- bleach/_vendor/html5lib/filters/sanitizer.py
++++ bleach/_vendor/html5lib/filters/sanitizer.py
+@@ -128,6 +128,7 @@ allowed_elements = frozenset((
+     (namespaces['html'], 'ul'),
+     (namespaces['html'], 'var'),
+     (namespaces['html'], 'video'),
++    (namespaces['html'], 'wbr'),
+     (namespaces['mathml'], 'maction'),
+     (namespaces['mathml'], 'math'),
+     (namespaces['mathml'], 'merror'),
