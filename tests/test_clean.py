@@ -736,12 +736,7 @@ def test_nonexistent_namespace():
             ),
         ),
         "track",
-        pytest.param(
-            "wbr",
-            marks=pytest.mark.xfail(
-                reason="https://github.com/mozilla/bleach/issues/488"
-            ),
-        ),
+        "wbr",
     ],
 )
 def test_self_closing_tags_self_close(tag):
