@@ -8,11 +8,9 @@ version: 2
 
 # Set the version of Python and other tools you might need
 build:
-  os: ubuntu-20.04
+  os: ubuntu-24.04
   tools:
-    # Build with 3.9 because this is the minimum version Sphinx 7 can work
-    # with.
-    python: "3.9"
+    python: "3.10"
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
