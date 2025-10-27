@@ -1,8 +1,26 @@
 Bleach changes
 ==============
 
+Version 6.3.0 (October 27th, 2025)
+----------------------------------
+
+**Backwards incompatible changes**
+
+* Dropped support for Python 3.9. (#756)
+
+**Security fixes**
+
+None
+
+**Bug fixes**
+
+* Add support for Python 3.14. (#758)
+* Fix wbr handling. (#488)
+
+
 Version 6.2.0 (October 29th, 2024)
 ----------------------------------
+
 **Backwards incompatible changes**
 
 * Dropped support for Python 3.8. (#737)
