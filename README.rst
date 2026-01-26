@@ -2,17 +2,14 @@
 Bleach
 ======
 
-.. image:: https://github.com/mozilla/bleach/workflows/Test/badge.svg
-   :target: https://github.com/mozilla/bleach/actions?query=workflow%3ATest
-
-.. image:: https://github.com/mozilla/bleach/workflows/Lint/badge.svg
-   :target: https://github.com/mozilla/bleach/actions?query=workflow%3ALint
-
-.. image:: https://badge.fury.io/py/bleach.svg
-   :target: http://badge.fury.io/py/bleach
-
 **NOTE: 2023-01-23: Bleach is deprecated.** See issue:
 `<https://github.com/mozilla/bleach/issues/698>`__
+
+.. image:: https://github.com/mozilla/bleach/actions/workflows/test.yml/badge.svg
+   :target: https://github.com/mozilla/bleach/actions/workflows/test.yml
+
+.. image:: https://img.shields.io/pypi/v/bleach
+   :target: https://pypi.org/project/bleach/
 
 Bleach is an allowed-list-based HTML sanitizing library that escapes or strips
 markup and attributes.
