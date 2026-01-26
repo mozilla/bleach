@@ -23,9 +23,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Get pip cache dir
+        shell: bash
         id: pip-cache
         run: |
-          echo "::set-output name=dir::$(pip cache dir)"
+          echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
