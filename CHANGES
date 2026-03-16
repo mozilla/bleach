@@ -1,6 +1,22 @@
 Bleach changes
 ==============
 
+Version 6.4.0 (TBD)
+-------------------
+
+**Backwards incompatible changes**
+
+* Dropped support for pypy 3.10. (#764)
+
+**Security fixes**
+
+None
+
+**Bug fixes**
+
+* Add support for pypy 3.11. (#764)
+
+
 Version 6.3.0 (October 27th, 2025)
 ----------------------------------
 
