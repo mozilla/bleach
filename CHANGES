@@ -16,6 +16,12 @@ None
 
 * Add support for pypy 3.11. (#764)
 
+* Drop version max in tinycss2 pin. (#772)
+
+  This removes one of the things we had to keep checking and updating. Users
+  now own the responsibility for correctness with the version of tinycss2
+  they're using.
+
 
 Version 6.3.0 (October 27th, 2025)
 ----------------------------------
