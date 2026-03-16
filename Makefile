@@ -14,11 +14,13 @@ test:  ## Run tests
 docs:  ## Build docs
 	tox -e py310-docs
 
+.PHONY: format
+format:  ## Format Python files
+	tox exec -e py310-lint -- ruff format --target-version=py310 --exclude=_vendor setup.py bleach/ tests/ tests_website/
+
 .PHONY: lint
 lint:  ## Lint files
-	tox exec -e py310-format-check -- black --target-version=py310 --exclude=_vendor setup.py bleach/ tests/ tests_website/
 	tox -e py310-lint
-	tox -e py310-format-check
 
 .PHONY: vendorverify
 vendorverify:  ## Verify vendored files

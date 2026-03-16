@@ -6,7 +6,6 @@ include LICENSE
 include Makefile
 include README.rst
 include requirements-dev.txt
-include requirements-flake8.txt
 include SECURITY.md
 include tox.ini
 
