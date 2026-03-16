@@ -416,11 +416,14 @@ def test_poster_attribute():
 
 def test_attributes_callable():
     """Verify attributes can take a callable"""
-    ATTRS = lambda tag, name, val: name == "title"
+
+    def attrs_fun(tag, name, val):
+        return name == "title"
+
     TAGS = {"a"}
 
     text = '<a href="/foo" title="blah">example</a>'
-    assert clean(text, tags=TAGS, attributes=ATTRS) == '<a title="blah">example</a>'
+    assert clean(text, tags=TAGS, attributes=attrs_fun) == '<a title="blah">example</a>'
 
 
 def test_attributes_wildcard():

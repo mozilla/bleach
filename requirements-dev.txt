@@ -1,9 +1,9 @@
 -e .
 
-black==24.4.2; implementation_name == 'cpython'
 build==1.2.1
 mypy==1.10.1; implementation_name =='cpython'
 pytest==8.2.2
+ruff==0.15.6; implementation_name == 'cpython'
 setuptools==80.7.1
 tox==4.16.0
 tox-gh-actions==3.2.0
