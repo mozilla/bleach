@@ -618,6 +618,22 @@ def test_attributes_list():
         # Disallowed protocols with sneaky character entities
         ('<a href="javas&#x09;cript:alert(1)">alert</a>', {}, "<a>alert</a>"),
         ('<a href="&#14;javascript:alert(1)">alert</a>', {}, "<a>alert</a>"),
+        # Disallowed protocols with Unicode characters injected
+        (
+            '<a href="javascript\u200b:alert(1)">alert</a>',
+            {"protocols": ALLOWED_PROTOCOLS},
+            "<a>alert</a>",
+        ),
+        (
+            '<a href="\ufeffjavascript:alert(1)">alert</a>',
+            {"protocols": ALLOWED_PROTOCOLS},
+            "<a>alert</a>",
+        ),
+        (
+            '<a href="javascript\u00ad:alert(1)">alert</a>',
+            {"protocols": ALLOWED_PROTOCOLS},
+            "<a>alert</a>",
+        ),
         # Checking the uri should change it at all
         (
             '<a href="http://example.com/?foo&nbsp;bar">foo</a>',

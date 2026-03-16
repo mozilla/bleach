@@ -10,7 +10,23 @@ Version 6.4.0 (TBD)
 
 **Security fixes**
 
-None
+* Fix bug 2023812 / GHSA-8rfp-98v4-mmr6.
+
+  Fix XSS issue with sanitize_uri_value where disallowed schemes with
+  Unicode invisible characters wouldn't be rejected.
+
+  For example::
+
+    import bleach
+    payload1 = '<a href="javascript\u200b:alert(document.cookie)">Click</a>'
+    result1 = bleach.clean(payload1)
+    print(repr(result1))
+
+  outputs::
+
+    '<a href="javascript\u200b:alert(document.cookie)">Click</a>'
+
+  See the advisory for details.
 
 **Bug fixes**
 
