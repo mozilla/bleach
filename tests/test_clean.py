@@ -171,6 +171,19 @@ def test_bare_entities_get_escaped_correctly(text, expected):
         ("<some thing thing", "&lt;some thing thing"),
         # this is an expected-end-of-tag-but-got-eof parser error
         ("<some thing thing2 ", "&lt;some thing thing2 "),
+        # handle invalid-character-in-attribute-name correctly tests
+        ("<tag <b><em>text</em></b> <a></a>", "&lt;tag <b><em>text</em></b> <a></a>"),
+        ("<foo <a>link text</a>", "&lt;foo <a>link text</a>"),
+        # keep the tag and add an end tag
+        ("<foo <b>", "&lt;foo <b></b>"),
+        # escape disallowed tags
+        ("<foo <p>text</p>", "&lt;foo &lt;p&gt;text&lt;/p&gt;"),
+        # keep tags with attributes
+        ('<foo <a href="x">text</a>', '&lt;foo <a href="x">text</a>'),
+        # multiple spaces
+        ("<foo   <a>link text</a>", "&lt;foo   <a>link text</a>"),
+        ("text <foo <b>text</b>", "text &lt;foo <b>text</b>"),
+        ("text <foo <bar <b>text</b>", "text &lt;foo &lt;bar <b>text</b>"),
     ],
 )
 def test_lessthan_escaping(text, expected):
