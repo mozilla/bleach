@@ -2,7 +2,7 @@
 
 build==1.2.1
 mypy==1.10.1; implementation_name =='cpython'
-pytest==8.2.2
+pytest==9.0.3
 ruff==0.15.6; implementation_name == 'cpython'
 setuptools==80.7.1
 tox==4.16.0
