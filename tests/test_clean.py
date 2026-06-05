@@ -427,6 +427,21 @@ def test_poster_attribute():
     assert clean(ok, tags=tags, attributes=attrs) == ok
 
 
+def test_formaction_attribute():
+    """formaction attributes should not allow javascript (GHSA-gj48-438w-jh9v)."""
+    tags = {"button", "input"}
+    attrs = {"button": ["formaction"], "input": ["formaction", "type"]}
+
+    test = '<button formaction="javascript:alert(1)">x</button>'
+    assert clean(test, tags=tags, attributes=attrs) == "<button>x</button>"
+
+    test = '<input type="submit" formaction="javascript:alert(1)">'
+    assert clean(test, tags=tags, attributes=attrs) == '<input type="submit">'
+
+    ok = '<button formaction="/foo">x</button>'
+    assert clean(ok, tags=tags, attributes=attrs) == ok
+
+
 def test_attributes_callable():
     """Verify attributes can take a callable"""
 

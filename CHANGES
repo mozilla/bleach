@@ -28,6 +28,12 @@ Version 6.4.0 (TBD)
 
   See the advisory for details.
 
+* Fix GHSA-gj48-438w-jh9v.
+
+  Fix issue where URI sanitization wasn't happening in formaction attributes.
+
+  See the advisory for details.
+
 **Bug fixes**
 
 * Add support for pypy 3.11. (#764)

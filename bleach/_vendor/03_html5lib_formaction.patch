@@ -1,0 +1,12 @@
+diff --git bleach/_vendor/html5lib/filters/sanitizer.py b/bleach/_vendor/html5lib/filters/sanitizer.py
+index a37c9d8..dd5a6a6 100644
+--- bleach/_vendor/html5lib/filters/sanitizer.py
++++ bleach/_vendor/html5lib/filters/sanitizer.py
+@@ -534,6 +534,7 @@ attr_val_is_uri = frozenset((
+     (None, 'dynsrc'),
+     (None, 'lowsrc'),
+     (None, 'ping'),
++    (None, 'formaction'),
+     (namespaces['xlink'], 'href'),
+     (namespaces['xml'], 'base'),
+ ))
