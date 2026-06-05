@@ -55,7 +55,7 @@ setup(
     install_requires=INSTALL_REQUIRES,
     extras_require=EXTRAS_REQUIRE,
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 7 - Inactive",
         "Environment :: Web Environment",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",

@@ -2,17 +2,9 @@
 Bleach
 ======
 
-.. image:: https://github.com/mozilla/bleach/workflows/Test/badge.svg
-   :target: https://github.com/mozilla/bleach/actions?query=workflow%3ATest
-
-.. image:: https://github.com/mozilla/bleach/workflows/Lint/badge.svg
-   :target: https://github.com/mozilla/bleach/actions?query=workflow%3ALint
-
-.. image:: https://badge.fury.io/py/bleach.svg
-   :target: http://badge.fury.io/py/bleach
-
-**NOTE: 2023-01-23: Bleach is deprecated.** See issue:
-`<https://github.com/mozilla/bleach/issues/698>`__
+**NOTE: 2026-06-05: Bleach is no longer maintained. There will be no future
+releases including for security issues.**
+See issue: `<https://github.com/mozilla/bleach/issues/698>`__
 
 Bleach is an allowed-list-based HTML sanitizing library that escapes or strips
 markup and attributes.

@@ -1,18 +1,21 @@
+**NOTE: 2026-06-05: Bleach is no longer maintained. There will be no future
+releases including for security issues.**
+See issue: https://github.com/mozilla/bleach/issues/698
+
 Bleach was originally written and maintained by James Socol and various
 contributors within and without the Mozilla Corporation and Foundation.
 
-It is currently maintained by Will Kahn-Greene, Greg Guthe, and Jon Dufresne.
-
 Maintainers:
 
-- Will Kahn-Greene <willkg@mozilla.com>
-- Greg Guthe <gguthe@mozilla.com>
-- Jon Dufresne <jon.dufresne@gmail.com>
+None
 
 Maintainer emeritus:
 
 - Jannis Leidel <jleidel@mozilla.com>
 - James Socol <me@jamessocol.com>
+- Greg Guthe <gguthe@mozilla.com>
+- Jon Dufresne <jon.dufresne@gmail.com>
+- Will Kahn-Greene <willkg@mozilla.com>
 
 Contributors:
 

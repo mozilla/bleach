@@ -4,6 +4,10 @@ Bleach changes
 Version 6.4.0 (TBD)
 -------------------
 
+**NOTE: 2026-06-05: Bleach is no longer maintained. There will be no future
+releases including for security issues.**
+See issue: `<https://github.com/mozilla/bleach/issues/698>`__
+
 **Backwards incompatible changes**
 
 * Dropped support for pypy 3.10. (#764)
